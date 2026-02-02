@@ -1,0 +1,5 @@
+Django>=5.0
+graphene-django
+psycopg2-binary
+django-environ
+gunicorn
