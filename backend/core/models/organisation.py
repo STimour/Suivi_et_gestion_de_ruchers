@@ -26,7 +26,7 @@ class Rucher(models.Model):
     flore = models.CharField(max_length=20, choices=TypeFlore.choices)
     altitude = models.IntegerField()
     notes = models.TextField(blank=True)
-    possesseur = models.ForeignKey('Utilisateur', on_delete=models.CASCADE, related_name='ruchers')
+    entreprise = models.ForeignKey('Entreprise', on_delete=models.CASCADE, related_name='ruchers', null=True, blank=True)
 
     class Meta:
         db_table = 'ruchers'

@@ -5,6 +5,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-dev-key-change-in-production'
 
+JWT_SECRET = os.getenv('JWT_SECRET', SECRET_KEY)
+
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
