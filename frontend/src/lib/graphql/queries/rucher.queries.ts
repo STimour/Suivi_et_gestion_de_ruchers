@@ -11,6 +11,10 @@ export const GET_RUCHERS = gql`
       flore
       altitude
       notes
+      ruches {
+        id
+        immatriculation
+      }
     }
   }
 `;
