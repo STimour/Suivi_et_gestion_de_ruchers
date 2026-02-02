@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Hexagon, MapPin, LineChart, Bell, Smartphone } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -25,9 +26,11 @@ export default function Home() {
           Plateforme moderne pour la gestion professionnelle de vos ruchers, ruches et interventions apicoles
         </p>
         <div className="flex gap-4 justify-center">
-          <Button size="lg" className="gap-2 bg-amber-500 hover:bg-amber-600 text-white">
-            Commencer
-          </Button>
+          <Link href="/login">
+            <Button size="lg" className="gap-2 bg-amber-500 hover:bg-amber-600 text-white">
+              Commencer
+            </Button>
+          </Link>
           <Button size="lg" variant="outline" className="border-green-600 text-green-700 hover:bg-green-600 hover:text-white">
             En savoir plus
           </Button>
