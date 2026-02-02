@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Poppins, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import { ApolloWrapper } from "@/lib/graphql/apollo-provider";
+import { Toaster } from "@/components/ui/sonner";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -30,7 +32,8 @@ export default function RootLayout({
       <body
         className={`${poppins.variable} ${jetbrainsMono.variable} font-sans antialiased`}
       >
-        {children}
+        <ApolloWrapper>{children}</ApolloWrapper>
+        <Toaster />
       </body>
     </html>
   );

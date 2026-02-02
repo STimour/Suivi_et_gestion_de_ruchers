@@ -1,12 +1,22 @@
+'use client';
+
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Hexagon } from "lucide-react";
 
 export default function LoginPage() {
+  const router = useRouter();
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Pour l'instant, on redirige directement vers le dashboard
+    // L'authentification sera implémentée plus tard
+    router.push('/dashboard');
+  };
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-yellow-50 to-green-50 flex items-center justify-center p-4">
       <Card className="w-full max-w-md shadow-xl">
@@ -29,7 +39,7 @@ export default function LoginPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <form className="space-y-4">
+          <form className="space-y-4" onSubmit={handleSubmit}>
             <div className="space-y-2">
               <Label htmlFor="email" className="text-amber-900">Email</Label>
               <Input
