@@ -31,10 +31,10 @@ services:
       HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_GRAPHQL_ADMIN_SECRET}
 
   django:
-    build: ./backend
+    build: ./
     command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     volumes:
-      - ./backend/app:/app
+      - ./:/app
     ports:
       - "8000:8000"
     depends_on:
@@ -42,9 +42,9 @@ services:
         condition: service_healthy
     environment:
       DATABASE_HOST: postgres
-      DATABASE_NAME: apiculture
-      DATABASE_USER: postgres
-      DATABASE_PASSWORD: postgres
+      DATABASE_NAME: ${POSTGRES_DB}
+      DATABASE_USER: ${POSTGRES_USER}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
 
 volumes:
   postgres_data:

@@ -1,27 +1,35 @@
-```mermaid
 classDiagram
- 
+
+%% =========================
+%% Utilisateurs
+%% =========================
+
+class Utilisateur:::mainclass {
+  +id: UUID
+  +nom: String
+  +prenom: String
+  +email: String
+  +motDePasseHash: String
+  +role: RoleUtilisateur
+  +dateCreation: DateTime
+  +actif: Boolean
+}
+
 %% =========================
 %% Organisation & Structure
 %% =========================
- 
-class Rucher {
+
+class Rucher:::mainclass {
   +id: UUID
   +nom: String
   +latitude: Float
   +longitude: Float
-  +flore: String
+  +flore: TypeFlore
   +altitude: Integer
   +notes: Text
 }
- 
-class Cheptel {
-  +id: UUID
-  +nom: String
-  +notes: Text
-}
- 
-class Ruche {
+
+class Ruche:::mainclass {
   +id: UUID
   +immatriculation: String
   +type: String
@@ -29,8 +37,8 @@ class Ruche {
   +statut: StatutRuche
   +securisee: Boolean
 }
- 
-class Reine {
+
+class Reine:::mainclass {
   +id: UUID
   +anneeNaissance: Integer
   +codeCouleur: String
@@ -39,123 +47,145 @@ class Reine {
   +commentaire: Text
   +nonReproductible: Boolean
 }
- 
+
 %% =========================
 %% Suivi & Interventions
 %% =========================
- 
-class Intervention {
+
+class Intervention:::mainclass {
   +id: UUID
   +type: TypeIntervention
   +date: Date
   +observations: Text
-}
- 
-class Traitement {
-  +id: UUID
   +produit: String
-  +date: Date
   +dosage: String
-  +notes: Text
-}
- 
-class Recolte {
-  +id: UUID
-  +date: Date
   +nbHausses: Integer
   +poidsKg: Float
-  +notes: Text
 }
- 
+
 %% =========================
 %% Transhumance & Sécurité
 %% =========================
- 
-class Transhumance {
+
+class Transhumance:::mainclass {
   +id: UUID
   +date: Date
   +origineLat: Float
   +origineLng: Float
   +destinationLat: Float
   +destinationLng: Float
-  +floreCible: String
+  +floreCible: TypeFlore
 }
- 
-class TraceurGPS {
-  +id: UUID
-  +identifiant: String
-  +actif: Boolean
-}
- 
-class Alerte {
-  +id: UUID
-  +type: String
-  +date: DateTime
-  +message: String
-  +acquittee: Boolean
-}
- 
+
 %% =========================
 %% IoT Monitoring
 %% =========================
- 
-class Capteur {
+
+class Capteur:::mainclass {
   +id: UUID
   +type: TypeCapteur
   +identifiant: String
   +actif: Boolean
+  +batteriePct: Float
+  +derniereCommunication: DateTime
 }
- 
-class Mesure {
+
+class Mesure:::mainclass {
   +id: UUID
   +date: DateTime
   +valeur: Float
 }
- 
+
+class Alerte:::mainclass {
+  +id: UUID
+  +type: TypeAlerte
+  +date: DateTime
+  +message: String
+  +acquittee: Boolean
+}
+
 %% =========================
 %% Relations
 %% =========================
- 
-Rucher "1" --> "0..*" Cheptel : contient
-Cheptel "1" --> "1..*" Ruche : regroupe
- 
+
+Utilisateur "1" --> "0..*" Rucher : possede
+
+Rucher "1" --> "1..*" Ruche : contient
+Rucher "1" --> "0..*" Transhumance : deplace
+
 Ruche "1" --> "0..1" Reine : possede
 Ruche "1" --> "0..*" Intervention : historique
-Ruche "1" --> "0..*" Recolte : produit
-Ruche "1" --> "0..*" Traitement : recoit
- 
-Cheptel "1" --> "0..*" Transhumance : deplace
- 
-Ruche "1" --> "0..1" TraceurGPS : securise
-TraceurGPS "1" --> "0..*" Alerte : declenche
- 
 Ruche "1" --> "0..*" Capteur : equipe
+
 Capteur "1" --> "0..*" Mesure : genere
- 
+Capteur "1" --> "0..*" Alerte : declenche
+
 %% =========================
 %% Enums
 %% =========================
- 
-class StatutRuche {
+
+class StatutRuche:::enumclass {
   <<enumeration>>
   Active
+  Faible
   Malade
   Morte
 }
- 
-class TypeIntervention {
+
+class TypeIntervention:::enumclass {
   <<enumeration>>
   Visite
   Nourrissement
   Traitement
   Recolte
+  Division
+  PoseHausse
+  ControleSanitaire
 }
- 
-class TypeCapteur {
+
+class TypeCapteur:::enumclass {
   <<enumeration>>
   Poids
   Temperature
   Humidite
+  GPS
+  CO2
+  Son
+  Batterie
 }
- 
-```
+
+class TypeAlerte:::enumclass {
+  <<enumeration>>
+  Vol
+  ChutePoids
+  TemperatureCritique
+  BatterieFaible
+  DeplacementGPS
+  HorsLigne
+}
+
+class TypeFlore:::enumclass {
+  <<enumeration>>
+  Acacia
+  Colza
+  Lavande
+  Tournesol
+  Chataignier
+  Bruyere
+  Montagne
+  ToutesFleurs
+}
+
+class RoleUtilisateur:::enumclass {
+  <<enumeration>>
+  Admin
+  Apiculteur
+  Lecteur
+}
+
+%% =========================
+%% Définition des couleurs
+%% =========================
+
+classDef mainclass fill:#FFA500,stroke:#BC7000,stroke-width:2px,color:#222;
+classDef enumclass fill:#009EE0,stroke:#003355,stroke-width:2px,color:#fff;
