@@ -37,11 +37,53 @@ Cette application aide les apiculteurs à digitaliser la gestion de leurs rucher
 ## 🚀 Installation
 
 ### Prérequis
+- Docker & Docker Compose
+- Git
+
+### Installation rapide avec Docker
+
+1. **Cloner le projet**
+```bash
+git clone https://github.com/STimour/Suivi_et_gestion_de_ruchers.git
+cd Suivi_et_gestion_de_ruchers
+cd backend
+```
+
+2. **Configurer l'environnement**
+```bash
+cp .env.example .env
+# Éditer .env avec vos propres valeurs (mots de passe, secrets)
+```
+
+3. **Démarrer les services**
+```bash
+docker compose up -d
+```
+
+4. **Appliquer les migrations**
+```bash
+docker compose exec django python manage.py migrate
+```
+
+5. **Créer un superutilisateur**
+```bash
+docker compose exec django python manage.py createsuperuser
+```
+
+### Accès aux services
+
+- **Application Django** : http://localhost:8000
+- **Admin Django** : http://localhost:8000/admin
+- **Console Hasura** : http://localhost:8081/console
+- **GraphQL Hasura** : http://localhost:8081/v1/graphql
+
+### Installation manuelle (développement)
+
+#### Prérequis
 - Python 3.11+
-- Node.js 18+
 - PostgreSQL 15+
 
-### Backend
+#### Backend
 ```bash
 cd backend
 pip install -r requirements.txt
@@ -49,33 +91,16 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-### Frontend
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-L'application sera accessible sur `http://localhost:3000`
+L'application sera accessible sur `http://localhost:8000`
 
 ## 📁 Structure
 
 ```
 ├── backend/          # API Django + GraphQL
-│   ├── apps/         # Modules métier (ruchers, ruches, interventions...)
+│   ├── app/         # Modules métier (ruchers, ruches, interventions...)
 │   └── config/       # Configuration Django
-├── frontend/         # Interface Next.js
-│   ├── src/app/      # Pages et routes
-│   ├── components/   # Composants UI
-│   └── lib/          # GraphQL queries/mutations
 ```
 
-## 👥 Équipe
-
-- **Chef de projet** : Sayfoutdinov Timour
-- **Frontend** : Joly Dorian
-- **Backend** : Gesse Corentin
-- **DevOps** : Ait Ouarab Mélissa
 
 ## 📄 Licence
 
