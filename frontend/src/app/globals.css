@@ -1,0 +1,253 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  /* Typography */
+  --font-sans: Inter, ui-sans-serif, s:root {
+  --radius: 0.625rem;
+  
+  /* Fond crème/écru */
+  --background: 48 100% 98%; /* Crème très léger */
+  --foreground: 28 60% 20%; /* Brun miel foncé */
+  
+  /* Cards */
+  --card: 0 0% 100%;
+  --card-foreground: 28 60% 20%;
+  
+  --popover: 0 0% 100%;
+  --popover-foreground: 28 60% 20%;
+
+  /* Primary = Miel/Ambre */
+  --primary: 38 92% 50%; /* Jaune doré miel */
+  --primary-foreground: 0 0% 100%;
+
+  /* Secondary = Vert nature */
+  --secondary: 142 71% 35%; /* Vert forêt */
+  --secondary-foreground: 0 0% 100%;
+
+  /* Muted = Tons miel doux */
+  --muted: 45 40% 92%;
+  --muted-foreground: 28 40% 45%;
+
+  /* Accent = Miel clair */
+  --accent: 45 80% 90%;
+  --accent-foreground: 28 60% 25%;
+
+  /* Destructive */
+  --destructive: 0 84% 60%;
+
+  /* Borders */
+  --border: 45 30% 85%;
+  --input: 45 30% 85%;
+  --ring: 38 92% 50%;
+
+  /* Charts */
+  --chart-1: 38 92% 50%; /* Miel */
+  --chart-2: 142 71% 35%; /* Vert */
+  --chart-3: 28 87% 42%; /* Ambre foncé */
+  --chart-4: 45 93% 58%; /* Jaune clair */
+  --chart-5: 17 88% 53%; /* Orange */
+
+  /* Sidebar */
+  --sidebar: 45 40% 96%;
+  --sidebar-foreground: 28 60% 20%;
+  --sidebar-primary: 38 92% 50%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 45 60% 90%;
+  --sidebar-accent-foreground: 28 60% 25%;
+  --sidebar-border: 45 30% 85%;
+  --sidebar-ring: 38 92% 50%;
+}ystem-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* Sidebar */
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+
+  /* Charts */
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+
+  /* Base Colors */
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+
+  /* Honey & Nature Custom Colors */
+  --color-honey-600: var(--honey-600);
+  --color-forest-600: var(--forest-600);
+  --color-alert-orange: var(--alert-orange);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+
+  /* Queen Colors */
+  --color-queen-white: var(--queen-white);
+  --color-queen-yellow: var(--queen-yellow);
+  --color-queen-red: var(--queen-red);
+  --color-queen-green: var(--queen-green);
+  --color-queen-blue: var(--queen-blue);
+
+  /* Border Radius */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+}
+
+:root {
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+
+  /* Honey & Nature - Primary Colors (Honey Tones) */
+  --primary: 38 96% 49%; /* #e88c0e - Honey 500 */
+  --primary-foreground: 0 0% 100%;
+  --honey-600: 28 87% 42%; /* #cc6909 - Darker honey */
+
+  /* Honey & Nature - Secondary Colors (Nature/Forest) */
+  --secondary: 142 71% 45%; /* #22c55e - Forest 500 */
+  --secondary-foreground: 0 0% 100%;
+  --forest-600: 142 76% 36%; /* #16a34a */
+
+  /* Status & Alert Colors */
+  --destructive: 0 84% 60%; /* #ef4444 - Red for dead/sick */
+  --alert-orange: 17 88% 53%; /* #f97316 - Warning */
+
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: 38 96% 49%; /* Match primary honey color */
+
+  /* Queen Color Codes (International Standard) */
+  --queen-white: 0 0% 100%; /* Years 1, 6 */
+  --queen-yellow: 45 93% 58%; /* #fbbf24 - Years 2, 7 */
+  --queen-red: 0 84% 60%; /* #ef4444 - Years 3, 8 */
+  --queen-green: 142 71% 45%; /* #22c55e - Years 4, 9 */
+  --queen-blue: 217 91% 60%; /* #3b82f6 - Years 5, 0 */
+
+  /* Chart Colors - Nature Inspired */
+  --chart-1: 38 96% 49%; /* Honey */
+  --chart-2: 142 71% 45%; /* Forest Green */
+  --chart-3: 217 91% 60%; /* Sky Blue */
+  --chart-4: 45 93% 58%; /* Golden Yellow */
+  --chart-5: 17 88% 53%; /* Orange */
+
+  /* Sidebar */
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: 38 96% 49%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: 38 96% 49%;
+
+  /* Success Color */
+  --success: 142 71% 45%; /* Forest Green */
+  --success-foreground: 0 0% 100%;
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+
+  /* Honey & Nature - Primary Colors (Honey Tones) */
+  --primary: 38 96% 56%; /* Lighter honey for dark mode */
+  --primary-foreground: 0 0% 0%;
+  --honey-600: 28 87% 42%;
+
+  /* Honey & Nature - Secondary Colors (Nature/Forest) */
+  --secondary: 142 71% 50%; /* Lighter forest for dark mode */
+  --secondary-foreground: 0 0% 0%;
+  --forest-600: 142 76% 36%;
+
+  /* Status & Alert Colors */
+  --destructive: 0 84% 65%; /* Lighter red for dark mode */
+  --alert-orange: 17 88% 58%;
+
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: 38 96% 56%;
+
+  /* Queen Color Codes - Same in dark mode */
+  --queen-white: 0 0% 100%;
+  --queen-yellow: 45 93% 58%;
+  --queen-red: 0 84% 60%;
+  --queen-green: 142 71% 45%;
+  --queen-blue: 217 91% 60%;
+
+  /* Chart Colors */
+  --chart-1: 38 96% 56%;
+  --chart-2: 142 71% 50%;
+  --chart-3: 217 91% 65%;
+  --chart-4: 45 93% 63%;
+  --chart-5: 17 88% 58%;
+
+  /* Sidebar */
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: 38 96% 56%;
+  --sidebar-primary-foreground: 0 0% 0%;
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: 38 96% 56%;
+
+  /* Success Color */
+  --success: 142 71% 50%;
+  --success-foreground: 0 0% 0%;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
