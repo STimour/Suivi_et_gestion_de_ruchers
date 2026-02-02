@@ -1,6 +1,7 @@
 'use client';
 
 import { useQuery } from '@apollo/client/react';
+import dynamic from 'next/dynamic';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -11,6 +12,27 @@ import { GET_RUCHES } from '@/lib/graphql/queries/ruche.queries';
 import { CreateRucherDialog } from '@/components/rucher/CreateRucherDialog';
 import { CreateRucheDialog } from '@/components/ruche/CreateRucheDialog';
 import Link from "next/link";
+
+// Charger la carte uniquement côté client pour éviter les erreurs SSR
+const RuchersMap = dynamic(
+  () => import('@/components/rucher/RuchersMap').then((mod) => mod.RuchersMap),
+  {
+    ssr: false,
+    loading: () => (
+      <Card className="border-amber-200">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-amber-900">
+            <MapPin className="h-5 w-5" />
+            Carte des ruchers
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Skeleton className="h-[400px] w-full rounded-lg" />
+        </CardContent>
+      </Card>
+    )
+  }
+);
 
 export default function DashboardPage() {
   const { data: ruchersData, loading: ruchersLoading, error: ruchersError } = useQuery<any>(GET_RUCHERS);
@@ -269,6 +291,9 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Carte des ruchers */}
+      <RuchersMap ruchers={ruchersData?.ruchers || []} loading={ruchersLoading} />
     </div>
   );
 }
