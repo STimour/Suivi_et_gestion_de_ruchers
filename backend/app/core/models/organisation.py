@@ -28,6 +28,11 @@ class Rucher(models.Model):
     notes = models.TextField(blank=True)
     possesseur = models.ForeignKey('Utilisateur', on_delete=models.CASCADE, related_name='ruchers')
 
+    class Meta:
+        db_table = 'ruchers'
+        verbose_name = 'Rucher'
+        verbose_name_plural = 'Ruchers'
+
     def __str__(self):
         return self.nom
 
@@ -41,6 +46,11 @@ class Ruche(models.Model):
     rucher = models.ForeignKey(Rucher, on_delete=models.CASCADE, related_name='ruches')
     reine = models.OneToOneField('Reine', on_delete=models.SET_NULL, null=True, blank=True, related_name='ruche')
 
+    class Meta:
+        db_table = 'ruches'
+        verbose_name = 'Ruche'
+        verbose_name_plural = 'Ruches'
+
     def __str__(self):
         return self.immatriculation
 
@@ -52,6 +62,11 @@ class Reine(models.Model):
     noteDouceur = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)])
     commentaire = models.TextField(blank=True)
     nonReproductible = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = 'reines'
+        verbose_name = 'Reine'
+        verbose_name_plural = 'Reines'
 
     def __str__(self):
         return f"Reine {self.codeCouleur} ({self.anneeNaissance})"

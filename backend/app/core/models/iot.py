@@ -19,6 +19,11 @@ class Capteur(models.Model):
     derniereCommunication = models.DateTimeField(null=True, blank=True)
     ruche = models.ForeignKey('Ruche', on_delete=models.CASCADE, related_name='capteurs')
 
+    class Meta:
+        db_table = 'capteurs'
+        verbose_name = 'Capteur'
+        verbose_name_plural = 'Capteurs'
+
     def __str__(self):
         return f"{self.type} - {self.identifiant}"
 
@@ -27,6 +32,11 @@ class Mesure(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     valeur = models.FloatField()
     capteur = models.ForeignKey(Capteur, on_delete=models.CASCADE, related_name='mesures')
+
+    class Meta:
+        db_table = 'mesures'
+        verbose_name = 'Mesure'
+        verbose_name_plural = 'Mesures'
 
     def __str__(self):
         return f"{self.capteur.type}: {self.valeur} ({self.date})"

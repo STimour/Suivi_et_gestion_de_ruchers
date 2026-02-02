@@ -10,7 +10,12 @@ class Transhumance(models.Model):
     destinationLat = models.FloatField()
     destinationLng = models.FloatField()
     floreCible = models.CharField(max_length=20, choices=TypeFlore.choices)
-    rucher = models.ForeignKey(Rucher, on_delete=models.CASCADE, related_name='transhumances')
+    rucher = models.ForeignKey('Rucher', on_delete=models.CASCADE, related_name='transhumances')
+
+    class Meta:
+        db_table = 'transhumances'
+        verbose_name = 'Transhumance'
+        verbose_name_plural = 'Transhumances'
 
     def __str__(self):
         return f"Transhumance du {self.date} - {self.rucher.nom}"
@@ -30,6 +35,11 @@ class Alerte(models.Model):
     message = models.TextField()
     acquittee = models.BooleanField(default=False)
     capteur = models.ForeignKey('Capteur', on_delete=models.CASCADE, related_name='alertes')
+
+    class Meta:
+        db_table = 'alertes'
+        verbose_name = 'Alerte'
+        verbose_name_plural = 'Alertes'
 
     def __str__(self):
         return f"Alerte {self.type} - {self.date}"

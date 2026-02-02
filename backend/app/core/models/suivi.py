@@ -22,5 +22,10 @@ class Intervention(models.Model):
     poidsKg = models.FloatField(validators=[MinValueValidator(0.0)], null=True, blank=True)
     ruche = models.ForeignKey('Ruche', on_delete=models.CASCADE, related_name='interventions')
 
+    class Meta:
+        db_table = 'interventions'
+        verbose_name = 'Intervention'
+        verbose_name_plural = 'Interventions'
+
     def __str__(self):
         return f"{self.type} - {self.ruche.immatriculation} ({self.date})"

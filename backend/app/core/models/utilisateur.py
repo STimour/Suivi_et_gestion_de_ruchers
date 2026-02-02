@@ -16,5 +16,10 @@ class Utilisateur(models.Model):
     dateCreation = models.DateTimeField(auto_now_add=True)
     actif = models.BooleanField(default=True)
 
+    class Meta:
+        db_table = 'utilisateurs'
+        verbose_name = 'Utilisateur'
+        verbose_name_plural = 'Utilisateurs'
+
     def __str__(self):
         return f"{self.prenom} {self.nom}"
