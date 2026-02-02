@@ -1,0 +1,35 @@
+from django.db import models
+import uuid
+from .organisation import TypeFlore
+
+class Transhumance(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    date = models.DateField()
+    origineLat = models.FloatField()
+    origineLng = models.FloatField()
+    destinationLat = models.FloatField()
+    destinationLng = models.FloatField()
+    floreCible = models.CharField(max_length=20, choices=TypeFlore.choices)
+    rucher = models.ForeignKey(Rucher, on_delete=models.CASCADE, related_name='transhumances')
+
+    def __str__(self):
+        return f"Transhumance du {self.date} - {self.rucher.nom}"
+
+class TypeAlerte(models.TextChoices):
+    VOL = 'Vol', 'Vol'
+    CHUTE_POIDS = 'ChutePoids', 'ChutePoids'
+    TEMPERATURE_CRITIQUE = 'TemperatureCritique', 'TemperatureCritique'
+    BATTERIE_FAIBLE = 'BatterieFaible', 'BatterieFaible'
+    DEPLACEMENT_GPS = 'DeplacementGPS', 'DeplacementGPS'
+    HORS_LIGNE = 'HorsLigne', 'HorsLigne'
+
+class Alerte(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    type = models.CharField(max_length=30, choices=TypeAlerte.choices)
+    date = models.DateTimeField(auto_now_add=True)
+    message = models.TextField()
+    acquittee = models.BooleanField(default=False)
+    capteur = models.ForeignKey('Capteur', on_delete=models.CASCADE, related_name='alertes')
+
+    def __str__(self):
+        return f"Alerte {self.type} - {self.date}"
