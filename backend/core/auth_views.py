@@ -148,7 +148,7 @@ def register(request):
     # Récupérer les entreprises de l'utilisateur (au cas où il en a déjà via invitation)
     user_entreprises = UtilisateurEntreprise.objects.filter(
         utilisateur=user
-    ).select_related("entreprise")
+    ).select_related("entreprise").order_by("-dateAjout", "-id")
 
     # Contexte entreprise par défaut pour le JWT : première entreprise si existante
     default_entreprise_id = user_entreprises[0].entreprise_id if user_entreprises else None
@@ -208,7 +208,7 @@ def login(request):
     # Récupérer les entreprises et rôles de l'utilisateur
     user_entreprises = UtilisateurEntreprise.objects.filter(
         utilisateur=user
-    ).select_related("entreprise")
+    ).select_related("entreprise").order_by("-dateAjout", "-id")
 
     default_entreprise_id = user_entreprises[0].entreprise_id if user_entreprises else None
 
@@ -357,6 +357,47 @@ def accept_invitation(request):
                 "id": str(user.id),
                 "email": user.email,
                 "entreprises": entreprises_data,
+            },
+        },
+        status=200,
+    )
+
+
+@csrf_exempt
+def switch_entreprise(request):
+    """POST /api/auth/switch-entreprise - Retourne un token pour une autre entreprise."""
+    if request.method != "POST":
+        return JsonResponse({"error": "method_not_allowed"}, status=405)
+
+    user, err = _get_user_from_request(request)
+    if err:
+        return err
+
+    data = _json_body(request)
+    if data is None:
+        return JsonResponse({"error": "invalid_json"}, status=400)
+
+    entreprise_id = (data.get("entreprise_id") or "").strip()
+    if not entreprise_id:
+        return JsonResponse({"error": "missing_fields", "detail": "entreprise_id requis"}, status=400)
+
+    # Vérifier que l'utilisateur appartient bien à l'entreprise
+    try:
+        user_entreprise = UtilisateurEntreprise.objects.select_related("entreprise").get(
+            utilisateur=user,
+            entreprise_id=entreprise_id,
+        )
+    except UtilisateurEntreprise.DoesNotExist:
+        return JsonResponse({"error": "not_in_entreprise"}, status=403)
+
+    token = _make_access_token(user, entreprise_id=entreprise_id)
+    return JsonResponse(
+        {
+            "access_token": token,
+            "entreprise": {
+                "id": str(user_entreprise.entreprise.id),
+                "nom": user_entreprise.entreprise.nom,
+                "role": user_entreprise.role,
             },
         },
         status=200,
