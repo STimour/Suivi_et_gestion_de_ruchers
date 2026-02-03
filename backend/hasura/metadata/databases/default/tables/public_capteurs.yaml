@@ -1,0 +1,219 @@
+table:
+  name: capteurs
+  schema: public
+object_relationships:
+  - name: ruch
+    using:
+      foreign_key_constraint_on: ruche_id
+array_relationships:
+  - name: alertes
+    using:
+      foreign_key_constraint_on:
+        column: capteur_id
+        table:
+          name: alertes
+          schema: public
+  - name: mesures
+    using:
+      foreign_key_constraint_on:
+        column: capteur_id
+        table:
+          name: mesures
+          schema: public
+insert_permissions:
+  - role: AdminEntreprise
+    permission:
+      check:
+        _and:
+          - ruch:
+              rucher:
+                entreprise_id:
+                  _eq: X-Hasura-Entreprise-Id
+          - ruch:
+              rucher:
+                entreprise:
+                  utilisateurs_entreprises:
+                    utilisateur_id:
+                      _eq: X-Hasura-User-Id
+      columns:
+        - type
+        - identifiant
+        - actif
+        - batteriePct
+        - derniereCommunication
+        - id
+        - ruche_id
+    comment: Vérification des limites via trigger PostgreSQL
+  - role: Apiculteur
+    permission:
+      check:
+        _and:
+          - ruch:
+              rucher:
+                entreprise_id:
+                  _eq: X-Hasura-Entreprise-Id
+          - ruch:
+              rucher:
+                entreprise:
+                  utilisateurs_entreprises:
+                    utilisateur_id:
+                      _eq: X-Hasura-User-Id
+      columns:
+        - type
+        - identifiant
+        - actif
+        - batteriePct
+        - derniereCommunication
+        - id
+        - ruche_id
+    comment: Vérification des limites via trigger PostgreSQL
+select_permissions:
+  - role: AdminEntreprise
+    permission:
+      columns:
+        - type
+        - identifiant
+        - actif
+        - batteriePct
+        - derniereCommunication
+        - id
+        - ruche_id
+      filter:
+        _and:
+          - ruch:
+              rucher:
+                entreprise_id:
+                  _eq: X-Hasura-Entreprise-Id
+          - ruch:
+              rucher:
+                entreprise:
+                  utilisateurs_entreprises:
+                    utilisateur_id:
+                      _eq: X-Hasura-User-Id
+    comment: ""
+  - role: Apiculteur
+    permission:
+      columns:
+        - type
+        - identifiant
+        - actif
+        - batteriePct
+        - derniereCommunication
+        - id
+        - ruche_id
+      filter:
+        _and:
+          - ruch:
+              rucher:
+                entreprise_id:
+                  _eq: X-Hasura-Entreprise-Id
+          - ruch:
+              rucher:
+                entreprise:
+                  utilisateurs_entreprises:
+                    utilisateur_id:
+                      _eq: X-Hasura-User-Id
+    comment: ""
+  - role: Lecteur
+    permission:
+      columns:
+        - type
+        - identifiant
+        - actif
+        - batteriePct
+        - derniereCommunication
+        - id
+        - ruche_id
+      filter:
+        _and:
+          - ruch:
+              rucher:
+                entreprise_id:
+                  _eq: X-Hasura-Entreprise-Id
+          - ruch:
+              rucher:
+                entreprise:
+                  utilisateurs_entreprises:
+                    utilisateur_id:
+                      _eq: X-Hasura-User-Id
+    comment: ""
+update_permissions:
+  - role: AdminEntreprise
+    permission:
+      columns:
+        - type
+        - identifiant
+        - actif
+        - batteriePct
+        - derniereCommunication
+        - id
+        - ruche_id
+      filter:
+        _and:
+          - ruch:
+              rucher:
+                entreprise_id:
+                  _eq: X-Hasura-Entreprise-Id
+          - ruch:
+              rucher:
+                entreprise:
+                  utilisateurs_entreprises:
+                    utilisateur_id:
+                      _eq: X-Hasura-User-Id
+      check: null
+    comment: ""
+  - role: Apiculteur
+    permission:
+      columns:
+        - type
+        - identifiant
+        - actif
+        - batteriePct
+        - derniereCommunication
+        - id
+        - ruche_id
+      filter:
+        _and:
+          - ruch:
+              rucher:
+                entreprise_id:
+                  _eq: X-Hasura-Entreprise-Id
+          - ruch:
+              rucher:
+                entreprise:
+                  utilisateurs_entreprises:
+                    utilisateur_id:
+                      _eq: X-Hasura-User-Id
+      check: null
+    comment: ""
+delete_permissions:
+  - role: AdminEntreprise
+    permission:
+      filter:
+        _and:
+          - ruch:
+              rucher:
+                entreprise_id:
+                  _eq: X-Hasura-Entreprise-Id
+          - ruch:
+              rucher:
+                entreprise:
+                  utilisateurs_entreprises:
+                    utilisateur_id:
+                      _eq: X-Hasura-User-Id
+    comment: ""
+  - role: Apiculteur
+    permission:
+      filter:
+        _and:
+          - ruch:
+              rucher:
+                entreprise_id:
+                  _eq: X-Hasura-Entreprise-Id
+          - ruch:
+              rucher:
+                entreprise:
+                  utilisateurs_entreprises:
+                    utilisateur_id:
+                      _eq: X-Hasura-User-Id
+    comment: ""

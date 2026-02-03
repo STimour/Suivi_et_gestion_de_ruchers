@@ -42,6 +42,22 @@ docker compose exec django python manage.py migrate
 docker compose exec django python manage.py createsuperuser
 ```
 
+## Hasura CLI (migrations)
+
+Les migrations Hasura sont dans `backend/hasura/`.
+
+### Appliquer les migrations
+
+```bash
+docker compose exec hasura /bin/hasura-cli --project /hasura migrate apply --database-name default
+```
+
+### Appliquer les metadata (si utilisées)
+
+```bash
+docker compose exec hasura /bin/hasura-cli --project /hasura metadata apply
+```
+
 ## Accès aux services
 
 - **API Django** : http://localhost:8000

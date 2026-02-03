@@ -1,0 +1,25 @@
+table:
+  name: auth_user
+  schema: public
+array_relationships:
+  - name: auth_user_groups
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: auth_user_groups
+          schema: public
+  - name: auth_user_user_permissions
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: auth_user_user_permissions
+          schema: public
+  - name: django_admin_logs
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: django_admin_log
+          schema: public

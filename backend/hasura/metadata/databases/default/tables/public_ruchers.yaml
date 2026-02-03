@@ -1,0 +1,190 @@
+table:
+  name: ruchers
+  schema: public
+object_relationships:
+  - name: entreprise
+    using:
+      foreign_key_constraint_on: entreprise_id
+array_relationships:
+  - name: ruches
+    using:
+      foreign_key_constraint_on:
+        column: rucher_id
+        table:
+          name: ruches
+          schema: public
+  - name: transhumances
+    using:
+      foreign_key_constraint_on:
+        column: rucher_id
+        table:
+          name: transhumances
+          schema: public
+insert_permissions:
+  - role: AdminEntreprise
+    permission:
+      check:
+        _and:
+          - entreprise_id:
+              _eq: X-Hasura-Entreprise-Id
+          - entreprise:
+              utilisateurs_entreprises:
+                utilisateur_id:
+                  _eq: X-Hasura-User-Id
+      columns:
+        - nom
+        - latitude
+        - longitude
+        - flore
+        - altitude
+        - notes
+        - entreprise_id
+        - id
+    comment: Vérification des limites via trigger PostgreSQL
+  - role: Apiculteur
+    permission:
+      check:
+        _and:
+          - entreprise_id:
+              _eq: X-Hasura-Entreprise-Id
+          - entreprise:
+              utilisateurs_entreprises:
+                utilisateur_id:
+                  _eq: X-Hasura-User-Id
+      columns:
+        - nom
+        - latitude
+        - longitude
+        - flore
+        - altitude
+        - notes
+        - entreprise_id
+        - id
+    comment: Vérification des limites via trigger PostgreSQL
+select_permissions:
+  - role: AdminEntreprise
+    permission:
+      columns:
+        - nom
+        - latitude
+        - longitude
+        - flore
+        - altitude
+        - notes
+        - entreprise_id
+        - id
+      filter:
+        _and:
+          - entreprise_id:
+              _eq: X-Hasura-Entreprise-Id
+          - entreprise:
+              utilisateurs_entreprises:
+                utilisateur_id:
+                  _eq: X-Hasura-User-Id
+    comment: ""
+  - role: Apiculteur
+    permission:
+      columns:
+        - nom
+        - latitude
+        - longitude
+        - flore
+        - altitude
+        - notes
+        - entreprise_id
+        - id
+      filter:
+        _and:
+          - entreprise_id:
+              _eq: X-Hasura-Entreprise-Id
+          - entreprise:
+              utilisateurs_entreprises:
+                utilisateur_id:
+                  _eq: X-Hasura-User-Id
+    comment: ""
+  - role: Lecteur
+    permission:
+      columns:
+        - nom
+        - latitude
+        - longitude
+        - flore
+        - altitude
+        - notes
+        - entreprise_id
+        - id
+      filter:
+        _and:
+          - entreprise_id:
+              _eq: X-Hasura-Entreprise-Id
+          - entreprise:
+              utilisateurs_entreprises:
+                utilisateur_id:
+                  _eq: X-Hasura-User-Id
+    comment: ""
+update_permissions:
+  - role: AdminEntreprise
+    permission:
+      columns:
+        - nom
+        - latitude
+        - longitude
+        - flore
+        - altitude
+        - notes
+        - entreprise_id
+        - id
+      filter:
+        _and:
+          - entreprise_id:
+              _eq: X-Hasura-Entreprise-Id
+          - entreprise:
+              utilisateurs_entreprises:
+                utilisateur_id:
+                  _eq: X-Hasura-User-Id
+      check: null
+    comment: ""
+  - role: Apiculteur
+    permission:
+      columns:
+        - nom
+        - latitude
+        - longitude
+        - flore
+        - altitude
+        - notes
+        - entreprise_id
+        - id
+      filter:
+        _and:
+          - entreprise_id:
+              _eq: X-Hasura-Entreprise-Id
+          - entreprise:
+              utilisateurs_entreprises:
+                utilisateur_id:
+                  _eq: X-Hasura-User-Id
+      check: null
+    comment: ""
+delete_permissions:
+  - role: AdminEntreprise
+    permission:
+      filter:
+        _and:
+          - entreprise_id:
+              _eq: X-Hasura-Entreprise-Id
+          - entreprise:
+              utilisateurs_entreprises:
+                utilisateur_id:
+                  _eq: X-Hasura-User-Id
+    comment: ""
+  - role: Apiculteur
+    permission:
+      filter:
+        _and:
+          - entreprise_id:
+              _eq: X-Hasura-Entreprise-Id
+          - entreprise:
+              utilisateurs_entreprises:
+                utilisateur_id:
+                  _eq: X-Hasura-User-Id
+    comment: ""

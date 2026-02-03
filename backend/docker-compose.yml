@@ -17,7 +17,7 @@ services:
       retries: 5
 
   hasura:
-    image: hasura/graphql-engine:v2.36.0
+    image: hasura/graphql-engine:v2.36.0.cli-migrations-v3
     restart: always
     ports:
       - "8081:8080"
@@ -30,6 +30,10 @@ services:
       HASURA_GRAPHQL_DEV_MODE: "true"
       HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_GRAPHQL_ADMIN_SECRET}
       HASURA_GRAPHQL_JWT_SECRET: ${HASURA_GRAPHQL_JWT_SECRET}
+      HASURA_GRAPHQL_MIGRATIONS_DIR: /hasura-migrations
+    volumes:
+      - ./hasura:/hasura
+      - ./hasura/migrations:/hasura-migrations
 
   django:
     build: ./

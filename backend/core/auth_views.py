@@ -16,6 +16,7 @@ from core.models import (
     UtilisateurEntreprise,
     Invitation,
     Offre,
+    TypeOffre,
 )
 from django.contrib.auth.hashers import check_password, make_password
 
@@ -57,6 +58,8 @@ def _make_access_token(user: Utilisateur, entreprise_id=None):
         )
         if offre:
             offre_type = offre.type
+        else:
+            offre_type = TypeOffre.FREEMIUM.value
 
     hasura_claims = {
         "x-hasura-user-id": str(user.id),

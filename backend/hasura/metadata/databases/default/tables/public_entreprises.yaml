@@ -1,0 +1,173 @@
+table:
+  name: entreprises
+  schema: public
+object_relationships:
+  - name: offre
+    using:
+      manual_configuration:
+        column_mapping:
+          id: entreprise_id
+        insertion_order: null
+        remote_table:
+          name: offres
+          schema: public
+array_relationships:
+  - name: invitations
+    using:
+      foreign_key_constraint_on:
+        column: entreprise_id
+        table:
+          name: invitations
+          schema: public
+  - name: offres
+    using:
+      foreign_key_constraint_on:
+        column: entreprise_id
+        table:
+          name: offres
+          schema: public
+  - name: ruchers
+    using:
+      foreign_key_constraint_on:
+        column: entreprise_id
+        table:
+          name: ruchers
+          schema: public
+  - name: utilisateurs_entreprises
+    using:
+      foreign_key_constraint_on:
+        column: entreprise_id
+        table:
+          name: utilisateurs_entreprises
+          schema: public
+insert_permissions:
+  - role: AdminEntreprise
+    permission:
+      check:
+        _and:
+          - id:
+              _eq: X-Hasura-Entreprise-Id
+          - utilisateurs_entreprises:
+              utilisateur_id:
+                _eq: X-Hasura-User-Id
+      columns:
+        - nom
+        - adresse
+        - dateCreation
+        - id
+    comment: Vérification des limites via trigger PostgreSQL
+  - role: Apiculteur
+    permission:
+      check:
+        _and:
+          - id:
+              _eq: X-Hasura-Entreprise-Id
+          - utilisateurs_entreprises:
+              utilisateur_id:
+                _eq: X-Hasura-User-Id
+      columns:
+        - nom
+        - adresse
+        - dateCreation
+        - id
+    comment: Vérification des limites via trigger PostgreSQL
+select_permissions:
+  - role: AdminEntreprise
+    permission:
+      columns:
+        - nom
+        - adresse
+        - dateCreation
+        - id
+      filter:
+        _and:
+          - id:
+              _eq: X-Hasura-Entreprise-Id
+          - utilisateurs_entreprises:
+              utilisateur_id:
+                _eq: X-Hasura-User-Id
+    comment: ""
+  - role: Apiculteur
+    permission:
+      columns:
+        - nom
+        - adresse
+        - dateCreation
+        - id
+      filter:
+        _and:
+          - id:
+              _eq: X-Hasura-Entreprise-Id
+          - utilisateurs_entreprises:
+              utilisateur_id:
+                _eq: X-Hasura-User-Id
+    comment: ""
+  - role: Lecteur
+    permission:
+      columns:
+        - nom
+        - adresse
+        - dateCreation
+        - id
+      filter:
+        _and:
+          - id:
+              _eq: X-Hasura-Entreprise-Id
+          - utilisateurs_entreprises:
+              utilisateur_id:
+                _eq: X-Hasura-User-Id
+    comment: ""
+update_permissions:
+  - role: AdminEntreprise
+    permission:
+      columns:
+        - nom
+        - adresse
+        - dateCreation
+        - id
+      filter:
+        _and:
+          - id:
+              _eq: X-Hasura-Entreprise-Id
+          - utilisateurs_entreprises:
+              utilisateur_id:
+                _eq: X-Hasura-User-Id
+      check: null
+    comment: ""
+  - role: Apiculteur
+    permission:
+      columns:
+        - nom
+        - adresse
+        - dateCreation
+        - id
+      filter:
+        _and:
+          - id:
+              _eq: X-Hasura-Entreprise-Id
+          - utilisateurs_entreprises:
+              utilisateur_id:
+                _eq: X-Hasura-User-Id
+      check: null
+    comment: ""
+delete_permissions:
+  - role: AdminEntreprise
+    permission:
+      filter:
+        _and:
+          - id:
+              _eq: X-Hasura-Entreprise-Id
+          - utilisateurs_entreprises:
+              utilisateur_id:
+                _eq: X-Hasura-User-Id
+    comment: ""
+  - role: Apiculteur
+    permission:
+      filter:
+        _and:
+          - id:
+              _eq: X-Hasura-Entreprise-Id
+          - utilisateurs_entreprises:
+              utilisateur_id:
+                _eq: X-Hasura-User-Id
+    comment: ""

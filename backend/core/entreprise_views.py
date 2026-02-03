@@ -5,8 +5,8 @@ from django.http import JsonResponse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 
-from core.models import Entreprise, UtilisateurEntreprise, RoleUtilisateur, Invitation
-from core.auth_views import _json_body, _get_user_from_request
+from core.models import Entreprise, UtilisateurEntreprise, RoleUtilisateur, Invitation, Offre, TypeOffre
+from core.auth_views import _json_body, _get_user_from_request, _make_access_token
 
 
 def _parse_role(value):
@@ -44,11 +44,22 @@ def create_entreprise(request):
         entreprise=entreprise,
         role=RoleUtilisateur.ADMIN_ENTREPRISE.value,
     )
+    Offre.objects.create(
+        entreprise=entreprise,
+        type=TypeOffre.FREEMIUM.value,
+        dateDebut=timezone.now(),
+        active=True,
+        nbRuchersMax=1,
+        nbCapteursMax=0,
+        stripeCustomerId="",
+    )
+    access_token = _make_access_token(user, entreprise_id=entreprise.id)
     return JsonResponse(
         {
             "id": str(entreprise.id),
             "nom": entreprise.nom,
             "adresse": entreprise.adresse,
+            "access_token": access_token,
         },
         status=201,
     )

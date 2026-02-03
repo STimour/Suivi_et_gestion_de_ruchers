@@ -37,6 +37,10 @@
     {
       "key": "invitationToken",
       "value": ""
+    },
+    {
+      "key": "userId",
+      "value": ""
     }
   ],
   "item": [
@@ -84,6 +88,14 @@
                   "  if (json && json.access_token) {",
                   "    pm.collectionVariables.set('accessToken', json.access_token);",
                   "  }",
+                  "} catch (e) {}",
+                  "",
+                  "try {",
+                  "  const json = pm.response.json();",
+                  "  const userId = json?.user?.id;",
+                  "  if (userId) {",
+                  "    pm.collectionVariables.set('userId', userId);",
+                  "  }",
                   "} catch (e) {}"
                 ]
               }
@@ -130,6 +142,14 @@
                   "  const json = pm.response.json();",
                   "  if (json && json.access_token) {",
                   "    pm.collectionVariables.set('accessToken', json.access_token);",
+                  "  }",
+                  "} catch (e) {}",
+                  "",
+                  "try {",
+                  "  const json = pm.response.json();",
+                  "  const userId = json?.user?.id;",
+                  "  if (userId) {",
+                  "    pm.collectionVariables.set('userId', userId);",
                   "  }",
                   "} catch (e) {}"
                 ]
@@ -305,15 +325,19 @@
                   "  pm.response.to.have.status(201);",
                   "});",
                   "",
-                  "try {",
-                  "  const json = pm.response.json();",
-                  "  if (json && json.id) {",
-                  "    pm.collectionVariables.set('entrepriseId', json.id);",
-                  "  }",
-                  "} catch (e) {}"
-                ]
-              }
-            }
+                      "try {",
+                      "  const json = pm.response.json();",
+                      "  if (json && json.id) {",
+                      "    pm.collectionVariables.set('entrepriseId', json.id);",
+                      "  }",
+                      "  const token = json?.access_token;",
+                      "  if (token) {",
+                      "    pm.collectionVariables.set('accessToken', token);",
+                      "  }",
+                      "} catch (e) {}"
+                    ]
+                  }
+                }
           ]
         },
         {
@@ -361,58 +385,6 @@
                   "  const json = pm.response.json();",
                   "  if (json && json.access_token) {",
                   "    pm.collectionVariables.set('accessToken', json.access_token);",
-                  "  }",
-                  "} catch (e) {}"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Créer invitation",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"invite@example.com\",\n  \"rolePropose\": \"Apiculteur\",\n  \"entreprise_id\": \"{{entrepriseId}}\"\n}"
-            },
-            "url": {
-              "raw": "{{djangoBaseUrl}}/api/entreprise/invitation",
-              "host": [
-                "{{djangoBaseUrl}}"
-              ],
-              "path": [
-                "api",
-                "entreprise",
-                "invitation"
-              ]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status 201', function () {",
-                  "  pm.response.to.have.status(201);",
-                  "});",
-                  "",
-                  "try {",
-                  "  const json = pm.response.json();",
-                  "  if (json && json.token) {",
-                  "    pm.collectionVariables.set('invitationToken', json.token);",
                   "  }",
                   "} catch (e) {}"
                 ]
@@ -825,6 +797,159 @@
                   ]
                 }
               }
+            }
+          ]
+        },
+        {
+          "name": "CRUD - Entreprises",
+          "item": [
+            {
+              "name": "Entreprises - Create",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"query\": \"mutation($object: entreprises_insert_input!) { insert_entreprises_one(object: $object) { id nom adresse } }\",\n  \"variables\": {\n    \"object\": {\n      \"nom\": \"Mon Rucher SARL\",\n      \"adresse\": \"123 rue des Abeilles\"\n    }\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Status 200', function () {",
+                      "  pm.response.to.have.status(200);",
+                      "});",
+                      "",
+                      "try {",
+                      "  const json = pm.response.json();",
+                      "  const id = json?.data?.insert_entreprises_one?.id;",
+                      "  if (id) {",
+                      "    pm.collectionVariables.set('entrepriseId', id);",
+                      "  }",
+                      "} catch (e) {}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Utilisateurs Entreprises - Link Admin",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"query\": \"mutation($object: utilisateurs_entreprises_insert_input!) { insert_utilisateurs_entreprises_one(object: $object) { id role } }\",\n  \"variables\": {\n    \"object\": {\n      \"utilisateur_id\": \"{{userId}}\",\n      \"entreprise_id\": \"{{entrepriseId}}\",\n      \"role\": \"AdminEntreprise\"\n    }\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Status 200', function () {",
+                      "  pm.response.to.have.status(200);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Invitations - Create",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"query\": \"mutation($object: invitations_insert_input!) { insert_invitations_one(object: $object) { id token email rolePropose entreprise_id } }\",\n  \"variables\": {\n    \"object\": {\n      \"email\": \"invite@example.com\",\n      \"token\": \"{{invitationToken}}\",\n      \"rolePropose\": \"Apiculteur\",\n      \"dateExpiration\": \"2026-02-10T00:00:00Z\",\n      \"dateEnvoi\": \"{{$isoTimestamp}}\",\n      \"acceptee\": false,\n      \"entreprise_id\": \"{{entrepriseId}}\",\n      \"envoyeePar_id\": \"{{userId}}\"\n    }\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Status 200', function () {",
+                      "  pm.response.to.have.status(200);",
+                      "});",
+                      "",
+                      "try {",
+                      "  const json = pm.response.json();",
+                      "  const token = json?.data?.insert_invitations_one?.token;",
+                      "  if (token) {",
+                      "    pm.collectionVariables.set('invitationToken', token);",
+                      "  }",
+                      "} catch (e) {}"
+                    ]
+                  }
+                }
+              ]
             }
           ]
         }
