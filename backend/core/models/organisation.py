@@ -1,6 +1,7 @@
 from django.db import models
 import uuid
 from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
+from .base import TimestampedModel
 
 class TypeFlore(models.TextChoices):
     ACACIA = 'Acacia', 'Acacia'
@@ -64,7 +65,7 @@ class TypeMaladie(models.TextChoices):
     PARALYSIE_CHRONIQUE = 'ParalysieChronique', 'ParalysieChronique'
     INTOXICATION_PESTICIDES = 'IntoxicationPesticides', 'IntoxicationPesticides'
 
-class Rucher(models.Model):
+class Rucher(TimestampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     nom = models.CharField(max_length=200)
     latitude = models.FloatField()
@@ -82,7 +83,7 @@ class Rucher(models.Model):
     def __str__(self):
         return self.nom
 
-class Ruche(models.Model):
+class Ruche(TimestampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     immatriculation = models.CharField(
         max_length=50,
@@ -114,7 +115,7 @@ class Ruche(models.Model):
     def __str__(self):
         return self.immatriculation
 
-class Reine(models.Model):
+class Reine(TimestampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     entreprise = models.ForeignKey('Entreprise', on_delete=models.CASCADE, related_name='reines', null=True, blank=True)
     ruche = models.OneToOneField('Ruche', on_delete=models.SET_NULL, null=True, blank=True, related_name='reine')

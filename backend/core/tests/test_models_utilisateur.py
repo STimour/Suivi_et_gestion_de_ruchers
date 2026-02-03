@@ -21,7 +21,7 @@ class UtilisateurModelTest(TestCase):
         self.assertTrue(self.user.actif)
     
     def test_utilisateur_date_creation_auto(self):
-        self.assertIsNotNone(self.user.dateCreation)
+        self.assertIsNotNone(self.user.created_at)
     
     def test_email_unique_constraint(self):
         with self.assertRaises(IntegrityError):

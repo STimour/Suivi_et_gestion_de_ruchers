@@ -15,4 +15,4 @@ class EntrepriseModelTest(TestCase):
         self.assertEqual(result, "Ruches & Co")
     
     def test_entreprise_date_creation_auto(self):
-        self.assertIsNotNone(self.entreprise.dateCreation)
+        self.assertIsNotNone(self.entreprise.created_at)

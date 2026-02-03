@@ -14,19 +14,19 @@ class UtilisateurAdmin(admin.ModelAdmin):
 
 @admin.register(Entreprise)
 class EntrepriseAdmin(admin.ModelAdmin):
-    list_display = ('nom', 'dateCreation')
+    list_display = ('nom', 'created_at')
     search_fields = ('nom',)
 
 @admin.register(UtilisateurEntreprise)
 class UtilisateurEntrepriseAdmin(admin.ModelAdmin):
-    list_display = ('utilisateur', 'entreprise', 'role', 'dateAjout')
-    list_filter = ('role', 'dateAjout')
+    list_display = ('utilisateur', 'entreprise', 'role', 'created_at')
+    list_filter = ('role', 'created_at')
     raw_id_fields = ('utilisateur', 'entreprise')
 
 @admin.register(Invitation)
 class InvitationAdmin(admin.ModelAdmin):
-    list_display = ('email', 'entreprise', 'rolePropose', 'dateEnvoi', 'acceptee')
-    list_filter = ('rolePropose', 'acceptee', 'dateEnvoi')
+    list_display = ('email', 'entreprise', 'rolePropose', 'created_at', 'acceptee')
+    list_filter = ('rolePropose', 'acceptee', 'created_at')
     raw_id_fields = ('entreprise', 'envoyeePar')
 
 @admin.register(Rucher)
@@ -70,12 +70,12 @@ class CapteurAdmin(admin.ModelAdmin):
 
 @admin.register(Mesure)
 class MesureAdmin(admin.ModelAdmin):
-    list_display = ('capteur', 'date', 'valeur')
-    list_filter = ('date',)
+    list_display = ('capteur', 'created_at', 'valeur')
+    list_filter = ('created_at',)
     raw_id_fields = ('capteur',)  
 
 @admin.register(Alerte)
 class AlerteAdmin(admin.ModelAdmin):
-    list_display = ('type', 'date', 'acquittee', 'capteur')
+    list_display = ('type', 'created_at', 'acquittee', 'capteur')
     list_filter = ('type', 'acquittee')
     raw_id_fields = ('capteur',)  

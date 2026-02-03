@@ -1,19 +1,19 @@
 from django.db import models
 import uuid
 from django.core.validators import MinValueValidator, MaxValueValidator
+from .base import TimestampedModel
 
 class RoleUtilisateur(models.TextChoices):
     ADMIN_ENTREPRISE = 'AdminEntreprise', 'AdminEntreprise'
     APICULTEUR = 'Apiculteur', 'Apiculteur'
     LECTEUR = 'Lecteur', 'Lecteur'
 
-class Utilisateur(models.Model):
+class Utilisateur(TimestampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     nom = models.CharField(max_length=100)
     prenom = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
     motDePasseHash = models.CharField(max_length=255)
-    dateCreation = models.DateTimeField(auto_now_add=True)
     actif = models.BooleanField(default=True)
 
     class Meta:
@@ -24,11 +24,10 @@ class Utilisateur(models.Model):
     def __str__(self):
         return f"{self.prenom} {self.nom}"
 
-class Entreprise(models.Model):
+class Entreprise(TimestampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     nom = models.CharField(max_length=200)
     adresse = models.TextField()
-    dateCreation = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'entreprises'
@@ -38,12 +37,11 @@ class Entreprise(models.Model):
     def __str__(self):
         return self.nom
 
-class UtilisateurEntreprise(models.Model):
+class UtilisateurEntreprise(TimestampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     utilisateur = models.ForeignKey(Utilisateur, on_delete=models.CASCADE, related_name='appartenances')
     entreprise = models.ForeignKey(Entreprise, on_delete=models.CASCADE, related_name='membres')
     role = models.CharField(max_length=20, choices=RoleUtilisateur.choices)
-    dateAjout = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'utilisateurs_entreprises'
@@ -54,13 +52,12 @@ class UtilisateurEntreprise(models.Model):
     def __str__(self):
         return f"{self.utilisateur} - {self.entreprise} ({self.role})"
 
-class Invitation(models.Model):
+class Invitation(TimestampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField()
     token = models.CharField(max_length=255, unique=True)
     rolePropose = models.CharField(max_length=20, choices=RoleUtilisateur.choices)
     dateExpiration = models.DateTimeField()
-    dateEnvoi = models.DateTimeField(auto_now_add=True)
     acceptee = models.BooleanField(default=False)
     entreprise = models.ForeignKey(Entreprise, on_delete=models.CASCADE, related_name='invitations')
     envoyeePar = models.ForeignKey(Utilisateur, on_delete=models.CASCADE, related_name='invitations_envoyees')

@@ -151,7 +151,7 @@ def register(request):
     # Récupérer les entreprises de l'utilisateur (au cas où il en a déjà via invitation)
     user_entreprises = UtilisateurEntreprise.objects.filter(
         utilisateur=user
-    ).select_related("entreprise").order_by("-dateAjout", "-id")
+    ).select_related("entreprise").order_by("-created_at", "-id")
 
     # Contexte entreprise par défaut pour le JWT : première entreprise si existante
     default_entreprise_id = user_entreprises[0].entreprise_id if user_entreprises else None
@@ -211,7 +211,7 @@ def login(request):
     # Récupérer les entreprises et rôles de l'utilisateur
     user_entreprises = UtilisateurEntreprise.objects.filter(
         utilisateur=user
-    ).select_related("entreprise").order_by("-dateAjout", "-id")
+    ).select_related("entreprise").order_by("-created_at", "-id")
 
     default_entreprise_id = user_entreprises[0].entreprise_id if user_entreprises else None
 

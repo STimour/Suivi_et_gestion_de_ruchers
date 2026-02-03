@@ -24,7 +24,7 @@ insert_permissions:
         - token
         - rolePropose
         - dateExpiration
-        - dateEnvoi
+        - created_at
         - acceptee
         - entreprise_id
         - envoyeePar_id
@@ -38,7 +38,7 @@ select_permissions:
         - token
         - rolePropose
         - dateExpiration
-        - dateEnvoi
+        - created_at
         - acceptee
         - entreprise_id
         - envoyeePar_id
@@ -59,7 +59,7 @@ select_permissions:
         - token
         - rolePropose
         - dateExpiration
-        - dateEnvoi
+        - created_at
         - acceptee
         - entreprise_id
         - envoyeePar_id
@@ -81,7 +81,7 @@ update_permissions:
         - token
         - rolePropose
         - dateExpiration
-        - dateEnvoi
+        - created_at
         - acceptee
         - entreprise_id
         - envoyeePar_id

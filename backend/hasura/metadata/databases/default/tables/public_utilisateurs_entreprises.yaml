@@ -21,7 +21,7 @@ insert_permissions:
                   _eq: X-Hasura-User-Id
       columns:
         - role
-        - dateAjout
+        - created_at
         - entreprise_id
         - id
         - utilisateur_id
@@ -38,7 +38,7 @@ insert_permissions:
                   _eq: X-Hasura-User-Id
       columns:
         - role
-        - dateAjout
+        - created_at
         - entreprise_id
         - id
         - utilisateur_id
@@ -48,7 +48,7 @@ select_permissions:
     permission:
       columns:
         - role
-        - dateAjout
+        - created_at
         - entreprise_id
         - id
         - utilisateur_id
@@ -65,7 +65,7 @@ select_permissions:
     permission:
       columns:
         - role
-        - dateAjout
+        - created_at
         - entreprise_id
         - id
         - utilisateur_id
@@ -82,7 +82,7 @@ select_permissions:
     permission:
       columns:
         - role
-        - dateAjout
+        - created_at
         - entreprise_id
         - id
         - utilisateur_id
@@ -100,7 +100,7 @@ update_permissions:
     permission:
       columns:
         - role
-        - dateAjout
+        - created_at
         - entreprise_id
         - id
         - utilisateur_id
@@ -118,7 +118,7 @@ update_permissions:
     permission:
       columns:
         - role
-        - dateAjout
+        - created_at
         - entreprise_id
         - id
         - utilisateur_id

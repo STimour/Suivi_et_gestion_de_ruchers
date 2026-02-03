@@ -53,7 +53,7 @@ insert_permissions:
       columns:
         - nom
         - adresse
-        - dateCreation
+        - created_at
         - id
     comment: Vérification des limites via trigger PostgreSQL
   - role: Apiculteur
@@ -68,7 +68,7 @@ insert_permissions:
       columns:
         - nom
         - adresse
-        - dateCreation
+        - created_at
         - id
     comment: Vérification des limites via trigger PostgreSQL
 select_permissions:
@@ -77,7 +77,7 @@ select_permissions:
       columns:
         - nom
         - adresse
-        - dateCreation
+        - created_at
         - id
       filter:
         _and:
@@ -92,7 +92,7 @@ select_permissions:
       columns:
         - nom
         - adresse
-        - dateCreation
+        - created_at
         - id
       filter:
         _and:
@@ -107,7 +107,7 @@ select_permissions:
       columns:
         - nom
         - adresse
-        - dateCreation
+        - created_at
         - id
       filter:
         _and:
@@ -123,7 +123,7 @@ update_permissions:
       columns:
         - nom
         - adresse
-        - dateCreation
+        - created_at
         - id
       filter:
         _and:
@@ -139,7 +139,7 @@ update_permissions:
       columns:
         - nom
         - adresse
-        - dateCreation
+        - created_at
         - id
       filter:
         _and:

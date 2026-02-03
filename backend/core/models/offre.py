@@ -2,6 +2,7 @@ import uuid
 from django.db import models
 
 from .utilisateur import Entreprise
+from .base import TimestampedModel
 
 
 class TypeOffre(models.TextChoices):
@@ -9,7 +10,7 @@ class TypeOffre(models.TextChoices):
     PREMIUM = "Premium", "Premium"
 
 
-class Offre(models.Model):
+class Offre(TimestampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     entreprise = models.ForeignKey(Entreprise, on_delete=models.CASCADE, related_name="offres")
     type = models.CharField(max_length=20, choices=TypeOffre.choices)
@@ -27,4 +28,3 @@ class Offre(models.Model):
 
     def __str__(self):
         return f"Offre {self.type} ({self.entreprise})"
-

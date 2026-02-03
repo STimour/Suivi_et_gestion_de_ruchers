@@ -7,6 +7,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("core", "0005_ruche_immatriculation_regex"),
+        ("core", "0005_delete___tmp__typemaladie"),
     ]
 
     operations = [
