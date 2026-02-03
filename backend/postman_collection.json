@@ -317,6 +317,58 @@
           ]
         },
         {
+          "name": "Switch Entreprise",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"entreprise_id\": \"{{entrepriseId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{djangoBaseUrl}}/api/auth/switch-entreprise",
+              "host": [
+                "{{djangoBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "switch-entreprise"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "try {",
+                  "  const json = pm.response.json();",
+                  "  if (json && json.access_token) {",
+                  "    pm.collectionVariables.set('accessToken', json.access_token);",
+                  "  }",
+                  "} catch (e) {}"
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "Créer invitation",
           "request": {
             "method": "POST",
