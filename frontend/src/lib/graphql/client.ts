@@ -1,4 +1,5 @@
 import { ApolloClient, InMemoryCache, HttpLink, from } from '@apollo/client';
+import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
 
 // Gestion des erreurs GraphQL
@@ -15,15 +16,22 @@ const errorLink = onError(({ graphQLErrors, networkError }: any) => {
   }
 });
 
+// Link pour ajouter le JWT dans les headers
+const authLink = setContext((_, { headers }) => {
+  // Récupérer le token depuis le localStorage
+  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+
+  return {
+    headers: {
+      ...headers,
+      ...(token && { authorization: `Bearer ${token}` }),
+    }
+  };
+});
+
 // Lien HTTP vers Hasura
 const httpLink = new HttpLink({
   uri: process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT || 'http://localhost:8081/v1/graphql',
-  headers: {
-    // Ajouter l'admin secret si disponible (pour les mutations)
-    ...(process.env.NEXT_PUBLIC_HASURA_ADMIN_SECRET && {
-      'x-hasura-admin-secret': process.env.NEXT_PUBLIC_HASURA_ADMIN_SECRET,
-    }),
-  },
 });
 
 // Configuration du cache Apollo
@@ -56,7 +64,7 @@ const cache = new InMemoryCache({
 
 // Client Apollo
 export const apolloClient = new ApolloClient({
-  link: from([errorLink, httpLink]),
+  link: from([errorLink, authLink, httpLink]),
   cache,
   defaultOptions: {
     watchQuery: {

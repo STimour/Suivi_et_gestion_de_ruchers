@@ -6,11 +6,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Hexagon, MapPin, Plus, TrendingUp, AlertTriangle } from "lucide-react";
+import { Hexagon, MapPin, Plus, TrendingUp, AlertTriangle, Upload } from "lucide-react";
 import { GET_RUCHERS } from '@/lib/graphql/queries/rucher.queries';
 import { GET_RUCHES } from '@/lib/graphql/queries/ruche.queries';
 import { CreateRucherDialog } from '@/components/rucher/CreateRucherDialog';
 import { CreateRucheDialog } from '@/components/ruche/CreateRucheDialog';
+import { BulkCreateRuchesDialog } from '@/components/ruche/BulkCreateRuchesDialog';
 import Link from "next/link";
 
 // Charger la carte uniquement côté client pour éviter les erreurs SSR
@@ -235,6 +236,14 @@ export default function DashboardPage() {
                     </Button>
                   }
                 />
+                <BulkCreateRuchesDialog
+                  trigger={
+                    <Button variant="outline" size="sm" className="border-green-200 text-green-700">
+                      <Upload className="h-4 w-4 mr-1" />
+                      Import masse
+                    </Button>
+                  }
+                />
                 <Link href="/dashboard/hives">
                   <Button variant="outline" size="sm" className="border-green-200">
                     Voir tout
@@ -277,15 +286,25 @@ export default function DashboardPage() {
             ) : (
               <div className="text-center py-8 text-amber-700/70">
                 <Hexagon className="h-12 w-12 mx-auto mb-3 opacity-30" />
-                <p>Aucune ruche pour le moment</p>
-                <CreateRucheDialog
-                  trigger={
-                    <Button variant="outline" size="sm" className="mt-3 border-green-200">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Ajouter une ruche
-                    </Button>
-                  }
-                />
+                <p className="mb-4">Aucune ruche pour le moment</p>
+                <div className="flex gap-2 justify-center">
+                  <CreateRucheDialog
+                    trigger={
+                      <Button variant="outline" size="sm" className="border-green-200">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Ajouter une ruche
+                      </Button>
+                    }
+                  />
+                  <BulkCreateRuchesDialog
+                    trigger={
+                      <Button variant="outline" size="sm" className="border-green-200 text-green-700">
+                        <Upload className="h-4 w-4 mr-2" />
+                        Import en masse
+                      </Button>
+                    }
+                  />
+                </div>
               </div>
             )}
           </CardContent>

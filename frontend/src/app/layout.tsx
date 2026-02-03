@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Poppins, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { ApolloWrapper } from "@/lib/graphql/apollo-provider";
+import { AuthProvider } from "@/lib/auth/AuthContext";
 import { Toaster } from "@/components/ui/sonner";
 
 const poppins = Poppins({
@@ -32,8 +33,10 @@ export default function RootLayout({
       <body
         className={`${poppins.variable} ${jetbrainsMono.variable} font-sans antialiased`}
       >
-        <ApolloWrapper>{children}</ApolloWrapper>
-        <Toaster />
+        <AuthProvider>
+          <ApolloWrapper>{children}</ApolloWrapper>
+          <Toaster />
+        </AuthProvider>
       </body>
     </html>
   );

@@ -35,6 +35,8 @@ import {
 import { CREATE_RUCHER } from '@/lib/graphql/mutations/rucher.mutations';
 import { GET_RUCHERS } from '@/lib/graphql/queries/rucher.queries';
 import { MapPin, Plus } from 'lucide-react';
+import { LocationPickerWrapper } from './LocationPickerWrapper';
+import { useAuth } from '@/lib/auth/AuthContext';
 
 // Types de flore disponibles
 const FLORE_OPTIONS = [
@@ -51,12 +53,12 @@ const FLORE_OPTIONS = [
 // Schéma de validation
 const rucherSchema = z.object({
   nom: z.string().min(1, 'Le nom est requis').max(200, 'Le nom est trop long'),
-  latitude: z.number({ message: 'La latitude doit être un nombre' })
-    .min(-90, 'Latitude invalide')
-    .max(90, 'Latitude invalide'),
-  longitude: z.number({ message: 'La longitude doit être un nombre' })
-    .min(-180, 'Longitude invalide')
-    .max(180, 'Longitude invalide'),
+  latitude: z.number({ message: 'Sélectionnez un emplacement sur la carte' })
+    .refine((val) => val !== 0, 'Sélectionnez un emplacement sur la carte')
+    .refine((val) => val >= -90 && val <= 90, 'Latitude invalide'),
+  longitude: z.number({ message: 'Sélectionnez un emplacement sur la carte' })
+    .refine((val) => val !== 0, 'Sélectionnez un emplacement sur la carte')
+    .refine((val) => val >= -180 && val <= 180, 'Longitude invalide'),
   flore: z.string().min(1, 'Le type de flore est requis'),
   altitude: z.number({ message: 'L\'altitude doit être un nombre' })
     .int('L\'altitude doit être un nombre entier')
@@ -73,6 +75,7 @@ interface CreateRucherDialogProps {
 
 export function CreateRucherDialog({ trigger }: CreateRucherDialogProps) {
   const [open, setOpen] = useState(false);
+  const { user } = useAuth();
 
   const [createRucher, { loading }] = useMutation(CREATE_RUCHER, {
     refetchQueries: [{ query: GET_RUCHERS }],
@@ -112,7 +115,7 @@ export function CreateRucherDialog({ trigger }: CreateRucherDialogProps) {
             flore: values.flore,
             altitude: values.altitude,
             notes: values.notes || '',
-            possesseur_id: '00000000-0000-0000-0000-000000000001', // TODO: Remplacer par l'utilisateur connecté
+            entreprise_id: user?.entreprise_id || null,
           },
         },
       });
@@ -131,7 +134,7 @@ export function CreateRucherDialog({ trigger }: CreateRucherDialogProps) {
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] bg-white">
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto bg-white">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-amber-900">
             <MapPin className="h-5 w-5" />
@@ -159,52 +162,22 @@ export function CreateRucherDialog({ trigger }: CreateRucherDialogProps) {
               )}
             />
 
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="latitude"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Latitude *</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="any"
-                        placeholder="Ex: 48.8566"
-                        {...field}
-                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                      />
-                    </FormControl>
-                    <FormDescription className="text-xs">
-                      Entre -90 et 90
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
+            {/* Sélecteur de localisation avec carte */}
+            <div className="space-y-2">
+              <FormLabel>Localisation *</FormLabel>
+              <LocationPickerWrapper
+                latitude={form.watch('latitude')}
+                longitude={form.watch('longitude')}
+                onLocationChange={(lat, lng) => {
+                  form.setValue('latitude', lat, { shouldValidate: true });
+                  form.setValue('longitude', lng, { shouldValidate: true });
+                }}
               />
-
-              <FormField
-                control={form.control}
-                name="longitude"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Longitude *</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="any"
-                        placeholder="Ex: 2.3522"
-                        {...field}
-                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                      />
-                    </FormControl>
-                    <FormDescription className="text-xs">
-                      Entre -180 et 180
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {(form.formState.errors.latitude || form.formState.errors.longitude) && (
+                <p className="text-sm text-destructive">
+                  Veuillez sélectionner un emplacement sur la carte
+                </p>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
