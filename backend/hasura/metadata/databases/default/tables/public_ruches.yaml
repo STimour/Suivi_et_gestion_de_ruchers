@@ -4,7 +4,12 @@ table:
 object_relationships:
   - name: reine
     using:
-      foreign_key_constraint_on: reine_id
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: reines
+        column_mapping:
+          id: ruche_id
   - name: rucher
     using:
       foreign_key_constraint_on: rucher_id
@@ -71,6 +76,7 @@ insert_permissions:
 select_permissions:
   - role: AdminEntreprise
     permission:
+      allow_aggregations: true
       columns:
         - immatriculation
         - type
@@ -93,6 +99,7 @@ select_permissions:
     comment: ""
   - role: Apiculteur
     permission:
+      allow_aggregations: true
       columns:
         - immatriculation
         - type
@@ -115,6 +122,7 @@ select_permissions:
     comment: ""
   - role: Lecteur
     permission:
+      allow_aggregations: true
       columns:
         - immatriculation
         - type

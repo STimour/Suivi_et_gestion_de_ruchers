@@ -41,6 +41,14 @@
     {
       "key": "userId",
       "value": ""
+    },
+    {
+      "key": "maladieId",
+      "value": ""
+    },
+    {
+      "key": "reineId",
+      "value": ""
     }
   ],
   "item": [
@@ -325,19 +333,19 @@
                   "  pm.response.to.have.status(201);",
                   "});",
                   "",
-                      "try {",
-                      "  const json = pm.response.json();",
-                      "  if (json && json.id) {",
-                      "    pm.collectionVariables.set('entrepriseId', json.id);",
-                      "  }",
-                      "  const token = json?.access_token;",
-                      "  if (token) {",
-                      "    pm.collectionVariables.set('accessToken', token);",
-                      "  }",
-                      "} catch (e) {}"
-                    ]
-                  }
-                }
+                  "try {",
+                  "  const json = pm.response.json();",
+                  "  if (json && json.id) {",
+                  "    pm.collectionVariables.set('entrepriseId', json.id);",
+                  "  }",
+                  "  const token = json?.access_token;",
+                  "  if (token) {",
+                  "    pm.collectionVariables.set('accessToken', token);",
+                  "  }",
+                  "} catch (e) {}"
+                ]
+              }
+            }
           ]
         },
         {
@@ -466,7 +474,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"query\": \"query { ruchers { id nom latitude longitude flore altitude notes entreprise { id nom adresse } } }\"\n}"
+                  "raw": "{\n  \"query\": \"query { ruchers { id nom latitude longitude flore altitude notes entreprise { id nom adresse } ruches_aggregate { aggregate { count } } } }\"\n}"
                 },
                 "url": {
                   "raw": "{{hasuraBaseUrl}}/v1/graphql",
@@ -497,7 +505,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"query\": \"query($id: uuid!) { ruchers_by_pk(id: $id) { id nom latitude longitude flore altitude notes entreprise { id nom adresse } } }\",\n  \"variables\": {\n    \"id\": \"{{rucherId}}\"\n  }\n}"
+                  "raw": "{\n  \"query\": \"query($id: uuid!) { ruchers_by_pk(id: $id) { id nom latitude longitude flore altitude notes entreprise { id nom adresse } ruches_aggregate { aggregate { count } } } }\",\n  \"variables\": {\n    \"id\": \"{{rucherId}}\"\n  }\n}"
                 },
                 "url": {
                   "raw": "{{hasuraBaseUrl}}/v1/graphql",
@@ -643,7 +651,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"query\": \"query { ruches { id immatriculation type race statut securisee rucher { id nom } reine { id } } }\"\n}"
+                  "raw": "{\n  \"query\": \"query { ruches { id immatriculation type race statut maladie securisee rucher { id nom } reine { id } } }\"\n}"
                 },
                 "url": {
                   "raw": "{{hasuraBaseUrl}}/v1/graphql",
@@ -674,7 +682,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"query\": \"query($id: uuid!) { ruches_by_pk(id: $id) { id immatriculation type race statut securisee rucher { id nom } } }\",\n  \"variables\": {\n    \"id\": \"{{rucheId}}\"\n  }\n}"
+                  "raw": "{\n  \"query\": \"query($id: uuid!) { ruches_by_pk(id: $id) { id immatriculation type race statut maladie securisee rucher { id nom } } }\",\n  \"variables\": {\n    \"id\": \"{{rucheId}}\"\n  }\n}"
                 },
                 "url": {
                   "raw": "{{hasuraBaseUrl}}/v1/graphql",
@@ -705,7 +713,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"query\": \"mutation($object: ruches_insert_input!) { insert_ruches_one(object: $object) { id } }\",\n  \"variables\": {\n    \"object\": {\n      \"immatriculation\": \"POSTMAN-001\",\n      \"type\": \"Dadant\",\n      \"race\": \"Buckfast\",\n      \"statut\": \"Active\",\n      \"securisee\": false,\n      \"rucher_id\": \"{{rucherId}}\"\n    }\n  }\n}"
+                  "raw": "{\n  \"query\": \"mutation($object: ruches_insert_input!) { insert_ruches_one(object: $object) { id } }\",\n  \"variables\": {\n    \"object\": {\n      \"immatriculation\": \"A1234567\",\n      \"type\": \"Dadant\",\n      \"race\": \"Buckfast\",\n      \"statut\": \"Active\",\n      \"maladie\": \"Aucune\",\n      \"securisee\": false,\n      \"rucher_id\": \"{{rucherId}}\"\n    }\n  }\n}"
                 },
                 "url": {
                   "raw": "{{hasuraBaseUrl}}/v1/graphql",
@@ -753,7 +761,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"query\": \"mutation($id: uuid!, $changes: ruches_set_input!) { update_ruches_by_pk(pk_columns: {id: $id}, _set: $changes) { id immatriculation statut securisee } }\",\n  \"variables\": {\n    \"id\": \"{{rucheId}}\",\n    \"changes\": {\n      \"securisee\": true\n    }\n  }\n}"
+                  "raw": "{\n  \"query\": \"mutation($id: uuid!, $changes: ruches_set_input!) { update_ruches_by_pk(pk_columns: {id: $id}, _set: $changes) { id immatriculation statut maladie securisee } }\",\n  \"variables\": {\n    \"id\": \"{{rucheId}}\",\n    \"changes\": {\n      \"securisee\": true,\n      \"maladie\": \"Varroose\"\n    }\n  }\n}"
                 },
                 "url": {
                   "raw": "{{hasuraBaseUrl}}/v1/graphql",
@@ -785,6 +793,360 @@
                 "body": {
                   "mode": "raw",
                   "raw": "{\n  \"query\": \"mutation($id: uuid!) { delete_ruches_by_pk(id: $id) { id } }\",\n  \"variables\": {\n    \"id\": \"{{rucheId}}\"\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "CRUD - Reines",
+          "item": [
+            {
+              "name": "Reines - List",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"query\": \"query { reines { id anneeNaissance codeCouleur lignee noteDouceur commentaire nonReproductible entreprise { id nom adresse } ruche { id immatriculation } } }\"\n}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Reines - Get by id",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"query\": \"query($id: uuid!) { reines_by_pk(id: $id) { id anneeNaissance codeCouleur lignee noteDouceur commentaire nonReproductible entreprise { id nom adresse } ruche { id immatriculation } } }\",\n  \"variables\": {\n    \"id\": \"{{reineId}}\"\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Reines - Create",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"query\": \"mutation($object: reines_insert_input!) { insert_reines_one(object: $object) { id } }\",\n  \"variables\": {\n    \"object\": {\n      \"entreprise_id\": \"{{entrepriseId}}\",\n      \"ruche_id\": null,\n      \"anneeNaissance\": 2022,\n      \"codeCouleur\": \"Jaune\",\n      \"lignee\": \"Buckfast\",\n      \"noteDouceur\": 8,\n      \"commentaire\": \"Créée depuis Postman\",\n      \"nonReproductible\": false\n    }\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "try {",
+                      "  const json = pm.response.json();",
+                      "  const id = json?.data?.insert_reines_one?.id;",
+                      "  if (id) {",
+                      "    pm.collectionVariables.set('reineId', id);",
+                      "  }",
+                      "} catch (e) {}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Reines - Update",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"query\": \"mutation($id: uuid!, $changes: reines_set_input!) { update_reines_by_pk(pk_columns: {id: $id}, _set: $changes) { id codeCouleur lignee noteDouceur entreprise { id nom } ruche { id immatriculation } } }\",\n  \"variables\": {\n    \"id\": \"{{reineId}}\",\n    \"changes\": {\n      \"codeCouleur\": \"Rouge\",\n      \"lignee\": \"Carnica\",\n      \"noteDouceur\": 9\n    }\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Reines - Delete",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"query\": \"mutation($id: uuid!) { delete_reines_by_pk(id: $id) { id } }\",\n  \"variables\": {\n    \"id\": \"{{reineId}}\"\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "CRUD - Maladies",
+          "item": [
+            {
+              "name": "Maladies - List",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"query\": \"query { maladies { id type } }\"\n}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Maladies - Get by id",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"query\": \"query($id: uuid!) { maladies_by_pk(id: $id) { id type } }\",\n  \"variables\": {\n    \"id\": \"{{maladieId}}\"\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Maladies - Create",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"query\": \"mutation($object: maladies_insert_input!) { insert_maladies_one(object: $object) { id } }\",\n  \"variables\": {\n    \"object\": {\n      \"type\": \"Varroose\"\n    }\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "try {",
+                      "  const json = pm.response.json();",
+                      "  const id = json?.data?.insert_maladies_one?.id;",
+                      "  if (id) {",
+                      "    pm.collectionVariables.set('maladieId', id);",
+                      "  }",
+                      "} catch (e) {}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Maladies - Update",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"query\": \"mutation($id: uuid!, $changes: maladies_set_input!) { update_maladies_by_pk(pk_columns: {id: $id}, _set: $changes) { id type } }\",\n  \"variables\": {\n    \"id\": \"{{maladieId}}\",\n    \"changes\": {\n      \"type\": \"Nosemose\"\n    }\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Maladies - Delete",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"query\": \"mutation($id: uuid!) { delete_maladies_by_pk(id: $id) { id } }\",\n  \"variables\": {\n    \"id\": \"{{maladieId}}\"\n  }\n}"
                 },
                 "url": {
                   "raw": "{{hasuraBaseUrl}}/v1/graphql",

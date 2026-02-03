@@ -41,12 +41,13 @@ class RucheAdmin(admin.ModelAdmin):
     list_display = ('immatriculation', 'type', 'race', 'statut', 'securisee', 'rucher')
     list_filter = ('statut', 'securisee')
     search_fields = ('immatriculation',)
-    raw_id_fields = ('rucher', 'reine')  
+    raw_id_fields = ('rucher',)
 
 @admin.register(Reine)
 class ReineAdmin(admin.ModelAdmin):
     list_display = ('codeCouleur', 'anneeNaissance', 'lignee', 'noteDouceur')
     list_filter = ('anneeNaissance',)
+    raw_id_fields = ('entreprise', 'ruche')
 
 @admin.register(Intervention)
 class InterventionAdmin(admin.ModelAdmin):

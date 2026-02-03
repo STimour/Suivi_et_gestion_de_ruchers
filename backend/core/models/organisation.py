@@ -1,6 +1,6 @@
 from django.db import models
 import uuid
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
 
 class TypeFlore(models.TextChoices):
     ACACIA = 'Acacia', 'Acacia'
@@ -18,6 +18,38 @@ class StatutRuche(models.TextChoices):
     MALADE = 'Malade', 'Malade'
     MORTE = 'Morte', 'Morte'
 
+class TypeRuche(models.TextChoices):
+    DADANT = 'Dadant', 'Dadant'
+    LANGSTROTH = 'Langstroth', 'Langstroth'
+    WARRE = 'Warre', 'Warre'
+    VOIRNOT = 'Voirnot', 'Voirnot'
+    KENYA_TOP_BAR = 'KenyaTopBar', 'KenyaTopBar'
+    RUCHETTE = 'Ruchette', 'Ruchette'
+    NUCLEI = 'Nuclei', 'Nuclei'
+
+class TypeRaceAbeille(models.TextChoices):
+    BUCKFAST = 'Buckfast', 'Buckfast'
+    NOIRE = 'Noire', 'Noire'
+    CARNICA = 'Carnica', 'Carnica'
+    LIGUSTICA = 'Ligustica', 'Ligustica'
+    CAUCASICA = 'Caucasica', 'Caucasica'
+    HYBRIDE_LOCALE = 'HybrideLocale', 'HybrideLocale'
+    INCONNUE = 'Inconnue', 'Inconnue'
+
+class LigneeReine(models.TextChoices):
+    BUCKFAST = 'Buckfast', 'Buckfast'
+    CARNICA = 'Carnica', 'Carnica'
+    LIGUSTICA = 'Ligustica', 'Ligustica'
+    CAUCASICA = 'Caucasica', 'Caucasica'
+    LOCALE = 'Locale', 'Locale'
+    INCONNUE = 'Inconnue', 'Inconnue'
+
+class CodeCouleurReine(models.TextChoices):
+    BLANC = 'Blanc', 'Blanc'
+    JAUNE = 'Jaune', 'Jaune'
+    ROUGE = 'Rouge', 'Rouge'
+    VERT = 'Vert', 'Vert'
+    BLEU = 'Bleu', 'Bleu'
 
 class TypeMaladie(models.TextChoices):
     AUCUNE = 'Aucune', 'Aucune'
@@ -52,9 +84,18 @@ class Rucher(models.Model):
 
 class Ruche(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    immatriculation = models.CharField(max_length=50, unique=True)
-    type = models.CharField(max_length=100)
-    race = models.CharField(max_length=100)
+    immatriculation = models.CharField(
+        max_length=50,
+        unique=True,
+        validators=[
+            RegexValidator(
+                regex=r"^A\d{7}$",
+                message="L'immatriculation doit être au format A1234567.",
+            )
+        ],
+    )
+    type = models.CharField(max_length=20, choices=TypeRuche.choices)
+    race = models.CharField(max_length=20, choices=TypeRaceAbeille.choices)
     statut = models.CharField(max_length=20, choices=StatutRuche.choices, default=StatutRuche.ACTIVE)
     maladie = models.CharField(
         max_length=50,
@@ -63,7 +104,7 @@ class Ruche(models.Model):
     )
     securisee = models.BooleanField(default=False)
     rucher = models.ForeignKey(Rucher, on_delete=models.CASCADE, related_name='ruches')
-    reine = models.OneToOneField('Reine', on_delete=models.SET_NULL, null=True, blank=True, related_name='ruche')
+    # Relation inverse via Reine.ruche
 
     class Meta:
         db_table = 'ruches'
@@ -75,9 +116,11 @@ class Ruche(models.Model):
 
 class Reine(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    entreprise = models.ForeignKey('Entreprise', on_delete=models.CASCADE, related_name='reines', null=True, blank=True)
+    ruche = models.OneToOneField('Ruche', on_delete=models.SET_NULL, null=True, blank=True, related_name='reine')
     anneeNaissance = models.IntegerField(validators=[MinValueValidator(1900), MaxValueValidator(2100)])
-    codeCouleur = models.CharField(max_length=20)
-    lignee = models.CharField(max_length=100)
+    codeCouleur = models.CharField(max_length=10, choices=CodeCouleurReine.choices)
+    lignee = models.CharField(max_length=20, choices=LigneeReine.choices)
     noteDouceur = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)])
     commentaire = models.TextField(blank=True)
     nonReproductible = models.BooleanField(default=False)

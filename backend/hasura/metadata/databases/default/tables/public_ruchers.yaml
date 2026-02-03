@@ -64,6 +64,7 @@ insert_permissions:
 select_permissions:
   - role: AdminEntreprise
     permission:
+      allow_aggregations: true
       columns:
         - nom
         - latitude
@@ -84,6 +85,7 @@ select_permissions:
     comment: ""
   - role: Apiculteur
     permission:
+      allow_aggregations: true
       columns:
         - nom
         - latitude
@@ -104,6 +106,7 @@ select_permissions:
     comment: ""
   - role: Lecteur
     permission:
+      allow_aggregations: true
       columns:
         - nom
         - latitude
