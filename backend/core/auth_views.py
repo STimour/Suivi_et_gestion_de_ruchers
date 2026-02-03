@@ -9,7 +9,14 @@ from django.views.decorators.csrf import csrf_exempt
 
 from datetime import datetime, timedelta, timezone
 
-from core.models import RoleUtilisateur, Utilisateur, Entreprise, UtilisateurEntreprise, Invitation
+from core.models import (
+    RoleUtilisateur,
+    Utilisateur,
+    Entreprise,
+    UtilisateurEntreprise,
+    Invitation,
+    Offre,
+)
 from django.contrib.auth.hashers import check_password, make_password
 
 
@@ -29,27 +36,45 @@ def _make_access_token(user: Utilisateur, entreprise_id=None):
     now = datetime.now(timezone.utc)
     allowed_roles = [RoleUtilisateur.LECTEUR.value, RoleUtilisateur.APICULTEUR.value, RoleUtilisateur.ADMIN_ENTREPRISE.value]
 
-    # Récupérer le rôle de l'utilisateur dans son entreprise
+    # Rôle de l'utilisateur dans l'entreprise (si contexte entreprise)
     role = RoleUtilisateur.LECTEUR.value
+    offre_type = None
     if entreprise_id:
         try:
             user_entreprise = UtilisateurEntreprise.objects.get(
-                utilisateur=user, 
-                entreprise_id=entreprise_id
+                utilisateur=user,
+                entreprise_id=entreprise_id,
             )
             role = user_entreprise.role
         except UtilisateurEntreprise.DoesNotExist:
             pass
 
+        # Offre active de l'entreprise (pour Hasura)
+        offre = (
+            Offre.objects.filter(entreprise_id=entreprise_id, active=True)
+            .order_by("-dateDebut")
+            .first()
+        )
+        if offre:
+            offre_type = offre.type
+
+    hasura_claims = {
+        "x-hasura-user-id": str(user.id),
+        "x-hasura-default-role": role,
+        "x-hasura-allowed-roles": allowed_roles,
+        # alias simple si tu veux utiliser x-hasura-role côté Hasura
+        "x-hasura-role": role,
+    }
+    if entreprise_id:
+        hasura_claims["x-hasura-entreprise-id"] = str(entreprise_id)
+    if offre_type:
+        hasura_claims["x-hasura-offre"] = offre_type
+
     payload = {
         "sub": str(user.id),
         "iat": int(now.timestamp()),
         "exp": int((now + timedelta(hours=24)).timestamp()),
-        "https://hasura.io/jwt/claims": {
-            "x-hasura-user-id": str(user.id),
-            "x-hasura-default-role": role,
-            "x-hasura-allowed-roles": allowed_roles,
-        },
+        "https://hasura.io/jwt/claims": hasura_claims,
     }
     return jwt.encode(payload, _jwt_secret(), algorithm="HS256")
 
@@ -120,20 +145,24 @@ def register(request):
         actif=True,
     )
 
-    token = _make_access_token(user)
-    
-    # Récupérer les entreprises et rôles de l'utilisateur
+    # Récupérer les entreprises de l'utilisateur (au cas où il en a déjà via invitation)
     user_entreprises = UtilisateurEntreprise.objects.filter(
         utilisateur=user
-    ).select_related('entreprise')
-    
-    entreprises_data = []
-    for ue in user_entreprises:
-        entreprises_data.append({
+    ).select_related("entreprise")
+
+    # Contexte entreprise par défaut pour le JWT : première entreprise si existante
+    default_entreprise_id = user_entreprises[0].entreprise_id if user_entreprises else None
+
+    entreprises_data = [
+        {
             "id": str(ue.entreprise.id),
             "nom": ue.entreprise.nom,
-            "role": ue.role
-        })
+            "role": ue.role,
+        }
+        for ue in user_entreprises
+    ]
+
+    token = _make_access_token(user, entreprise_id=default_entreprise_id)
     
     return JsonResponse(
         {
@@ -179,17 +208,20 @@ def login(request):
     # Récupérer les entreprises et rôles de l'utilisateur
     user_entreprises = UtilisateurEntreprise.objects.filter(
         utilisateur=user
-    ).select_related('entreprise')
-    
-    entreprises_data = []
-    for ue in user_entreprises:
-        entreprises_data.append({
+    ).select_related("entreprise")
+
+    default_entreprise_id = user_entreprises[0].entreprise_id if user_entreprises else None
+
+    entreprises_data = [
+        {
             "id": str(ue.entreprise.id),
             "nom": ue.entreprise.nom,
-            "role": ue.role
-        })
-    
-    token = _make_access_token(user)
+            "role": ue.role,
+        }
+        for ue in user_entreprises
+    ]
+
+    token = _make_access_token(user, entreprise_id=default_entreprise_id)
     return JsonResponse(
         {
             "access_token": token,

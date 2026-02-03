@@ -18,6 +18,20 @@ class StatutRuche(models.TextChoices):
     MALADE = 'Malade', 'Malade'
     MORTE = 'Morte', 'Morte'
 
+
+class TypeMaladie(models.TextChoices):
+    AUCUNE = 'Aucune', 'Aucune'
+    VARROOSE = 'Varroose', 'Varroose'
+    NOSEMOSE = 'Nosemose', 'Nosemose'
+    LOQUE_AMERICAINE = 'LoqueAmericaine', 'LoqueAmericaine'
+    LOQUE_EUROPEENNE = 'LoqueEuropeenne', 'LoqueEuropeenne'
+    ACARAPISOSE = 'Acarapisose', 'Acarapisose'
+    ASCOSPHEROSE = 'Ascospherose', 'Ascospherose'
+    TROPILAEPS = 'Tropilaelaps', 'Tropilaelaps'
+    VIRUS_AILES_DEFORMEES = 'VirusAilesDeformees', 'VirusAilesDeformees'
+    PARALYSIE_CHRONIQUE = 'ParalysieChronique', 'ParalysieChronique'
+    INTOXICATION_PESTICIDES = 'IntoxicationPesticides', 'IntoxicationPesticides'
+
 class Rucher(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     nom = models.CharField(max_length=200)
@@ -42,6 +56,11 @@ class Ruche(models.Model):
     type = models.CharField(max_length=100)
     race = models.CharField(max_length=100)
     statut = models.CharField(max_length=20, choices=StatutRuche.choices, default=StatutRuche.ACTIVE)
+    maladie = models.CharField(
+        max_length=50,
+        choices=TypeMaladie.choices,
+        default=TypeMaladie.AUCUNE,
+    )
     securisee = models.BooleanField(default=False)
     rucher = models.ForeignKey(Rucher, on_delete=models.CASCADE, related_name='ruches')
     reine = models.OneToOneField('Reine', on_delete=models.SET_NULL, null=True, blank=True, related_name='ruche')
