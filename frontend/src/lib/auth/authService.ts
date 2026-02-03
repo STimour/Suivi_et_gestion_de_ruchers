@@ -1,3 +1,5 @@
+import { toast } from 'sonner';
+
 const DJANGO_API_URL = process.env.NEXT_PUBLIC_DJANGO_API_URL || 'http://localhost:8000';
 const GRAPHQL_URL = process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT || 'http://localhost:8081/v1/graphql';
 
@@ -43,6 +45,33 @@ export interface EntrepriseResponse {
 class AuthService {
   private tokenKey = 'access_token';
   private refreshTokenKey = 'refresh_token';
+
+  // Wrapper fetch avec gestion des erreurs 401/403
+  private async fetchWithErrorHandling(url: string, options: RequestInit): Promise<Response> {
+    const response = await fetch(url, options);
+
+    // Handle 401 Unauthorized
+    if (response.status === 401) {
+      toast.error('Session expirée', {
+        description: 'Veuillez vous reconnecter'
+      });
+      this.clearTokens();
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login';
+      }
+      throw new Error('Session expirée. Veuillez vous reconnecter.');
+    }
+
+    // Handle 403 Forbidden
+    if (response.status === 403) {
+      toast.error('Accès refusé', {
+        description: 'Permissions insuffisantes'
+      });
+      throw new Error('Vous n\'avez pas les permissions nécessaires.');
+    }
+
+    return response;
+  }
 
   async register(data: RegisterData): Promise<AuthResponse> {
     // 1. Register user
@@ -143,7 +172,7 @@ class AuthService {
       throw new Error('Non authentifié');
     }
 
-    const response = await fetch(`${DJANGO_API_URL}/api/auth/me`, {
+    const response = await this.fetchWithErrorHandling(`${DJANGO_API_URL}/api/auth/me`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${authToken}`,

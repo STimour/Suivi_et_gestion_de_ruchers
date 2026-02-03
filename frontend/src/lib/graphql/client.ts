@@ -1,18 +1,72 @@
 import { ApolloClient, InMemoryCache, HttpLink, from } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
+import { toast } from 'sonner';
 
-// Gestion des erreurs GraphQL
+// Gestion des erreurs GraphQL avec support 401/403
 const errorLink = onError(({ graphQLErrors, networkError }: any) => {
   if (graphQLErrors) {
-    graphQLErrors.forEach(({ message, locations, path }: any) =>
+    graphQLErrors.forEach(({ message, extensions }: any) => {
+      const errorCode = extensions?.code;
+
+      // Handle 401 Unauthorized - Session expirée
+      if (errorCode === 'UNAUTHENTICATED' || errorCode === 'UNAUTHORIZED' || message.includes('Unauthorized')) {
+        toast.error('Session expirée', {
+          description: 'Veuillez vous reconnecter'
+        });
+
+        // Clear tokens and redirect to login
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('access_token');
+          localStorage.removeItem('refresh_token');
+          window.location.href = '/login';
+        }
+        return;
+      }
+
+      // Handle 403 Forbidden - Permissions insuffisantes
+      if (errorCode === 'FORBIDDEN' || message.includes('permission')) {
+        toast.error('Accès refusé', {
+          description: 'Vous n\'avez pas les permissions nécessaires'
+        });
+      }
+
       console.error(
-        `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`
-      )
-    );
+        `[GraphQL error]: Message: ${message}, Code: ${errorCode}`
+      );
+    });
   }
+
   if (networkError) {
+    const statusCode = (networkError as any)?.statusCode;
+
+    // Handle HTTP 401
+    if (statusCode === 401) {
+      toast.error('Session expirée', {
+        description: 'Veuillez vous reconnecter'
+      });
+
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        window.location.href = '/login';
+      }
+      return;
+    }
+
+    // Handle HTTP 403
+    if (statusCode === 403) {
+      toast.error('Accès refusé', {
+        description: 'Permissions insuffisantes'
+      });
+      return;
+    }
+
+    // Other network errors
     console.error(`[Network error]: ${networkError}`);
+    toast.error('Erreur de connexion', {
+      description: 'Impossible de contacter le serveur'
+    });
   }
 });
 
