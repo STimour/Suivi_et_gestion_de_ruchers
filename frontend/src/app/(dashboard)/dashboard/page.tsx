@@ -9,7 +9,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Hexagon, MapPin, Plus, TrendingUp, AlertTriangle, Upload } from "lucide-react";
 import { GET_RUCHERS } from '@/lib/graphql/queries/rucher.queries';
 import { GET_RUCHES } from '@/lib/graphql/queries/ruche.queries';
-import { CreateRucherDialog } from '@/components/rucher/CreateRucherDialog';
+import { CreateRucherDialog } from '@/components/rucher/RucherDialog';
 import { CreateRucheDialog } from '@/components/ruche/CreateRucheDialog';
 import { BulkCreateRuchesDialog } from '@/components/ruche/BulkCreateRuchesDialog';
 import Link from "next/link";

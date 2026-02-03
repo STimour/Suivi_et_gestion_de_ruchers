@@ -25,6 +25,7 @@ interface AuthContextType {
   login: (data: LoginData) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
   logout: () => Promise<void>;
+  switchEntreprise: (entrepriseId: string) => Promise<void>;
   isAuthenticated: boolean;
 }
 
@@ -73,6 +74,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const switchEntreprise = async (entrepriseId: string) => {
+    try {
+      const data = await authService.switchEntreprise(entrepriseId);
+
+      // Refresh user data with new token
+      const userData = await authService.getMe(data.access_token);
+      setUser(userData);
+
+      // Reload the page to refresh all GraphQL queries with new entreprise context
+      window.location.reload();
+    } catch (error) {
+      console.error('Erreur lors du changement d\'entreprise:', error);
+      throw error;
+    }
+  };
+
   const logout = async () => {
     try {
       await authService.logout();
@@ -91,6 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         register,
         logout,
+        switchEntreprise,
         isAuthenticated: !!user,
       }}
     >

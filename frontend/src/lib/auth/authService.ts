@@ -146,6 +146,35 @@ class AuthService {
     return authData;
   }
 
+  async switchEntreprise(entrepriseId: string): Promise<{ access_token: string; entreprise: any }> {
+    const token = this.getToken();
+
+    if (!token) {
+      throw new Error('Non authentifié');
+    }
+
+    const response = await this.fetchWithErrorHandling(`${DJANGO_API_URL}/api/auth/switch-entreprise`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ entreprise_id: entrepriseId }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Erreur lors du changement d\'entreprise');
+    }
+
+    const data = await response.json();
+
+    // Update token
+    this.setToken(data.access_token);
+
+    return data;
+  }
+
   async logout(): Promise<void> {
     const token = this.getToken();
 
@@ -163,6 +192,24 @@ class AuthService {
     }
 
     this.clearTokens();
+  }
+
+  // Décoder le JWT pour extraire l'entreprise_id active
+  private decodeJWT(token: string): any {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      return JSON.parse(jsonPayload);
+    } catch (error) {
+      console.error('Erreur lors du décodage du JWT:', error);
+      return null;
+    }
   }
 
   async getMe(token?: string): Promise<any> {
@@ -188,11 +235,19 @@ class AuthService {
     // L'API retourne { user: { ... } }
     const userData = data.user || data;
 
-    // Extraire l'entreprise_id depuis le tableau entreprises
+    // Décoder le JWT pour trouver l'entreprise active
+    const jwtPayload = this.decodeJWT(authToken);
+    const activeEntrepriseId = jwtPayload?.['https://hasura.io/jwt/claims']?.['x-hasura-entreprise-id'];
+
+    // Trouver l'entreprise active dans le tableau entreprises
     if (userData.entreprises && userData.entreprises.length > 0) {
-      userData.entreprise_id = userData.entreprises[0].id;
-      userData.entreprise_nom = userData.entreprises[0].nom;
-      userData.entreprise_role = userData.entreprises[0].role;
+      const activeEntreprise = userData.entreprises.find(
+        (e: any) => e.id === activeEntrepriseId
+      ) || userData.entreprises[0];
+
+      userData.entreprise_id = activeEntreprise.id;
+      userData.entreprise_nom = activeEntreprise.nom;
+      userData.entreprise_role = activeEntreprise.role;
     }
 
     return userData;

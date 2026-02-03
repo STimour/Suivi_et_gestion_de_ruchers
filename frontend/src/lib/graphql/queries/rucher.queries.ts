@@ -3,7 +3,7 @@ import { gql } from '@apollo/client';
 // Query pour récupérer tous les ruchers
 export const GET_RUCHERS = gql`
   query GetRuchers {
-    ruchers {
+    ruchers(order_by: { nom: asc }) {
       id
       nom
       latitude
@@ -13,7 +13,6 @@ export const GET_RUCHERS = gql`
       notes
       ruches {
         id
-        immatriculation
       }
     }
   }
