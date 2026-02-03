@@ -1,0 +1,211 @@
+table:
+  name: ruches
+  schema: public
+object_relationships:
+  - name: reine
+    using:
+      foreign_key_constraint_on: reine_id
+  - name: rucher
+    using:
+      foreign_key_constraint_on: rucher_id
+array_relationships:
+  - name: capteurs
+    using:
+      foreign_key_constraint_on:
+        column: ruche_id
+        table:
+          name: capteurs
+          schema: public
+  - name: interventions
+    using:
+      foreign_key_constraint_on:
+        column: ruche_id
+        table:
+          name: interventions
+          schema: public
+insert_permissions:
+  - role: AdminEntreprise
+    permission:
+      check:
+        _and:
+          - rucher:
+              entreprise_id:
+                _eq: X-Hasura-Entreprise-Id
+          - rucher:
+              entreprise:
+                utilisateurs_entreprises:
+                  utilisateur_id:
+                    _eq: X-Hasura-User-Id
+      columns:
+        - immatriculation
+        - type
+        - race
+        - statut
+        - securisee
+        - maladie
+        - id
+        - rucher_id
+    comment: Vérification des limites via trigger PostgreSQL
+  - role: Apiculteur
+    permission:
+      check:
+        _and:
+          - rucher:
+              entreprise_id:
+                _eq: X-Hasura-Entreprise-Id
+          - rucher:
+              entreprise:
+                utilisateurs_entreprises:
+                  utilisateur_id:
+                    _eq: X-Hasura-User-Id
+      columns:
+        - immatriculation
+        - type
+        - race
+        - statut
+        - securisee
+        - maladie
+        - id
+        - rucher_id
+    comment: Vérification des limites via trigger PostgreSQL
+select_permissions:
+  - role: AdminEntreprise
+    permission:
+      columns:
+        - immatriculation
+        - type
+        - race
+        - statut
+        - securisee
+        - maladie
+        - id
+        - rucher_id
+      filter:
+        _and:
+          - rucher:
+              entreprise_id:
+                _eq: X-Hasura-Entreprise-Id
+          - rucher:
+              entreprise:
+                utilisateurs_entreprises:
+                  utilisateur_id:
+                    _eq: X-Hasura-User-Id
+    comment: ""
+  - role: Apiculteur
+    permission:
+      columns:
+        - immatriculation
+        - type
+        - race
+        - statut
+        - securisee
+        - maladie
+        - id
+        - rucher_id
+      filter:
+        _and:
+          - rucher:
+              entreprise_id:
+                _eq: X-Hasura-Entreprise-Id
+          - rucher:
+              entreprise:
+                utilisateurs_entreprises:
+                  utilisateur_id:
+                    _eq: X-Hasura-User-Id
+    comment: ""
+  - role: Lecteur
+    permission:
+      columns:
+        - immatriculation
+        - type
+        - race
+        - statut
+        - securisee
+        - maladie
+        - id
+        - rucher_id
+      filter:
+        _and:
+          - rucher:
+              entreprise_id:
+                _eq: X-Hasura-Entreprise-Id
+          - rucher:
+              entreprise:
+                utilisateurs_entreprises:
+                  utilisateur_id:
+                    _eq: X-Hasura-User-Id
+    comment: ""
+update_permissions:
+  - role: AdminEntreprise
+    permission:
+      columns:
+        - immatriculation
+        - type
+        - race
+        - statut
+        - securisee
+        - maladie
+        - id
+        - rucher_id
+      filter:
+        _and:
+          - rucher:
+              entreprise_id:
+                _eq: X-Hasura-Entreprise-Id
+          - rucher:
+              entreprise:
+                utilisateurs_entreprises:
+                  utilisateur_id:
+                    _eq: X-Hasura-User-Id
+      check: null
+    comment: ""
+  - role: Apiculteur
+    permission:
+      columns:
+        - immatriculation
+        - type
+        - race
+        - statut
+        - securisee
+        - maladie
+        - id
+        - rucher_id
+      filter:
+        _and:
+          - rucher:
+              entreprise_id:
+                _eq: X-Hasura-Entreprise-Id
+          - rucher:
+              entreprise:
+                utilisateurs_entreprises:
+                  utilisateur_id:
+                    _eq: X-Hasura-User-Id
+      check: null
+    comment: ""
+delete_permissions:
+  - role: AdminEntreprise
+    permission:
+      filter:
+        _and:
+          - rucher:
+              entreprise_id:
+                _eq: X-Hasura-Entreprise-Id
+          - rucher:
+              entreprise:
+                utilisateurs_entreprises:
+                  utilisateur_id:
+                    _eq: X-Hasura-User-Id
+    comment: ""
+  - role: Apiculteur
+    permission:
+      filter:
+        _and:
+          - rucher:
+              entreprise_id:
+                _eq: X-Hasura-Entreprise-Id
+          - rucher:
+              entreprise:
+                utilisateurs_entreprises:
+                  utilisateur_id:
+                    _eq: X-Hasura-User-Id
+    comment: ""

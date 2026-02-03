@@ -1,0 +1,22 @@
+table:
+  name: auth_permission
+  schema: public
+object_relationships:
+  - name: django_content_type
+    using:
+      foreign_key_constraint_on: content_type_id
+array_relationships:
+  - name: auth_group_permissions
+    using:
+      foreign_key_constraint_on:
+        column: permission_id
+        table:
+          name: auth_group_permissions
+          schema: public
+  - name: auth_user_user_permissions
+    using:
+      foreign_key_constraint_on:
+        column: permission_id
+        table:
+          name: auth_user_user_permissions
+          schema: public

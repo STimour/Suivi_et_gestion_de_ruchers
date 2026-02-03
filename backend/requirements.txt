@@ -1,5 +1,4 @@
-Django>=5.0
-graphene-django
-psycopg2-binary
-django-environ
-gunicorn
+Django==5.0
+psycopg2-binary==2.9.9
+PyJWT==2.8.0
+django-cors-headers==4.3.1

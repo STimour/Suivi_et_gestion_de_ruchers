@@ -22,7 +22,7 @@ Cette application aide les apiculteurs à digitaliser la gestion de leurs rucher
 
 **Backend**
 - Python 3.11+ / Django 5.x
-- GraphQL (Graphene-Django)
+- Hasura GraphQL Engine
 - PostgreSQL 15+
 
 **Frontend**
@@ -32,22 +32,17 @@ Cette application aide les apiculteurs à digitaliser la gestion de leurs rucher
 - TailwindCSS + Shadcn/ui
 
 **Communication**
-- API GraphQL unique (`/graphql`)
+- API GraphQL unique via Hasura (`http://localhost:8081/v1/graphql`)
 
 ## 🚀 Installation
-
-### Prérequis
-- Python 3.11+
-- Node.js 18+
-- PostgreSQL 15+
-
-### Backend
-```bash
-cd backend
-pip install -r requirements.txt
-python manage.py migrate
-python manage.py runserver
-```
+ 
+ ### Prérequis
+ - Python 3.11+
+ - Node.js 18+
+ - PostgreSQL 15+
+ 
+ ### Backend
+ Pour la mise en place complète du backend (copie de `.env`, `docker compose up -d`, migrations, création du superutilisateur), veuillez consulter le guide dédié : [backend/README.md](./backend/README.md).
 
 ### Frontend
 ```bash
@@ -61,7 +56,7 @@ L'application sera accessible sur `http://localhost:3000`
 ## 📁 Structure
 
 ```
-├── backend/          # API Django + GraphQL
+├── backend/          # Django + Hasura
 │   ├── apps/         # Modules métier (ruchers, ruches, interventions...)
 │   └── config/       # Configuration Django
 ├── frontend/         # Interface Next.js

@@ -1,0 +1,81 @@
+table:
+  name: utilisateurs
+  schema: public
+array_relationships:
+  - name: invitations
+    using:
+      foreign_key_constraint_on:
+        column: envoyeePar_id
+        table:
+          name: invitations
+          schema: public
+  - name: utilisateurs_entreprises
+    using:
+      foreign_key_constraint_on:
+        column: utilisateur_id
+        table:
+          name: utilisateurs_entreprises
+          schema: public
+insert_permissions:
+  - role: AdminEntreprise
+    permission:
+      check: {}
+      columns:
+        - actif
+        - email
+        - motDePasseHash
+        - nom
+        - prenom
+        - dateCreation
+        - id
+    comment: ""
+select_permissions:
+  - role: AdminEntreprise
+    permission:
+      columns:
+        - actif
+        - email
+        - motDePasseHash
+        - nom
+        - prenom
+        - dateCreation
+        - id
+      filter:
+        id:
+          _eq: X-Hasura-User-Id
+    comment: ""
+  - role: Lecteur
+    permission:
+      columns:
+        - actif
+        - email
+        - motDePasseHash
+        - nom
+        - prenom
+        - dateCreation
+        - id
+      filter: {}
+    comment: ""
+update_permissions:
+  - role: AdminEntreprise
+    permission:
+      columns:
+        - actif
+        - email
+        - motDePasseHash
+        - nom
+        - prenom
+        - dateCreation
+        - id
+      filter: {}
+      check:
+        id:
+          _eq: X-Hasura-User-Id
+    comment: ""
+delete_permissions:
+  - role: AdminEntreprise
+    permission:
+      filter:
+        id:
+          _eq: X-Hasura-User-Id
+    comment: ""

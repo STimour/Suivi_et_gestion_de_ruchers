@@ -1,0 +1,215 @@
+table:
+  name: alertes
+  schema: public
+object_relationships:
+  - name: capteur
+    using:
+      foreign_key_constraint_on: capteur_id
+insert_permissions:
+  - role: AdminEntreprise
+    permission:
+      check:
+        _and:
+          - capteur:
+              ruch:
+                rucher:
+                  entreprise_id:
+                    _eq: X-Hasura-Entreprise-Id
+          - capteur:
+              ruch:
+                rucher:
+                  entreprise:
+                    utilisateurs_entreprises:
+                      utilisateur_id:
+                        _eq: X-Hasura-User-Id
+      columns:
+        - type
+        - date
+        - message
+        - acquittee
+        - capteur_id
+        - id
+    comment: Vérification des limites via trigger PostgreSQL
+  - role: Apiculteur
+    permission:
+      check:
+        _and:
+          - capteur:
+              ruch:
+                rucher:
+                  entreprise_id:
+                    _eq: X-Hasura-Entreprise-Id
+          - capteur:
+              ruch:
+                rucher:
+                  entreprise:
+                    utilisateurs_entreprises:
+                      utilisateur_id:
+                        _eq: X-Hasura-User-Id
+      columns:
+        - type
+        - date
+        - message
+        - acquittee
+        - capteur_id
+        - id
+    comment: Vérification des limites via trigger PostgreSQL
+select_permissions:
+  - role: AdminEntreprise
+    permission:
+      columns:
+        - type
+        - date
+        - message
+        - acquittee
+        - capteur_id
+        - id
+      filter:
+        _and:
+          - capteur:
+              ruch:
+                rucher:
+                  entreprise_id:
+                    _eq: X-Hasura-Entreprise-Id
+          - capteur:
+              ruch:
+                rucher:
+                  entreprise:
+                    utilisateurs_entreprises:
+                      utilisateur_id:
+                        _eq: X-Hasura-User-Id
+    comment: ""
+  - role: Apiculteur
+    permission:
+      columns:
+        - type
+        - date
+        - message
+        - acquittee
+        - capteur_id
+        - id
+      filter:
+        _and:
+          - capteur:
+              ruch:
+                rucher:
+                  entreprise_id:
+                    _eq: X-Hasura-Entreprise-Id
+          - capteur:
+              ruch:
+                rucher:
+                  entreprise:
+                    utilisateurs_entreprises:
+                      utilisateur_id:
+                        _eq: X-Hasura-User-Id
+    comment: ""
+  - role: Lecteur
+    permission:
+      columns:
+        - type
+        - date
+        - message
+        - acquittee
+        - capteur_id
+        - id
+      filter:
+        _and:
+          - capteur:
+              ruch:
+                rucher:
+                  entreprise_id:
+                    _eq: X-Hasura-Entreprise-Id
+          - capteur:
+              ruch:
+                rucher:
+                  entreprise:
+                    utilisateurs_entreprises:
+                      utilisateur_id:
+                        _eq: X-Hasura-User-Id
+    comment: ""
+update_permissions:
+  - role: AdminEntreprise
+    permission:
+      columns:
+        - type
+        - date
+        - message
+        - acquittee
+        - capteur_id
+        - id
+      filter:
+        _and:
+          - capteur:
+              ruch:
+                rucher:
+                  entreprise_id:
+                    _eq: X-Hasura-Entreprise-Id
+          - capteur:
+              ruch:
+                rucher:
+                  entreprise:
+                    utilisateurs_entreprises:
+                      utilisateur_id:
+                        _eq: X-Hasura-User-Id
+      check: null
+    comment: ""
+  - role: Apiculteur
+    permission:
+      columns:
+        - type
+        - date
+        - message
+        - acquittee
+        - capteur_id
+        - id
+      filter:
+        _and:
+          - capteur:
+              ruch:
+                rucher:
+                  entreprise_id:
+                    _eq: X-Hasura-Entreprise-Id
+          - capteur:
+              ruch:
+                rucher:
+                  entreprise:
+                    utilisateurs_entreprises:
+                      utilisateur_id:
+                        _eq: X-Hasura-User-Id
+      check: null
+    comment: ""
+delete_permissions:
+  - role: AdminEntreprise
+    permission:
+      filter:
+        _and:
+          - capteur:
+              ruch:
+                rucher:
+                  entreprise_id:
+                    _eq: X-Hasura-Entreprise-Id
+          - capteur:
+              ruch:
+                rucher:
+                  entreprise:
+                    utilisateurs_entreprises:
+                      utilisateur_id:
+                        _eq: X-Hasura-User-Id
+    comment: ""
+  - role: Apiculteur
+    permission:
+      filter:
+        _and:
+          - capteur:
+              ruch:
+                rucher:
+                  entreprise_id:
+                    _eq: X-Hasura-Entreprise-Id
+          - capteur:
+              ruch:
+                rucher:
+                  entreprise:
+                    utilisateurs_entreprises:
+                      utilisateur_id:
+                        _eq: X-Hasura-User-Id
+    comment: ""

@@ -1,0 +1,157 @@
+table:
+  name: utilisateurs_entreprises
+  schema: public
+object_relationships:
+  - name: entreprise
+    using:
+      foreign_key_constraint_on: entreprise_id
+  - name: utilisateur
+    using:
+      foreign_key_constraint_on: utilisateur_id
+insert_permissions:
+  - role: AdminEntreprise
+    permission:
+      check:
+        _and:
+          - entreprise_id:
+              _eq: X-Hasura-Entreprise-Id
+          - entreprise:
+              utilisateurs_entreprises:
+                utilisateur_id:
+                  _eq: X-Hasura-User-Id
+      columns:
+        - role
+        - dateAjout
+        - entreprise_id
+        - id
+        - utilisateur_id
+    comment: Vérification des limites via trigger PostgreSQL
+  - role: Apiculteur
+    permission:
+      check:
+        _and:
+          - entreprise_id:
+              _eq: X-Hasura-Entreprise-Id
+          - entreprise:
+              utilisateurs_entreprises:
+                utilisateur_id:
+                  _eq: X-Hasura-User-Id
+      columns:
+        - role
+        - dateAjout
+        - entreprise_id
+        - id
+        - utilisateur_id
+    comment: Vérification des limites via trigger PostgreSQL
+select_permissions:
+  - role: AdminEntreprise
+    permission:
+      columns:
+        - role
+        - dateAjout
+        - entreprise_id
+        - id
+        - utilisateur_id
+      filter:
+        _and:
+          - entreprise_id:
+              _eq: X-Hasura-Entreprise-Id
+          - entreprise:
+              utilisateurs_entreprises:
+                utilisateur_id:
+                  _eq: X-Hasura-User-Id
+    comment: ""
+  - role: Apiculteur
+    permission:
+      columns:
+        - role
+        - dateAjout
+        - entreprise_id
+        - id
+        - utilisateur_id
+      filter:
+        _and:
+          - entreprise_id:
+              _eq: X-Hasura-Entreprise-Id
+          - entreprise:
+              utilisateurs_entreprises:
+                utilisateur_id:
+                  _eq: X-Hasura-User-Id
+    comment: ""
+  - role: Lecteur
+    permission:
+      columns:
+        - role
+        - dateAjout
+        - entreprise_id
+        - id
+        - utilisateur_id
+      filter:
+        _and:
+          - entreprise_id:
+              _eq: X-Hasura-Entreprise-Id
+          - entreprise:
+              utilisateurs_entreprises:
+                utilisateur_id:
+                  _eq: X-Hasura-User-Id
+    comment: ""
+update_permissions:
+  - role: AdminEntreprise
+    permission:
+      columns:
+        - role
+        - dateAjout
+        - entreprise_id
+        - id
+        - utilisateur_id
+      filter:
+        _and:
+          - entreprise_id:
+              _eq: X-Hasura-Entreprise-Id
+          - entreprise:
+              utilisateurs_entreprises:
+                utilisateur_id:
+                  _eq: X-Hasura-User-Id
+      check: null
+    comment: ""
+  - role: Apiculteur
+    permission:
+      columns:
+        - role
+        - dateAjout
+        - entreprise_id
+        - id
+        - utilisateur_id
+      filter:
+        _and:
+          - entreprise_id:
+              _eq: X-Hasura-Entreprise-Id
+          - entreprise:
+              utilisateurs_entreprises:
+                utilisateur_id:
+                  _eq: X-Hasura-User-Id
+      check: null
+    comment: ""
+delete_permissions:
+  - role: AdminEntreprise
+    permission:
+      filter:
+        _and:
+          - entreprise_id:
+              _eq: X-Hasura-Entreprise-Id
+          - entreprise:
+              utilisateurs_entreprises:
+                utilisateur_id:
+                  _eq: X-Hasura-User-Id
+    comment: ""
+  - role: Apiculteur
+    permission:
+      filter:
+        _and:
+          - entreprise_id:
+              _eq: X-Hasura-Entreprise-Id
+          - entreprise:
+              utilisateurs_entreprises:
+                utilisateur_id:
+                  _eq: X-Hasura-User-Id
+    comment: ""

@@ -16,6 +16,16 @@ RUN npm ci
 FROM node:20-alpine AS builder
 WORKDIR /app
 
+# Arguments de build
+ARG NEXT_PUBLIC_GRAPHQL_ENDPOINT=http://localhost:8081/v1/graphql
+ARG NEXT_PUBLIC_HASURA_ADMIN_SECRET=adminsecret
+ARG NEXT_PUBLIC_DJANGO_API_URL=http://localhost:8000
+
+# Convertir les args en variables d'environnement pour le build
+ENV NEXT_PUBLIC_GRAPHQL_ENDPOINT=$NEXT_PUBLIC_GRAPHQL_ENDPOINT
+ENV NEXT_PUBLIC_HASURA_ADMIN_SECRET=$NEXT_PUBLIC_HASURA_ADMIN_SECRET
+ENV NEXT_PUBLIC_DJANGO_API_URL=$NEXT_PUBLIC_DJANGO_API_URL
+
 # Copier les dépendances depuis deps
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .

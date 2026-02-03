@@ -206,4 +206,11 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Placeholders discrets et subtils */
+  input::placeholder,
+  textarea::placeholder {
+    color: hsl(var(--muted-foreground) / 0.5);
+    font-weight: 400;
+  }
 }

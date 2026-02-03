@@ -1,0 +1,10 @@
+table:
+  name: auth_group_permissions
+  schema: public
+object_relationships:
+  - name: auth_group
+    using:
+      foreign_key_constraint_on: group_id
+  - name: auth_permission
+    using:
+      foreign_key_constraint_on: permission_id

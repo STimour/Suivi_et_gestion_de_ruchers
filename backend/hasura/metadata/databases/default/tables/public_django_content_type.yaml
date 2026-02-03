@@ -1,0 +1,18 @@
+table:
+  name: django_content_type
+  schema: public
+array_relationships:
+  - name: auth_permissions
+    using:
+      foreign_key_constraint_on:
+        column: content_type_id
+        table:
+          name: auth_permission
+          schema: public
+  - name: django_admin_logs
+    using:
+      foreign_key_constraint_on:
+        column: content_type_id
+        table:
+          name: django_admin_log
+          schema: public

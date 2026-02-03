@@ -1,0 +1,959 @@
+{
+  "info": {
+    "_postman_id": "0f8bf8c5-3d9f-4f51-8c7a-b9b2f5a8c1d6",
+    "name": "Suivi et Gestion de Ruchers - Auth (Django + Hasura)",
+    "description": "Register: email, password, nom, prenom. Login: JWT Hasura. POST /api/entreprise (créer entreprise, user connecté = AdminEntreprise). POST /api/auth/accept-invitation (token) pour rejoindre une entreprise. Hasura pour invitations/ruchers.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "djangoBaseUrl",
+      "value": "http://localhost:8000"
+    },
+    {
+      "key": "hasuraBaseUrl",
+      "value": "http://localhost:8081"
+    },
+    {
+      "key": "hasuraAdminSecret",
+      "value": ""
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "rucherId",
+      "value": ""
+    },
+    {
+      "key": "rucheId",
+      "value": ""
+    },
+    {
+      "key": "entrepriseId",
+      "value": ""
+    },
+    {
+      "key": "invitationToken",
+      "value": ""
+    },
+    {
+      "key": "userId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test2@example.com\",\n  \"password\": \"test1234\",\n  \"nom\": \"Test\",\n  \"prenom\": \"User\"\n}"
+            },
+            "url": {
+              "raw": "{{djangoBaseUrl}}/api/auth/register",
+              "host": [
+                "{{djangoBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "try {",
+                  "  const json = pm.response.json();",
+                  "  if (json && json.access_token) {",
+                  "    pm.collectionVariables.set('accessToken', json.access_token);",
+                  "  }",
+                  "} catch (e) {}",
+                  "",
+                  "try {",
+                  "  const json = pm.response.json();",
+                  "  const userId = json?.user?.id;",
+                  "  if (userId) {",
+                  "    pm.collectionVariables.set('userId', userId);",
+                  "  }",
+                  "} catch (e) {}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"test1234\"\n}"
+            },
+            "url": {
+              "raw": "{{djangoBaseUrl}}/api/auth/login",
+              "host": [
+                "{{djangoBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "try {",
+                  "  const json = pm.response.json();",
+                  "  if (json && json.access_token) {",
+                  "    pm.collectionVariables.set('accessToken', json.access_token);",
+                  "  }",
+                  "} catch (e) {}",
+                  "",
+                  "try {",
+                  "  const json = pm.response.json();",
+                  "  const userId = json?.user?.id;",
+                  "  if (userId) {",
+                  "    pm.collectionVariables.set('userId', userId);",
+                  "  }",
+                  "} catch (e) {}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Me",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{djangoBaseUrl}}/api/auth/me",
+              "host": [
+                "{{djangoBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Accept Invitation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{invitationToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{djangoBaseUrl}}/api/auth/accept-invitation",
+              "host": [
+                "{{djangoBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "accept-invitation"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 or 201', function () {",
+                  "  pm.expect([200, 201]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{djangoBaseUrl}}/api/auth/logout",
+              "host": [
+                "{{djangoBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 or 204', function () {",
+                  "  pm.expect([200, 204]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if ([200, 204].includes(pm.response.code)) {",
+                  "  pm.collectionVariables.set('accessToken', '');",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Entreprise",
+      "item": [
+        {
+          "name": "Créer entreprise",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Mon Rucher SARL\",\n  \"adresse\": \"123 rue des Abeilles\"\n}"
+            },
+            "url": {
+              "raw": "{{djangoBaseUrl}}/api/entreprise",
+              "host": [
+                "{{djangoBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "entreprise"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                      "try {",
+                      "  const json = pm.response.json();",
+                      "  if (json && json.id) {",
+                      "    pm.collectionVariables.set('entrepriseId', json.id);",
+                      "  }",
+                      "  const token = json?.access_token;",
+                      "  if (token) {",
+                      "    pm.collectionVariables.set('accessToken', token);",
+                      "  }",
+                      "} catch (e) {}"
+                    ]
+                  }
+                }
+          ]
+        },
+        {
+          "name": "Switch Entreprise",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"entreprise_id\": \"{{entrepriseId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{djangoBaseUrl}}/api/auth/switch-entreprise",
+              "host": [
+                "{{djangoBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "switch-entreprise"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "try {",
+                  "  const json = pm.response.json();",
+                  "  if (json && json.access_token) {",
+                  "    pm.collectionVariables.set('accessToken', json.access_token);",
+                  "  }",
+                  "} catch (e) {}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Hasura",
+      "item": [
+        {
+          "name": "GraphQL (Hasura) - __typename",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "x-hasura-admin-secret",
+                "value": "{{hasuraAdminSecret}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query { __typename }\"\n}"
+            },
+            "url": {
+              "raw": "{{hasuraBaseUrl}}/v1/graphql",
+              "host": [
+                "{{hasuraBaseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "graphql"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "CRUD - Ruchers",
+          "item": [
+            {
+              "name": "Ruchers - List",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"query\": \"query { ruchers { id nom latitude longitude flore altitude notes entreprise { id nom adresse } } }\"\n}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Ruchers - Get by id",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"query\": \"query($id: uuid!) { ruchers_by_pk(id: $id) { id nom latitude longitude flore altitude notes entreprise { id nom adresse } } }\",\n  \"variables\": {\n    \"id\": \"{{rucherId}}\"\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Ruchers - Create",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"query\": \"mutation($object: ruchers_insert_input!) { insert_ruchers_one(object: $object) { id } }\",\n  \"variables\": {\n    \"object\": {\n      \"nom\": \"Rucher Postman\",\n      \"latitude\": 48.8566,\n      \"longitude\": 2.3522,\n      \"flore\": \"ToutesFleurs\",\n      \"altitude\": 35,\n      \"notes\": \"Créé depuis Postman\",\n      \"entreprise_id\": \"{{entrepriseId}}\"\n    }\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "try {",
+                      "  const json = pm.response.json();",
+                      "  const id = json?.data?.insert_ruchers_one?.id;",
+                      "  if (id) {",
+                      "    pm.collectionVariables.set('rucherId', id);",
+                      "  }",
+                      "} catch (e) {}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Ruchers - Update",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"query\": \"mutation($id: uuid!, $changes: ruchers_set_input!) { update_ruchers_by_pk(pk_columns: {id: $id}, _set: $changes) { id nom notes } }\",\n  \"variables\": {\n    \"id\": \"{{rucherId}}\",\n    \"changes\": {\n      \"notes\": \"Modifié depuis Postman\"\n    }\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Ruchers - Delete",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"query\": \"mutation($id: uuid!) { delete_ruchers_by_pk(id: $id) { id } }\",\n  \"variables\": {\n    \"id\": \"{{rucherId}}\"\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "CRUD - Ruches",
+          "item": [
+            {
+              "name": "Ruches - List",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"query\": \"query { ruches { id immatriculation type race statut securisee rucher { id nom } reine { id } } }\"\n}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Ruches - Get by id",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"query\": \"query($id: uuid!) { ruches_by_pk(id: $id) { id immatriculation type race statut securisee rucher { id nom } } }\",\n  \"variables\": {\n    \"id\": \"{{rucheId}}\"\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Ruches - Create",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"query\": \"mutation($object: ruches_insert_input!) { insert_ruches_one(object: $object) { id } }\",\n  \"variables\": {\n    \"object\": {\n      \"immatriculation\": \"POSTMAN-001\",\n      \"type\": \"Dadant\",\n      \"race\": \"Buckfast\",\n      \"statut\": \"Active\",\n      \"securisee\": false,\n      \"rucher_id\": \"{{rucherId}}\"\n    }\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "try {",
+                      "  const json = pm.response.json();",
+                      "  const id = json?.data?.insert_ruches_one?.id;",
+                      "  if (id) {",
+                      "    pm.collectionVariables.set('rucheId', id);",
+                      "  }",
+                      "} catch (e) {}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Ruches - Update",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"query\": \"mutation($id: uuid!, $changes: ruches_set_input!) { update_ruches_by_pk(pk_columns: {id: $id}, _set: $changes) { id immatriculation statut securisee } }\",\n  \"variables\": {\n    \"id\": \"{{rucheId}}\",\n    \"changes\": {\n      \"securisee\": true\n    }\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Ruches - Delete",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"query\": \"mutation($id: uuid!) { delete_ruches_by_pk(id: $id) { id } }\",\n  \"variables\": {\n    \"id\": \"{{rucheId}}\"\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "CRUD - Entreprises",
+          "item": [
+            {
+              "name": "Entreprises - Create",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"query\": \"mutation($object: entreprises_insert_input!) { insert_entreprises_one(object: $object) { id nom adresse } }\",\n  \"variables\": {\n    \"object\": {\n      \"nom\": \"Mon Rucher SARL\",\n      \"adresse\": \"123 rue des Abeilles\"\n    }\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Status 200', function () {",
+                      "  pm.response.to.have.status(200);",
+                      "});",
+                      "",
+                      "try {",
+                      "  const json = pm.response.json();",
+                      "  const id = json?.data?.insert_entreprises_one?.id;",
+                      "  if (id) {",
+                      "    pm.collectionVariables.set('entrepriseId', id);",
+                      "  }",
+                      "} catch (e) {}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Utilisateurs Entreprises - Link Admin",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"query\": \"mutation($object: utilisateurs_entreprises_insert_input!) { insert_utilisateurs_entreprises_one(object: $object) { id role } }\",\n  \"variables\": {\n    \"object\": {\n      \"utilisateur_id\": \"{{userId}}\",\n      \"entreprise_id\": \"{{entrepriseId}}\",\n      \"role\": \"AdminEntreprise\"\n    }\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Status 200', function () {",
+                      "  pm.response.to.have.status(200);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Invitations - Create",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"query\": \"mutation($object: invitations_insert_input!) { insert_invitations_one(object: $object) { id token email rolePropose entreprise_id } }\",\n  \"variables\": {\n    \"object\": {\n      \"email\": \"invite@example.com\",\n      \"token\": \"{{invitationToken}}\",\n      \"rolePropose\": \"Apiculteur\",\n      \"dateExpiration\": \"2026-02-10T00:00:00Z\",\n      \"dateEnvoi\": \"{{$isoTimestamp}}\",\n      \"acceptee\": false,\n      \"entreprise_id\": \"{{entrepriseId}}\",\n      \"envoyeePar_id\": \"{{userId}}\"\n    }\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Status 200', function () {",
+                      "  pm.response.to.have.status(200);",
+                      "});",
+                      "",
+                      "try {",
+                      "  const json = pm.response.json();",
+                      "  const token = json?.data?.insert_invitations_one?.token;",
+                      "  if (token) {",
+                      "    pm.collectionVariables.set('invitationToken', token);",
+                      "  }",
+                      "} catch (e) {}"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
