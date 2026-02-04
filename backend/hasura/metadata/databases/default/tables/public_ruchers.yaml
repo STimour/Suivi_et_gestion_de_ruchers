@@ -64,7 +64,6 @@ insert_permissions:
 select_permissions:
   - role: AdminEntreprise
     permission:
-      allow_aggregations: true
       columns:
         - nom
         - latitude
@@ -82,10 +81,10 @@ select_permissions:
               utilisateurs_entreprises:
                 utilisateur_id:
                   _eq: X-Hasura-User-Id
+      allow_aggregations: true
     comment: ""
   - role: Apiculteur
     permission:
-      allow_aggregations: true
       columns:
         - nom
         - latitude
@@ -103,10 +102,10 @@ select_permissions:
               utilisateurs_entreprises:
                 utilisateur_id:
                   _eq: X-Hasura-User-Id
+      allow_aggregations: true
     comment: ""
   - role: Lecteur
     permission:
-      allow_aggregations: true
       columns:
         - nom
         - latitude
@@ -124,6 +123,7 @@ select_permissions:
               utilisateurs_entreprises:
                 utilisateur_id:
                   _eq: X-Hasura-User-Id
+      allow_aggregations: true
     comment: ""
 update_permissions:
   - role: AdminEntreprise

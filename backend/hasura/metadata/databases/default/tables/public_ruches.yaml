@@ -5,11 +5,12 @@ object_relationships:
   - name: reine
     using:
       manual_configuration:
-        remote_table:
-          schema: public
-          name: reines
         column_mapping:
           id: ruche_id
+        insertion_order: null
+        remote_table:
+          name: reines
+          schema: public
   - name: rucher
     using:
       foreign_key_constraint_on: rucher_id
@@ -76,7 +77,6 @@ insert_permissions:
 select_permissions:
   - role: AdminEntreprise
     permission:
-      allow_aggregations: true
       columns:
         - immatriculation
         - type
@@ -96,10 +96,10 @@ select_permissions:
                 utilisateurs_entreprises:
                   utilisateur_id:
                     _eq: X-Hasura-User-Id
+      allow_aggregations: true
     comment: ""
   - role: Apiculteur
     permission:
-      allow_aggregations: true
       columns:
         - immatriculation
         - type
@@ -119,10 +119,10 @@ select_permissions:
                 utilisateurs_entreprises:
                   utilisateur_id:
                     _eq: X-Hasura-User-Id
+      allow_aggregations: true
     comment: ""
   - role: Lecteur
     permission:
-      allow_aggregations: true
       columns:
         - immatriculation
         - type
@@ -142,6 +142,7 @@ select_permissions:
                 utilisateurs_entreprises:
                   utilisateur_id:
                     _eq: X-Hasura-User-Id
+      allow_aggregations: true
     comment: ""
 update_permissions:
   - role: AdminEntreprise

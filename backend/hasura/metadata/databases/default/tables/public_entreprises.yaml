@@ -26,6 +26,13 @@ array_relationships:
         table:
           name: offres
           schema: public
+  - name: reines
+    using:
+      foreign_key_constraint_on:
+        column: entreprise_id
+        table:
+          name: reines
+          schema: public
   - name: ruchers
     using:
       foreign_key_constraint_on:
