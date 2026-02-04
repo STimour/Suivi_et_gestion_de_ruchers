@@ -61,6 +61,38 @@ BEGIN
     END IF;
 END$$;
 
+DO $$
+DECLARE idx record;
+BEGIN
+    FOR idx IN
+        SELECT schemaname, indexname
+        FROM pg_indexes
+        WHERE tablename = 'ruches'
+          AND indexdef LIKE '%varchar_pattern_ops%'
+          AND (
+              indexdef LIKE '%(statut)%'
+              OR indexdef LIKE '%(maladie)%'
+              OR indexdef LIKE '%(type)%'
+              OR indexdef LIKE '%(race)%'
+          )
+    LOOP
+        EXECUTE format('DROP INDEX IF EXISTS %I.%I', idx.schemaname, idx.indexname);
+    END LOOP;
+
+    FOR idx IN
+        SELECT schemaname, indexname
+        FROM pg_indexes
+        WHERE tablename = 'reines'
+          AND indexdef LIKE '%varchar_pattern_ops%'
+          AND (
+              indexdef LIKE '%(\"codeCouleur\")%'
+              OR indexdef LIKE '%(lignee)%'
+          )
+    LOOP
+        EXECUTE format('DROP INDEX IF EXISTS %I.%I', idx.schemaname, idx.indexname);
+    END LOOP;
+END$$;
+
 ALTER TABLE ruches
     ALTER COLUMN statut TYPE statut_ruche USING statut::statut_ruche,
     ALTER COLUMN maladie TYPE type_maladie USING maladie::type_maladie,
