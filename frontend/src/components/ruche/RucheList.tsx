@@ -8,10 +8,11 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Hexagon, MapPin, Shield, ShieldOff, Pencil, AlertTriangle } from "lucide-react";
+import { Hexagon, MapPin, Shield, ShieldOff, Pencil, AlertTriangle, ClipboardList } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { EditRucheDialog } from './EditRucheDialog';
+import { AddInterventionDialog } from './AddInterventionDialog';
 
 interface RucheListProps {
     ruches: any[];
@@ -30,6 +31,15 @@ const getStatutColor = (statut: string) => {
         default:
             return 'bg-gray-100 text-gray-800';
     }
+};
+
+const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('fr-FR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    });
 };
 
 export function RucheList({ ruches }: RucheListProps) {
@@ -55,6 +65,7 @@ export function RucheList({ ruches }: RucheListProps) {
                             <TableHead>Race</TableHead>
                             <TableHead className="text-center">Statut</TableHead>
                             <TableHead className="text-center">Sécurisée</TableHead>
+                            <TableHead>Date création</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -99,8 +110,26 @@ export function RucheList({ ruches }: RucheListProps) {
                                         <ShieldOff className="h-4 w-4 text-gray-300 mx-auto" />
                                     )}
                                 </TableCell>
+                                <TableCell>
+                                    <span className="text-sm text-gray-600">
+                                        {ruche.created_at ? formatDate(ruche.created_at) : '-'}
+                                    </span>
+                                </TableCell>
                                 <TableCell className="text-right">
                                     <div className="flex justify-end items-center gap-2">
+                                        <AddInterventionDialog
+                                            rucheId={ruche.id}
+                                            rucheImmatriculation={ruche.immatriculation}
+                                            trigger={
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
+                                                >
+                                                    <ClipboardList className="h-4 w-4" />
+                                                </Button>
+                                            }
+                                        />
                                         <Button
                                             variant="ghost"
                                             size="icon"

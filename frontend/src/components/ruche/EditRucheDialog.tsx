@@ -33,7 +33,7 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { Hexagon, Loader2 } from 'lucide-react';
 import { UPDATE_RUCHE } from '@/lib/graphql/mutations/ruche.mutations';
-import { GET_RUCHE_BY_ID } from '@/lib/graphql/queries/ruche.queries';
+import { GET_RUCHE_BY_ID, GET_RUCHES } from '@/lib/graphql/queries/ruche.queries';
 import { useEnums } from '@/hooks/useEnums';
 
 // Interface pour typer les données de la ruche
@@ -79,6 +79,7 @@ export function EditRucheDialog({ rucheId, open, onOpenChange }: EditRucheDialog
     });
 
     const [updateRuche, { loading: updateLoading }] = useMutation(UPDATE_RUCHE, {
+        refetchQueries: [{ query: GET_RUCHES }],
         onCompleted: () => {
             toast.success('Ruche modifiée avec succès !');
             onOpenChange(false);

@@ -3,7 +3,7 @@ import { gql } from '@apollo/client';
 // Query pour récupérer toutes les ruches
 export const GET_RUCHES = gql`
   query GetRuches {
-    ruches {
+    ruches(order_by: { created_at: desc }) {
       id
       immatriculation
       type
@@ -11,6 +11,8 @@ export const GET_RUCHES = gql`
       statut
       maladie
       securisee
+      created_at
+      updated_at
       rucher {
         id
         nom
@@ -37,6 +39,8 @@ export const GET_RUCHE_BY_ID = gql`
       statut
       maladie
       securisee
+      created_at
+      updated_at
       rucher {
         id
         nom
@@ -77,7 +81,10 @@ export const GET_RUCHE_BY_ID = gql`
 // Query pour récupérer les ruches d'un rucher
 export const GET_RUCHES_BY_RUCHER = gql`
   query GetRuchesByRucher($rucherId: uuid!) {
-    ruches(where: { rucher_id: { _eq: $rucherId } }) {
+    ruches(
+      where: { rucher_id: { _eq: $rucherId } }
+      order_by: { created_at: desc }
+    ) {
       id
       immatriculation
       type
@@ -85,6 +92,8 @@ export const GET_RUCHES_BY_RUCHER = gql`
       statut
       maladie
       securisee
+      created_at
+      updated_at
       reine {
         id
         anneeNaissance

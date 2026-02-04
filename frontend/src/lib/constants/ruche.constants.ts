@@ -51,3 +51,13 @@ export const FLORE_OPTIONS = [
   { value: 'Tournesol', label: 'Tournesol' },
   { value: 'ToutesFleurs', label: 'Toutes Fleurs' },
 ];
+
+export const TYPE_INTERVENTION_OPTIONS = [
+  { value: 'Visite', label: 'Visite' },
+  { value: 'Nourrissement', label: 'Nourrissement' },
+  { value: 'Traitement', label: 'Traitement' },
+  { value: 'Recolte', label: 'Récolte' },
+  { value: 'Division', label: 'Division' },
+  { value: 'PoseHausse', label: 'Pose Hausse' },
+  { value: 'ControleSanitaire', label: 'Contrôle Sanitaire' },
+];

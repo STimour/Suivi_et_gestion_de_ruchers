@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Hexagon, MapPin, Shield, ShieldOff, Crown, Pencil, AlertTriangle } from "lucide-react";
+import { Hexagon, MapPin, Shield, ShieldOff, Crown, Pencil, AlertTriangle, Calendar, ClipboardList } from "lucide-react";
 import Link from 'next/link';
 import { EditRucheDialog } from './EditRucheDialog';
+import { AddInterventionDialog } from './AddInterventionDialog';
 
 interface RucheGridProps {
     ruches: any[];
@@ -38,6 +39,15 @@ const getStatutBorderColor = (statut: string) => {
         default:
             return 'border-green-200 hover:border-green-400';
     }
+};
+
+const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('fr-FR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    });
 };
 
 export function RucheGrid({ ruches }: RucheGridProps) {
@@ -99,6 +109,13 @@ export function RucheGrid({ ruches }: RucheGridProps) {
                                     </div>
                                 </div>
 
+                                {ruche.created_at && (
+                                    <div className="flex items-center gap-1.5 text-xs text-gray-500 pt-1">
+                                        <Calendar className="h-3 w-3" />
+                                        <span>Créée le {formatDate(ruche.created_at)}</span>
+                                    </div>
+                                )}
+
                                 <div className="flex items-center justify-between pt-2 border-t border-gray-100">
                                     <div className="flex items-center gap-2">
                                         {ruche.securisee ? (
@@ -122,20 +139,36 @@ export function RucheGrid({ ruches }: RucheGridProps) {
                                 </div>
                             </div>
                         </CardContent>
-                        <CardFooter className="pt-3 border-t border-gray-100 flex items-center justify-end gap-2">
-                            <Button
-                                size="sm"
-                                variant="ghost"
-                                className="text-amber-600 hover:text-amber-700 hover:bg-amber-50"
-                                onClick={() => setEditingRucheId(ruche.id)}
-                            >
-                                <Pencil className="h-4 w-4" />
-                            </Button>
-                            <Link href={`/dashboard/hives/${ruche.id}`}>
-                                <Button size="sm" variant="outline" className="text-green-700 border-green-200 hover:bg-green-50">
-                                    Voir détails
+                        <CardFooter className="pt-3 border-t border-gray-100 flex items-center justify-between gap-2">
+                            <AddInterventionDialog
+                                rucheId={ruche.id}
+                                rucheImmatriculation={ruche.immatriculation}
+                                trigger={
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="text-green-600 border-green-200 hover:bg-green-50"
+                                    >
+                                        <ClipboardList className="h-4 w-4 mr-1" />
+                                        Intervention
+                                    </Button>
+                                }
+                            />
+                            <div className="flex items-center gap-2">
+                                <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                                    onClick={() => setEditingRucheId(ruche.id)}
+                                >
+                                    <Pencil className="h-4 w-4" />
                                 </Button>
-                            </Link>
+                                <Link href={`/dashboard/hives/${ruche.id}`}>
+                                    <Button size="sm" variant="outline" className="text-green-700 border-green-200 hover:bg-green-50">
+                                        Voir détails
+                                    </Button>
+                                </Link>
+                            </div>
                         </CardFooter>
                     </Card>
                 ))}

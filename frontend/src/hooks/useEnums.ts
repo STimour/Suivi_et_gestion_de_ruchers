@@ -7,6 +7,7 @@ import {
   RACE_ABEILLE_OPTIONS,
   MALADIE_OPTIONS,
   FLORE_OPTIONS,
+  TYPE_INTERVENTION_OPTIONS,
 } from '@/lib/constants/ruche.constants';
 
 interface EnumValue {
@@ -23,6 +24,7 @@ interface EnumsData {
   raceAbeille: EnumType | null;
   maladie: EnumType | null;
   flore: EnumType | null;
+  typeIntervention: EnumType | null;
 }
 
 interface SelectOption {
@@ -52,6 +54,10 @@ const LABEL_MAPPINGS: Record<string, string> = {
   Chataignier: 'Châtaignier',
   Bruyere: 'Bruyère',
   ToutesFleurs: 'Toutes Fleurs',
+
+  // Interventions
+  PoseHausse: 'Pose Hausse',
+  ControleSanitaire: 'Contrôle Sanitaire',
 };
 
 function formatEnumToOptions(enumValues: EnumValue[] | undefined, fallback: SelectOption[]): SelectOption[] {
@@ -78,6 +84,7 @@ export function useEnums() {
         raceAbeille: RACE_ABEILLE_OPTIONS,
         maladie: MALADIE_OPTIONS,
         flore: FLORE_OPTIONS,
+        typeIntervention: TYPE_INTERVENTION_OPTIONS,
       };
     }
 
@@ -87,6 +94,7 @@ export function useEnums() {
       raceAbeille: formatEnumToOptions(data.raceAbeille?.enumValues, RACE_ABEILLE_OPTIONS),
       maladie: formatEnumToOptions(data.maladie?.enumValues, MALADIE_OPTIONS),
       flore: formatEnumToOptions(data.flore?.enumValues, FLORE_OPTIONS),
+      typeIntervention: formatEnumToOptions(data.typeIntervention?.enumValues, TYPE_INTERVENTION_OPTIONS),
     };
   }, [data, loading, error]);
 

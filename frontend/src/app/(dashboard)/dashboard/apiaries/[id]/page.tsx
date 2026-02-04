@@ -9,6 +9,7 @@ import { ArrowLeft, MapPin, Flower2, Mountain, Hexagon, AlertCircle } from 'luci
 import { LocationDisplay } from '@/components/rucher/LocationDisplay';
 import { RucherMiniMapWrapper } from '@/components/rucher/RucherMiniMapWrapper';
 import { TranshumanceDialog } from '@/components/rucher/TranshumanceDialog';
+import { BulkInterventionDialog } from '@/components/rucher/BulkInterventionDialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { GET_RUCHER_DETAILS } from '@/lib/graphql/queries/rucher.queries';
 
@@ -91,13 +92,20 @@ export default function RucherDetailPage() {
             <LocationDisplay latitude={rucher.latitude} longitude={rucher.longitude} />
           </div>
         </div>
-        <TranshumanceDialog
-          rucherId={rucher.id}
-          rucherNom={rucher.nom}
-          currentLat={rucher.latitude}
-          currentLng={rucher.longitude}
-          currentFlore={rucher.flore}
-        />
+        <div className="flex items-center gap-3">
+          <BulkInterventionDialog
+            rucherId={rucher.id}
+            rucherNom={rucher.nom}
+            ruches={rucher.ruches.map(r => ({ id: r.id, immatriculation: r.immatriculation }))}
+          />
+          <TranshumanceDialog
+            rucherId={rucher.id}
+            rucherNom={rucher.nom}
+            currentLat={rucher.latitude}
+            currentLng={rucher.longitude}
+            currentFlore={rucher.flore}
+          />
+        </div>
       </div>
 
       {/* Grille principale */}
