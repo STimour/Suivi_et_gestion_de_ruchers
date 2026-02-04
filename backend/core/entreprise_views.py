@@ -1,12 +1,19 @@
-import secrets
+import logging
 from datetime import timedelta
+
+import jwt
 
 from django.http import JsonResponse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
 
 from core.models import Entreprise, UtilisateurEntreprise, RoleUtilisateur, Invitation, Offre, TypeOffre
 from core.auth_views import _json_body, _get_user_from_request, _make_access_token
+from core.email_utils import send_email
+from core.email_templates import generate_invitation_email_content
+
+logger = logging.getLogger(__name__)
 
 
 def _parse_role(value):
@@ -98,10 +105,21 @@ def create_invitation(request):
     if not UtilisateurEntreprise.objects.filter(utilisateur=user, entreprise=entreprise).exists():
         return JsonResponse({"error": "forbidden", "detail": "Vous n'êtes pas membre de cette entreprise"}, status=403)
 
-    token = secrets.token_urlsafe(32)
     date_expiration = timezone.now() + timedelta(days=7)
+    token_payload = {
+        "type": "invitation",
+        "entreprise_id": str(entreprise.id),
+        "email": email,
+        "role": role_propose,
+        "iat": int(timezone.now().timestamp()),
+        "exp": int(date_expiration.timestamp()),
+    }
+    token = jwt.encode(
+        token_payload,
+        getattr(settings, "JWT_SECRET", None) or settings.SECRET_KEY,
+        algorithm="HS256",
+    )
     invitation = Invitation.objects.create(
-        email=email,
         token=token,
         rolePropose=role_propose,
         dateExpiration=date_expiration,
@@ -109,15 +127,58 @@ def create_invitation(request):
         envoyeePar=user,
     )
 
-    # TODO: envoyer un email avec le lien (ex: /accept-invitation?token=...)
-    return JsonResponse(
-        {
-            "id": str(invitation.id),
-            "token": invitation.token,
-            "email": invitation.email,
-            "rolePropose": invitation.rolePropose,
-            "entreprise_id": str(invitation.entreprise_id),
-            "dateExpiration": invitation.dateExpiration.isoformat(),
-        },
-        status=201,
-    )
+    # Envoi de l'email d'invitation
+    try:
+        # Construction du lien d'invitation avec l'URL frontend configurée
+        invitation_link = f"{settings.FRONTEND_URL}/accept-invitation?token={token}"
+        
+        # Génération du contenu HTML de l'email
+        html_content = generate_invitation_email_content(
+            recipient_name=email.split('@')[0],  # Utilise la partie avant @ comme nom par défaut
+            entreprise_nom=entreprise.nom,
+            role_propose=role_propose,
+            envoye_par_name=f"{user.prenom} {user.nom}" if hasattr(user, 'prenom') and hasattr(user, 'nom') else user.email,
+            date_expiration=date_expiration.strftime('%d/%m/%Y à %H:%M'),
+            invitation_link=invitation_link
+        )
+        
+        # Envoi de l'email
+        email_result = send_email(
+            to_email=email,
+            to_name=email.split('@')[0],
+            subject=f"Invitation à rejoindre {entreprise.nom}",
+            html_content=html_content
+        )
+        
+        if not email_result['success']:
+            # Log l'erreur mais ne bloque pas la création de l'invitation
+            logger.warning(
+                "Email invitation non envoye",
+                extra={
+                    "email": email,
+                    "entreprise_id": str(entreprise.id),
+                    "error": email_result.get("error"),
+                },
+            )
+            
+    except Exception as e:
+        # Log l'erreur mais ne bloque pas la création de l'invitation
+        logger.exception(
+            "Erreur inattendue lors de l'envoi de l'email d'invitation",
+            extra={"email": email, "entreprise_id": str(entreprise.id)},
+        )
+
+    email_sent = email_result.get("success", False) if "email_result" in locals() else False
+    response = {
+        "id": str(invitation.id),
+        "token": invitation.token,
+        "email": email,
+        "rolePropose": invitation.rolePropose,
+        "entreprise_id": str(invitation.entreprise_id),
+        "dateExpiration": invitation.dateExpiration.isoformat(),
+        "email_sent": email_sent,
+    }
+    if not email_sent and "email_result" in locals():
+        response["email_error"] = email_result.get("error")
+
+    return JsonResponse(response, status=201)

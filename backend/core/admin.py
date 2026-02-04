@@ -26,7 +26,7 @@ class UtilisateurEntrepriseAdmin(admin.ModelAdmin):
 
 @admin.register(Invitation)
 class InvitationAdmin(admin.ModelAdmin):
-    list_display = ('email', 'entreprise', 'rolePropose', 'created_at', 'acceptee')
+    list_display = ('id', 'entreprise', 'rolePropose', 'created_at', 'acceptee')
     list_filter = ('rolePropose', 'acceptee', 'created_at')
     raw_id_fields = ('entreprise', 'envoyeePar')
 

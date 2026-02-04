@@ -330,7 +330,15 @@ def accept_invitation(request):
     if expiration < now:
         return JsonResponse({"error": "invitation_expired"}, status=410)
 
-    if invitation.email.lower() != user.email.lower():
+    try:
+        token_payload = jwt.decode(token, _jwt_secret(), algorithms=["HS256"])
+    except jwt.ExpiredSignatureError:
+        return JsonResponse({"error": "invitation_expired"}, status=410)
+    except jwt.InvalidTokenError:
+        return JsonResponse({"error": "invalid_token"}, status=401)
+
+    token_email = (token_payload.get("email") or "").lower()
+    if token_email and token_email != user.email.lower():
         return JsonResponse({"error": "email_mismatch", "detail": "L'invitation ne correspond pas à cet utilisateur"}, status=403)
 
     UtilisateurEntreprise.objects.get_or_create(

@@ -399,6 +399,59 @@
               }
             }
           ]
+        },
+        {
+          "name": "Créer invitation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"invite@example.com\",\n  \"rolePropose\": \"Apiculteur\",\n  \"entreprise_id\": \"{{entrepriseId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{djangoBaseUrl}}/api/entreprise/invitation",
+              "host": [
+                "{{djangoBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "entreprise",
+                "invitation"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "try {",
+                  "  const json = pm.response.json();",
+                  "  const token = json?.token;",
+                  "  if (token) {",
+                  "    pm.collectionVariables.set('invitationToken', token);",
+                  "  }",
+                  "} catch (e) {}"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -1256,58 +1309,6 @@
                       "pm.test('Status 200', function () {",
                       "  pm.response.to.have.status(200);",
                       "});"
-                    ]
-                  }
-                }
-              ]
-            },
-            {
-              "name": "Invitations - Create",
-              "request": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  },
-                  {
-                    "key": "Authorization",
-                    "value": "Bearer {{accessToken}}",
-                    "type": "text"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\"query\":\"mutation($object: invitations_insert_input!) { insert_invitations_one(object: $object) { id created_at updated_at token email rolePropose entreprise_id } }\",\"variables\":{\"object\":{\"email\":\"invite@example.com\",\"token\":\"{{invitationToken}}\",\"rolePropose\":\"Apiculteur\",\"dateExpiration\":\"2026-02-10T00:00:00Z\",\"dateEnvoi\":\"{{$isoTimestamp}}\",\"acceptee\":false,\"entreprise_id\":\"{{entrepriseId}}\",\"envoyeePar_id\":\"{{userId}}\"}}}"
-                },
-                "url": {
-                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
-                  "host": [
-                    "{{hasuraBaseUrl}}"
-                  ],
-                  "path": [
-                    "v1",
-                    "graphql"
-                  ]
-                }
-              },
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "type": "text/javascript",
-                    "exec": [
-                      "pm.test('Status 200', function () {",
-                      "  pm.response.to.have.status(200);",
-                      "});",
-                      "",
-                      "try {",
-                      "  const json = pm.response.json();",
-                      "  const token = json?.data?.insert_invitations_one?.token;",
-                      "  if (token) {",
-                      "    pm.collectionVariables.set('invitationToken', token);",
-                      "  }",
-                      "} catch (e) {}"
                     ]
                   }
                 }

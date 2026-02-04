@@ -53,7 +53,7 @@ const bulkRucheSchema = z.object({
   maladie: z.string().max(50, 'Le nom de la maladie est trop long'),
   securisee: z.boolean(),
   rucherId: z.string().uuid('Sélectionnez un rucher'),
-  prefixe: z.string().min(1, 'Le préfixe est requis').max(20, 'Le préfixe est trop long'),
+  prefixe: z.string().length(1, 'Le préfixe doit être une seule lettre').regex(/^[A-Za-z]$/, 'Le préfixe doit être une lettre'),
   nombreRuches: z.number({ message: 'Le nombre doit être un nombre' })
     .int('Le nombre doit être un nombre entier')
     .min(1, 'Minimum 1 ruche')
@@ -107,7 +107,7 @@ export function BulkCreateRuchesDialog({ trigger, defaultRucherId }: BulkCreateR
 
       for (let i = 0; i < total; i++) {
         const numeroRuche = values.numeroDebut + i;
-        const immatriculation = `${values.prefixe}-${String(numeroRuche).padStart(3, '0')}`;
+        const immatriculation = `${values.prefixe.toUpperCase()}${String(numeroRuche).padStart(7, '0')}`;
 
         const promise = createRuche({
           variables: {
@@ -132,7 +132,7 @@ export function BulkCreateRuchesDialog({ trigger, defaultRucherId }: BulkCreateR
       await Promise.all(promises);
 
       toast.success(`${total} ruches créées avec succès !`, {
-        description: `De ${values.prefixe}-${String(values.numeroDebut).padStart(3, '0')} à ${values.prefixe}-${String(values.numeroDebut + total - 1).padStart(3, '0')}`,
+        description: `De ${values.prefixe.toUpperCase()}${String(values.numeroDebut).padStart(7, '0')} à ${values.prefixe.toUpperCase()}${String(values.numeroDebut + total - 1).padStart(7, '0')}`,
       });
 
       setOpen(false);
@@ -153,8 +153,8 @@ export function BulkCreateRuchesDialog({ trigger, defaultRucherId }: BulkCreateR
   const numeroDebut = form.watch('numeroDebut');
 
   const apercu = nombreRuches > 0 && prefixe && numeroDebut
-    ? `${prefixe}-${String(numeroDebut).padStart(3, '0')} à ${prefixe}-${String(numeroDebut + nombreRuches - 1).padStart(3, '0')}`
-    : 'Ex: R-001 à R-010';
+    ? `${prefixe.toUpperCase()}${String(numeroDebut).padStart(7, '0')} à ${prefixe.toUpperCase()}${String(numeroDebut + nombreRuches - 1).padStart(7, '0')}`
+    : 'Ex: R0000001 à R0000010';
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -186,9 +186,14 @@ export function BulkCreateRuchesDialog({ trigger, defaultRucherId }: BulkCreateR
                 name="prefixe"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Préfixe *</FormLabel>
+                    <FormLabel>Lettre *</FormLabel>
                     <FormControl>
-                      <Input placeholder="Ex: R" {...field} />
+                      <Input
+                        placeholder="R"
+                        maxLength={1}
+                        {...field}
+                        onChange={(e) => field.onChange(e.target.value.toUpperCase())}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
