@@ -54,8 +54,7 @@ class UtilisateurEntreprise(TimestampedModel):
 
 class Invitation(TimestampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    email = models.EmailField()
-    token = models.CharField(max_length=255, unique=True)
+    token = models.TextField(unique=True)
     rolePropose = models.CharField(max_length=20, choices=RoleUtilisateur.choices)
     dateExpiration = models.DateTimeField()
     acceptee = models.BooleanField(default=False)
@@ -68,4 +67,4 @@ class Invitation(TimestampedModel):
         verbose_name_plural = 'Invitations'
 
     def __str__(self):
-        return f"Invitation {self.email} - {self.entreprise}"
+        return f"Invitation {self.id} - {self.entreprise}"
