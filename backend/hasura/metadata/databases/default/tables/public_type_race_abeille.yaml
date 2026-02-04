@@ -1,0 +1,11 @@
+table:
+  name: type_race_abeille
+  schema: public
+array_relationships:
+  - name: ruches
+    using:
+      foreign_key_constraint_on:
+        column: race
+        table:
+          name: ruches
+          schema: public

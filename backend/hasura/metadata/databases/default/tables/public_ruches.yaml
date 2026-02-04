@@ -14,6 +14,15 @@ object_relationships:
   - name: rucher
     using:
       foreign_key_constraint_on: rucher_id
+  - name: type_maladie
+    using:
+      foreign_key_constraint_on: maladie
+  - name: type_race_abeille
+    using:
+      foreign_key_constraint_on: race
+  - name: type_ruche
+    using:
+      foreign_key_constraint_on: type
 array_relationships:
   - name: capteurs
     using:

@@ -1,0 +1,11 @@
+table:
+  name: lignee_reine
+  schema: public
+array_relationships:
+  - name: reines
+    using:
+      foreign_key_constraint_on:
+        column: lignee
+        table:
+          name: reines
+          schema: public

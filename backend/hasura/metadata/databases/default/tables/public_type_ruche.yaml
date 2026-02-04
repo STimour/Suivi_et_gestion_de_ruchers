@@ -1,0 +1,11 @@
+table:
+  name: type_ruche
+  schema: public
+array_relationships:
+  - name: ruches
+    using:
+      foreign_key_constraint_on:
+        column: type
+        table:
+          name: ruches
+          schema: public

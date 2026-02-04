@@ -1,0 +1,11 @@
+table:
+  name: type_maladie
+  schema: public
+array_relationships:
+  - name: ruches
+    using:
+      foreign_key_constraint_on:
+        column: maladie
+        table:
+          name: ruches
+          schema: public

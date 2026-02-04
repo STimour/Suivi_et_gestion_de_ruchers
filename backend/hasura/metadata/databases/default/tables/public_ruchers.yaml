@@ -5,6 +5,9 @@ object_relationships:
   - name: entreprise
     using:
       foreign_key_constraint_on: entreprise_id
+  - name: type_flore
+    using:
+      foreign_key_constraint_on: flore
 array_relationships:
   - name: ruches
     using:

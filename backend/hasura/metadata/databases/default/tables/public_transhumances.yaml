@@ -5,6 +5,9 @@ object_relationships:
   - name: rucher
     using:
       foreign_key_constraint_on: rucher_id
+  - name: type_flore
+    using:
+      foreign_key_constraint_on: floreCible
 insert_permissions:
   - role: AdminEntreprise
     permission:

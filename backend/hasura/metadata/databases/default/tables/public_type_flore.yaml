@@ -1,0 +1,18 @@
+table:
+  name: type_flore
+  schema: public
+array_relationships:
+  - name: ruchers
+    using:
+      foreign_key_constraint_on:
+        column: flore
+        table:
+          name: ruchers
+          schema: public
+  - name: transhumances
+    using:
+      foreign_key_constraint_on:
+        column: floreCible
+        table:
+          name: transhumances
+          schema: public
