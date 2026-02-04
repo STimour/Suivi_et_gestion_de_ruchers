@@ -316,9 +316,21 @@ def accept_invitation(request):
         return JsonResponse({"error": "missing_fields", "detail": "token requis"}, status=400)
 
     try:
-        invitation = Invitation.objects.select_related("entreprise").get(token=token)
+        token_payload = jwt.decode(token, _jwt_secret(), algorithms=["HS256"])
+    except jwt.InvalidTokenError:
+        return JsonResponse({"error": "invalid_token"}, status=401)
+
+    invitation_id = token_payload.get("invitation_id")
+    if not invitation_id:
+        return JsonResponse({"error": "invalid_token"}, status=401)
+
+    try:
+        invitation = Invitation.objects.select_related("entreprise").get(id=invitation_id)
     except Invitation.DoesNotExist:
         return JsonResponse({"error": "invitation_not_found"}, status=404)
+
+    if invitation.token != token:
+        return JsonResponse({"error": "invalid_token"}, status=401)
 
     if invitation.acceptee:
         return JsonResponse({"error": "invitation_already_accepted"}, status=409)
@@ -329,17 +341,6 @@ def accept_invitation(request):
         expiration = tz_util.make_aware(expiration)
     if expiration < now:
         return JsonResponse({"error": "invitation_expired"}, status=410)
-
-    try:
-        token_payload = jwt.decode(token, _jwt_secret(), algorithms=["HS256"])
-    except jwt.ExpiredSignatureError:
-        return JsonResponse({"error": "invitation_expired"}, status=410)
-    except jwt.InvalidTokenError:
-        return JsonResponse({"error": "invalid_token"}, status=401)
-
-    token_email = (token_payload.get("email") or "").lower()
-    if token_email and token_email != user.email.lower():
-        return JsonResponse({"error": "email_mismatch", "detail": "L'invitation ne correspond pas à cet utilisateur"}, status=403)
 
     UtilisateurEntreprise.objects.get_or_create(
         utilisateur=user,

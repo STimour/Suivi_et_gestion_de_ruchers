@@ -126,6 +126,21 @@ select_permissions:
                   utilisateur_id:
                     _eq: X-Hasura-User-Id
     comment: ""
+  - role: anonymous
+    permission:
+      columns:
+        - floreCible
+        - date
+        - destinationLat
+        - destinationLng
+        - origineLat
+        - origineLng
+        - created_at
+        - updated_at
+        - id
+        - rucher_id
+      filter: {}
+    comment: ""
 update_permissions:
   - role: AdminEntreprise
     permission:
@@ -200,3 +215,4 @@ delete_permissions:
                   utilisateur_id:
                     _eq: X-Hasura-User-Id
     comment: ""
+

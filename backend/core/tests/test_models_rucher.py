@@ -1,5 +1,5 @@
 from django.test import TestCase
-from core.models import Rucher, Entreprise
+from core.models import Rucher, Entreprise, TypeFlore
 
 
 class RucherModelTest(TestCase):
@@ -9,11 +9,15 @@ class RucherModelTest(TestCase):
             nom="Ruches & Co",
             adresse="Lyon"
         )
+        self.flore, _ = TypeFlore.objects.get_or_create(
+            value=TypeFlore.LAVANDE,
+            defaults={"label": "Lavande"},
+        )
         self.rucher = Rucher.objects.create(
             nom="Rucher Principal",
             latitude=45.0,
             longitude=4.0,
-            flore="Lavande",
+            flore=self.flore,
             altitude=500,
             entreprise=self.entreprise
         )

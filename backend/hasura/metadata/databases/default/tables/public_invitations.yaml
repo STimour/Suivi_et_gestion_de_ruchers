@@ -20,7 +20,6 @@ insert_permissions:
                 utilisateur_id:
                   _eq: X-Hasura-User-Id
       columns:
-        - email
         - token
         - rolePropose
         - dateExpiration
@@ -33,7 +32,6 @@ select_permissions:
   - role: AdminEntreprise
     permission:
       columns:
-        - email
         - token
         - rolePropose
         - dateExpiration
@@ -55,7 +53,6 @@ select_permissions:
   - role: Lecteur
     permission:
       columns:
-        - email
         - token
         - rolePropose
         - dateExpiration
@@ -78,7 +75,6 @@ update_permissions:
   - role: AdminEntreprise
     permission:
       columns:
-        - email
         - token
         - rolePropose
         - dateExpiration

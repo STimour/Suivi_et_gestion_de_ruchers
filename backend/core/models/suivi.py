@@ -15,7 +15,7 @@ class TypeIntervention(models.TextChoices):
 class Intervention(TimestampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     type = models.CharField(max_length=30, choices=TypeIntervention.choices)
-    date = models.DateField()
+    date = models.DateTimeField()
     observations = models.TextField(blank=True, null=True)
     produit = models.CharField(max_length=200, blank=True, null=True)
     dosage = models.CharField(max_length=100, blank=True, null=True)

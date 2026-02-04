@@ -1,1 +1,19 @@
-[]
+- name: allowed-queries
+  definition:
+    queries:
+      - name: ruchers
+        query: |
+          query ruchers {
+            ruchers {
+              altitude
+              created_at
+              entreprise_id
+              flore
+              id
+              latitude
+              longitude
+              nom
+              notes
+              updated_at
+            }
+          }

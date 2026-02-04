@@ -1,4 +1,5 @@
 import logging
+import uuid
 from datetime import timedelta
 
 import jwt
@@ -106,13 +107,9 @@ def create_invitation(request):
         return JsonResponse({"error": "forbidden", "detail": "Vous n'êtes pas membre de cette entreprise"}, status=403)
 
     date_expiration = timezone.now() + timedelta(days=7)
+    invitation_id = uuid.uuid4()
     token_payload = {
-        "type": "invitation",
-        "entreprise_id": str(entreprise.id),
-        "email": email,
-        "role": role_propose,
-        "iat": int(timezone.now().timestamp()),
-        "exp": int(date_expiration.timestamp()),
+        "invitation_id": str(invitation_id),
     }
     token = jwt.encode(
         token_payload,
@@ -120,6 +117,7 @@ def create_invitation(request):
         algorithm="HS256",
     )
     invitation = Invitation.objects.create(
+        id=invitation_id,
         token=token,
         rolePropose=role_propose,
         dateExpiration=date_expiration,

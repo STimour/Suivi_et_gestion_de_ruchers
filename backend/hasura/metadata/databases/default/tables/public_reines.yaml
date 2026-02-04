@@ -129,6 +129,20 @@ select_permissions:
                 utilisateur_id:
                   _eq: X-Hasura-User-Id
     comment: ""
+  - role: anonymous
+    permission:
+      columns:
+        - anneeNaissance
+        - codeCouleur
+        - created_at
+        - id
+        - lignee
+        - nonReproductible
+        - noteDouceur
+        - ruche_id
+        - updated_at
+      filter: {}
+    comment: ""
 update_permissions:
   - role: AdminEntreprise
     permission:
@@ -201,3 +215,4 @@ delete_permissions:
                 utilisateur_id:
                   _eq: X-Hasura-User-Id
     comment: ""
+

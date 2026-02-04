@@ -159,6 +159,20 @@ select_permissions:
                     _eq: X-Hasura-User-Id
       allow_aggregations: true
     comment: ""
+  - role: anonymous
+    permission:
+      columns:
+        - created_at
+        - immatriculation
+        - maladie
+        - race
+        - rucher_id
+        - securisee
+        - statut
+        - type
+        - updated_at
+      filter: {}
+    comment: ""
 update_permissions:
   - role: AdminEntreprise
     permission:
@@ -233,3 +247,4 @@ delete_permissions:
                   utilisateur_id:
                     _eq: X-Hasura-User-Id
     comment: ""
+

@@ -134,6 +134,18 @@ select_permissions:
                   _eq: X-Hasura-User-Id
       allow_aggregations: true
     comment: ""
+  - role: anonymous
+    permission:
+      columns:
+        - altitude
+        - created_at
+        - flore
+        - id
+        - latitude
+        - longitude
+        - updated_at
+      filter: {}
+    comment: ""
 update_permissions:
   - role: AdminEntreprise
     permission:
@@ -200,3 +212,4 @@ delete_permissions:
                 utilisateur_id:
                   _eq: X-Hasura-User-Id
     comment: ""
+
