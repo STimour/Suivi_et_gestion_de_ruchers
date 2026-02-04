@@ -9,6 +9,7 @@ export const GET_RUCHES = gql`
       type
       race
       statut
+      maladie
       securisee
       rucher {
         id
@@ -34,6 +35,7 @@ export const GET_RUCHE_BY_ID = gql`
       type
       race
       statut
+      maladie
       securisee
       rucher {
         id
@@ -81,6 +83,7 @@ export const GET_RUCHES_BY_RUCHER = gql`
       type
       race
       statut
+      maladie
       securisee
       reine {
         id

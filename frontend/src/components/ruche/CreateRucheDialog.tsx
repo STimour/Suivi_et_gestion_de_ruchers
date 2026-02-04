@@ -41,7 +41,11 @@ import { Hexagon, Plus } from 'lucide-react';
 
 // Schéma de validation
 const rucheSchema = z.object({
-  immatriculation: z.string().min(1, 'L\'immatriculation est requise').max(50, 'L\'immatriculation est trop longue'),
+  immatriculationLettre: z.string().length(1, 'Une seule lettre').regex(/^[A-Za-z]$/, 'Doit être une lettre'),
+  immatriculationNumero: z.number({ message: 'Le numéro est requis' })
+    .int('Le numéro doit être un entier')
+    .min(1, 'Minimum 1')
+    .max(9999999, 'Maximum 9999999'),
   type: z.string().min(1, 'Le type est requis').max(100, 'Le type est trop long'),
   race: z.string().min(1, 'La race est requise').max(100, 'La race est trop longue'),
   statut: z.string().min(1, 'Le statut est requis'),
@@ -83,7 +87,8 @@ export function CreateRucheDialog({ trigger, defaultRucherId }: CreateRucheDialo
   const form = useForm<RucheFormValues>({
     resolver: zodResolver(rucheSchema),
     defaultValues: {
-      immatriculation: '',
+      immatriculationLettre: 'R',
+      immatriculationNumero: 1,
       type: '',
       race: '',
       statut: 'Active',
@@ -95,11 +100,13 @@ export function CreateRucheDialog({ trigger, defaultRucherId }: CreateRucheDialo
 
   const onSubmit = async (values: RucheFormValues) => {
     try {
+      const immatriculation = `${values.immatriculationLettre.toUpperCase()}${String(values.immatriculationNumero).padStart(7, '0')}`;
+
       await createRuche({
         variables: {
           ruche: {
             id: crypto.randomUUID(),
-            immatriculation: values.immatriculation,
+            immatriculation: immatriculation,
             type: values.type,
             race: values.race,
             statut: values.statut,
@@ -138,22 +145,50 @@ export function CreateRucheDialog({ trigger, defaultRucherId }: CreateRucheDialo
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="immatriculation"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Immatriculation *</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ex: R-2024-001" {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    Numéro unique d'identification de la ruche
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="space-y-2">
+              <FormLabel>Immatriculation *</FormLabel>
+              <div className="grid grid-cols-[80px_1fr] gap-2">
+                <FormField
+                  control={form.control}
+                  name="immatriculationLettre"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input
+                          placeholder="R"
+                          maxLength={1}
+                          className="text-center font-mono text-lg"
+                          {...field}
+                          onChange={(e) => field.onChange(e.target.value.toUpperCase())}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="immatriculationNumero"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="0000001"
+                          className="font-mono"
+                          {...field}
+                          onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <FormDescription>
+                Format: 1 lettre + 7 chiffres (ex: R0000001)
+              </FormDescription>
+            </div>
 
             <div className="grid grid-cols-2 gap-4">
               <FormField
