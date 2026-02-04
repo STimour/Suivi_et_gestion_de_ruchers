@@ -24,7 +24,6 @@ insert_permissions:
                         _eq: X-Hasura-User-Id
       columns:
         - type
-        - created_at
         - message
         - acquittee
         - capteur_id
@@ -48,7 +47,6 @@ insert_permissions:
                         _eq: X-Hasura-User-Id
       columns:
         - type
-        - created_at
         - message
         - acquittee
         - capteur_id
@@ -64,6 +62,7 @@ select_permissions:
         - acquittee
         - capteur_id
         - id
+        - updated_at
       filter:
         _and:
           - capteur:
@@ -88,6 +87,7 @@ select_permissions:
         - acquittee
         - capteur_id
         - id
+        - updated_at
       filter:
         _and:
           - capteur:
@@ -112,6 +112,7 @@ select_permissions:
         - acquittee
         - capteur_id
         - id
+        - updated_at
       filter:
         _and:
           - capteur:
@@ -132,7 +133,6 @@ update_permissions:
     permission:
       columns:
         - type
-        - created_at
         - message
         - acquittee
         - capteur_id
@@ -157,7 +157,6 @@ update_permissions:
     permission:
       columns:
         - type
-        - created_at
         - message
         - acquittee
         - capteur_id

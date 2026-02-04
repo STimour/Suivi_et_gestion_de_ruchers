@@ -3,7 +3,8 @@ from .models import (
     Utilisateur, RoleUtilisateur, Entreprise, UtilisateurEntreprise, Invitation,
     Rucher, Ruche, Reine,
     Intervention, Transhumance,
-    Capteur, Mesure, Alerte
+    Capteur, Mesure, Alerte,
+    TypeFlore, TypeRuche, TypeRaceAbeille, LigneeReine, TypeMaladie
 )
 
 @admin.register(Utilisateur)
@@ -38,8 +39,8 @@ class RucherAdmin(admin.ModelAdmin):
 
 @admin.register(Ruche)
 class RucheAdmin(admin.ModelAdmin):
-    list_display = ('immatriculation', 'type', 'race', 'statut', 'securisee', 'rucher')
-    list_filter = ('statut', 'securisee')
+    list_display = ('immatriculation', 'type', 'race', 'statut', 'maladie', 'securisee', 'rucher')
+    list_filter = ('statut', 'maladie', 'securisee')
     search_fields = ('immatriculation',)
     raw_id_fields = ('rucher',)
 
@@ -79,3 +80,33 @@ class AlerteAdmin(admin.ModelAdmin):
     list_display = ('type', 'created_at', 'acquittee', 'capteur')
     list_filter = ('type', 'acquittee')
     raw_id_fields = ('capteur',)  
+
+
+@admin.register(TypeFlore)
+class TypeFloreAdmin(admin.ModelAdmin):
+    list_display = ('value', 'label')
+    search_fields = ('value', 'label')
+
+
+@admin.register(TypeRuche)
+class TypeRucheAdmin(admin.ModelAdmin):
+    list_display = ('value', 'label')
+    search_fields = ('value', 'label')
+
+
+@admin.register(TypeRaceAbeille)
+class TypeRaceAbeilleAdmin(admin.ModelAdmin):
+    list_display = ('value', 'label')
+    search_fields = ('value', 'label')
+
+
+@admin.register(LigneeReine)
+class LigneeReineAdmin(admin.ModelAdmin):
+    list_display = ('value', 'label')
+    search_fields = ('value', 'label')
+
+
+@admin.register(TypeMaladie)
+class TypeMaladieAdmin(admin.ModelAdmin):
+    list_display = ('value', 'label')
+    search_fields = ('value', 'label')

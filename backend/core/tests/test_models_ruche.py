@@ -1,11 +1,16 @@
 from django.test import TestCase
 from django.db import IntegrityError
-from core.models import Ruche, Rucher, Entreprise, StatutRuche, TypeMaladie
+from core.models import Ruche, Rucher, Entreprise, StatutRuche, TypeMaladie, TypeFlore, TypeRuche, TypeRaceAbeille
 
 
 class RucheModelTest(TestCase):
     
     def setUp(self):
+        TypeFlore.objects.get_or_create(value=TypeFlore.LAVANDE, defaults={"label": "Lavande"})
+        TypeRuche.objects.get_or_create(value=TypeRuche.DADANT, defaults={"label": "Dadant"})
+        TypeRaceAbeille.objects.get_or_create(value=TypeRaceAbeille.BUCKFAST, defaults={"label": "Buckfast"})
+        TypeMaladie.objects.get_or_create(value=TypeMaladie.AUCUNE, defaults={"label": "Aucune"})
+
         self.entreprise = Entreprise.objects.create(
             nom="Ruches & Co",
             adresse="Lyon"
@@ -14,14 +19,14 @@ class RucheModelTest(TestCase):
             nom="Rucher Principal",
             latitude=45.0,
             longitude=4.0,
-            flore="Lavande",
+            flore=TypeFlore.LAVANDE,
             altitude=500,
             entreprise=self.entreprise
         )
         self.ruche = Ruche.objects.create(
             immatriculation="FR-001",
-            type="Dadant",
-            race="Buckfast",
+            type=TypeRuche.DADANT,
+            race=TypeRaceAbeille.BUCKFAST,
             rucher=self.rucher
         )
     
@@ -33,7 +38,7 @@ class RucheModelTest(TestCase):
         self.assertEqual(self.ruche.statut, StatutRuche.ACTIVE)
     
     def test_ruche_maladie_aucune_par_defaut(self):
-        self.assertEqual(self.ruche.maladie, TypeMaladie.AUCUNE)
+        self.assertEqual(self.ruche.maladie_id, TypeMaladie.AUCUNE)
     
     def test_ruche_securisee_false_par_defaut(self):
         self.assertFalse(self.ruche.securisee)

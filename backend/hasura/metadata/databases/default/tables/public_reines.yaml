@@ -66,6 +66,8 @@ select_permissions:
         - entreprise_id
         - ruche_id
         - id
+        - created_at
+        - updated_at
       filter:
         _and:
           - entreprise:
@@ -88,6 +90,8 @@ select_permissions:
         - entreprise_id
         - ruche_id
         - id
+        - created_at
+        - updated_at
       filter:
         _and:
           - entreprise:
@@ -110,6 +114,8 @@ select_permissions:
         - entreprise_id
         - ruche_id
         - id
+        - created_at
+        - updated_at
       filter:
         _and:
           - entreprise:

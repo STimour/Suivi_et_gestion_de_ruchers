@@ -3,15 +3,30 @@ import uuid
 from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
 from .base import TimestampedModel
 
-class TypeFlore(models.TextChoices):
-    ACACIA = 'Acacia', 'Acacia'
-    COLZA = 'Colza', 'Colza'
-    LAVANDE = 'Lavande', 'Lavande'
-    TOURNESOL = 'Tournesol', 'Tournesol'
-    CHATAIGNIER = 'Chataignier', 'Chataignier'
-    BRUYERE = 'Bruyere', 'Bruyere'
-    MONTAGNE = 'Montagne', 'Montagne'
-    TOUTES_FLEURS = 'ToutesFleurs', 'ToutesFleurs'
+class EnumValueModel(models.Model):
+    value = models.CharField(primary_key=True, max_length=50)
+    label = models.CharField(max_length=50)
+
+    class Meta:
+        abstract = True
+
+    def __str__(self):
+        return self.label
+
+class TypeFlore(EnumValueModel):
+    ACACIA = 'Acacia'
+    COLZA = 'Colza'
+    LAVANDE = 'Lavande'
+    TOURNESOL = 'Tournesol'
+    CHATAIGNIER = 'Chataignier'
+    BRUYERE = 'Bruyere'
+    MONTAGNE = 'Montagne'
+    TOUTES_FLEURS = 'ToutesFleurs'
+
+    class Meta:
+        db_table = 'type_flore'
+        verbose_name = 'Type de flore'
+        verbose_name_plural = 'Types de flore'
 
 class StatutRuche(models.TextChoices):
     ACTIVE = 'Active', 'Active'
@@ -19,31 +34,46 @@ class StatutRuche(models.TextChoices):
     MALADE = 'Malade', 'Malade'
     MORTE = 'Morte', 'Morte'
 
-class TypeRuche(models.TextChoices):
-    DADANT = 'Dadant', 'Dadant'
-    LANGSTROTH = 'Langstroth', 'Langstroth'
-    WARRE = 'Warre', 'Warre'
-    VOIRNOT = 'Voirnot', 'Voirnot'
-    KENYA_TOP_BAR = 'KenyaTopBar', 'KenyaTopBar'
-    RUCHETTE = 'Ruchette', 'Ruchette'
-    NUCLEI = 'Nuclei', 'Nuclei'
+class TypeRuche(EnumValueModel):
+    DADANT = 'Dadant'
+    LANGSTROTH = 'Langstroth'
+    WARRE = 'Warre'
+    VOIRNOT = 'Voirnot'
+    KENYA_TOP_BAR = 'KenyaTopBar'
+    RUCHETTE = 'Ruchette'
+    NUCLEI = 'Nuclei'
 
-class TypeRaceAbeille(models.TextChoices):
-    BUCKFAST = 'Buckfast', 'Buckfast'
-    NOIRE = 'Noire', 'Noire'
-    CARNICA = 'Carnica', 'Carnica'
-    LIGUSTICA = 'Ligustica', 'Ligustica'
-    CAUCASICA = 'Caucasica', 'Caucasica'
-    HYBRIDE_LOCALE = 'HybrideLocale', 'HybrideLocale'
-    INCONNUE = 'Inconnue', 'Inconnue'
+    class Meta:
+        db_table = 'type_ruche'
+        verbose_name = 'Type de ruche'
+        verbose_name_plural = 'Types de ruche'
 
-class LigneeReine(models.TextChoices):
-    BUCKFAST = 'Buckfast', 'Buckfast'
-    CARNICA = 'Carnica', 'Carnica'
-    LIGUSTICA = 'Ligustica', 'Ligustica'
-    CAUCASICA = 'Caucasica', 'Caucasica'
-    LOCALE = 'Locale', 'Locale'
-    INCONNUE = 'Inconnue', 'Inconnue'
+class TypeRaceAbeille(EnumValueModel):
+    BUCKFAST = 'Buckfast'
+    NOIRE = 'Noire'
+    CARNICA = 'Carnica'
+    LIGUSTICA = 'Ligustica'
+    CAUCASICA = 'Caucasica'
+    HYBRIDE_LOCALE = 'HybrideLocale'
+    INCONNUE = 'Inconnue'
+
+    class Meta:
+        db_table = 'type_race_abeille'
+        verbose_name = "Type de race d'abeille"
+        verbose_name_plural = "Types de race d'abeille"
+
+class LigneeReine(EnumValueModel):
+    BUCKFAST = 'Buckfast'
+    CARNICA = 'Carnica'
+    LIGUSTICA = 'Ligustica'
+    CAUCASICA = 'Caucasica'
+    LOCALE = 'Locale'
+    INCONNUE = 'Inconnue'
+
+    class Meta:
+        db_table = 'lignee_reine'
+        verbose_name = 'Lignee de reine'
+        verbose_name_plural = 'Lignees de reine'
 
 class CodeCouleurReine(models.TextChoices):
     BLANC = 'Blanc', 'Blanc'
@@ -52,25 +82,35 @@ class CodeCouleurReine(models.TextChoices):
     VERT = 'Vert', 'Vert'
     BLEU = 'Bleu', 'Bleu'
 
-class TypeMaladie(models.TextChoices):
-    AUCUNE = 'Aucune', 'Aucune'
-    VARROOSE = 'Varroose', 'Varroose'
-    NOSEMOSE = 'Nosemose', 'Nosemose'
-    LOQUE_AMERICAINE = 'LoqueAmericaine', 'LoqueAmericaine'
-    LOQUE_EUROPEENNE = 'LoqueEuropeenne', 'LoqueEuropeenne'
-    ACARAPISOSE = 'Acarapisose', 'Acarapisose'
-    ASCOSPHEROSE = 'Ascospherose', 'Ascospherose'
-    TROPILAEPS = 'Tropilaelaps', 'Tropilaelaps'
-    VIRUS_AILES_DEFORMEES = 'VirusAilesDeformees', 'VirusAilesDeformees'
-    PARALYSIE_CHRONIQUE = 'ParalysieChronique', 'ParalysieChronique'
-    INTOXICATION_PESTICIDES = 'IntoxicationPesticides', 'IntoxicationPesticides'
+class TypeMaladie(EnumValueModel):
+    AUCUNE = 'Aucune'
+    VARROOSE = 'Varroose'
+    NOSEMOSE = 'Nosemose'
+    LOQUE_AMERICAINE = 'LoqueAmericaine'
+    LOQUE_EUROPEENNE = 'LoqueEuropeenne'
+    ACARAPISOSE = 'Acarapisose'
+    ASCOSPHEROSE = 'Ascospherose'
+    TROPILAEPS = 'Tropilaelaps'
+    VIRUS_AILES_DEFORMEES = 'VirusAilesDeformees'
+    PARALYSIE_CHRONIQUE = 'ParalysieChronique'
+    INTOXICATION_PESTICIDES = 'IntoxicationPesticides'
+
+    class Meta:
+        db_table = 'type_maladie'
+        verbose_name = 'Type de maladie'
+        verbose_name_plural = 'Types de maladie'
 
 class Rucher(TimestampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     nom = models.CharField(max_length=200)
     latitude = models.FloatField()
     longitude = models.FloatField()
-    flore = models.CharField(max_length=20, choices=TypeFlore.choices)
+    flore = models.ForeignKey(
+        TypeFlore,
+        to_field='value',
+        db_column='flore',
+        on_delete=models.PROTECT,
+    )
     altitude = models.IntegerField()
     notes = models.TextField(blank=True)
     entreprise = models.ForeignKey('Entreprise', on_delete=models.CASCADE, related_name='ruchers', null=True, blank=True)
@@ -95,12 +135,24 @@ class Ruche(TimestampedModel):
             )
         ],
     )
-    type = models.CharField(max_length=20, choices=TypeRuche.choices)
-    race = models.CharField(max_length=20, choices=TypeRaceAbeille.choices)
+    type = models.ForeignKey(
+        TypeRuche,
+        to_field='value',
+        db_column='type',
+        on_delete=models.PROTECT,
+    )
+    race = models.ForeignKey(
+        TypeRaceAbeille,
+        to_field='value',
+        db_column='race',
+        on_delete=models.PROTECT,
+    )
     statut = models.CharField(max_length=20, choices=StatutRuche.choices, default=StatutRuche.ACTIVE)
-    maladie = models.CharField(
-        max_length=50,
-        choices=TypeMaladie.choices,
+    maladie = models.ForeignKey(
+        TypeMaladie,
+        to_field='value',
+        db_column='maladie',
+        on_delete=models.PROTECT,
         default=TypeMaladie.AUCUNE,
     )
     securisee = models.BooleanField(default=False)
@@ -121,7 +173,12 @@ class Reine(TimestampedModel):
     ruche = models.OneToOneField('Ruche', on_delete=models.SET_NULL, null=True, blank=True, related_name='reine')
     anneeNaissance = models.IntegerField(validators=[MinValueValidator(1900), MaxValueValidator(2100)])
     codeCouleur = models.CharField(max_length=10, choices=CodeCouleurReine.choices)
-    lignee = models.CharField(max_length=20, choices=LigneeReine.choices)
+    lignee = models.ForeignKey(
+        LigneeReine,
+        to_field='value',
+        db_column='lignee',
+        on_delete=models.PROTECT,
+    )
     noteDouceur = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)])
     commentaire = models.TextField(blank=True)
     nonReproductible = models.BooleanField(default=False)

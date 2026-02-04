@@ -78,6 +78,8 @@ select_permissions:
         - derniereCommunication
         - id
         - ruche_id
+        - created_at
+        - updated_at
       filter:
         _and:
           - ruch:
@@ -101,6 +103,8 @@ select_permissions:
         - derniereCommunication
         - id
         - ruche_id
+        - created_at
+        - updated_at
       filter:
         _and:
           - ruch:
@@ -124,6 +128,8 @@ select_permissions:
         - derniereCommunication
         - id
         - ruche_id
+        - created_at
+        - updated_at
       filter:
         _and:
           - ruch:

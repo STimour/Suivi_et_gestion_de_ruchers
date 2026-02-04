@@ -61,6 +61,8 @@ select_permissions:
         - stripeCustomerId
         - entreprise_id
         - id
+        - created_at
+        - updated_at
       filter:
         _and:
           - entreprise_id:
@@ -82,6 +84,8 @@ select_permissions:
         - stripeCustomerId
         - entreprise_id
         - id
+        - created_at
+        - updated_at
       filter:
         _and:
           - entreprise_id:
@@ -103,6 +107,8 @@ select_permissions:
         - stripeCustomerId
         - entreprise_id
         - id
+        - created_at
+        - updated_at
       filter:
         _and:
           - entreprise_id:

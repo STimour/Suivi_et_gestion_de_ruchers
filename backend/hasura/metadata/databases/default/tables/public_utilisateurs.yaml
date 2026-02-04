@@ -26,7 +26,6 @@ insert_permissions:
         - motDePasseHash
         - nom
         - prenom
-        - created_at
         - id
     comment: ""
 select_permissions:
@@ -40,6 +39,7 @@ select_permissions:
         - prenom
         - created_at
         - id
+        - updated_at
       filter:
         id:
           _eq: X-Hasura-User-Id
@@ -54,6 +54,7 @@ select_permissions:
         - prenom
         - created_at
         - id
+        - updated_at
       filter: {}
     comment: ""
 update_permissions:
@@ -65,7 +66,6 @@ update_permissions:
         - motDePasseHash
         - nom
         - prenom
-        - created_at
         - id
       filter: {}
       check:

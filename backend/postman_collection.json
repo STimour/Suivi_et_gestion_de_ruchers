@@ -474,7 +474,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"query\": \"query { ruchers { id nom latitude longitude flore altitude notes entreprise { id nom adresse } ruches_aggregate { aggregate { count } } } }\"\n}"
+                  "raw": "{\"query\":\"query { ruchers { id created_at updated_at nom latitude longitude flore altitude notes entreprise { id nom adresse } ruches_aggregate { aggregate { count } } } }\"}"
                 },
                 "url": {
                   "raw": "{{hasuraBaseUrl}}/v1/graphql",
@@ -505,7 +505,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"query\": \"query($id: uuid!) { ruchers_by_pk(id: $id) { id nom latitude longitude flore altitude notes entreprise { id nom adresse } ruches_aggregate { aggregate { count } } } }\",\n  \"variables\": {\n    \"id\": \"{{rucherId}}\"\n  }\n}"
+                  "raw": "{\"query\":\"query($id: uuid!) { ruchers_by_pk(id: $id) { id created_at updated_at nom latitude longitude flore altitude notes entreprise { id nom adresse } ruches_aggregate { aggregate { count } } } }\",\"variables\":{\"id\":\"{{rucherId}}\"}}"
                 },
                 "url": {
                   "raw": "{{hasuraBaseUrl}}/v1/graphql",
@@ -536,7 +536,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"query\": \"mutation($object: ruchers_insert_input!) { insert_ruchers_one(object: $object) { id } }\",\n  \"variables\": {\n    \"object\": {\n      \"nom\": \"Rucher Postman\",\n      \"latitude\": 48.8566,\n      \"longitude\": 2.3522,\n      \"flore\": \"ToutesFleurs\",\n      \"altitude\": 35,\n      \"notes\": \"Créé depuis Postman\",\n      \"entreprise_id\": \"{{entrepriseId}}\"\n    }\n  }\n}"
+                  "raw": "{\"query\":\"mutation($object: ruchers_insert_input!) { insert_ruchers_one(object: $object) { id created_at updated_at } }\",\"variables\":{\"object\":{\"nom\":\"Rucher Postman\",\"latitude\":48.8566,\"longitude\":2.3522,\"flore\":\"ToutesFleurs\",\"altitude\":35,\"notes\":\"Créé depuis Postman\",\"entreprise_id\":\"{{entrepriseId}}\"}}}"
                 },
                 "url": {
                   "raw": "{{hasuraBaseUrl}}/v1/graphql",
@@ -584,7 +584,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"query\": \"mutation($id: uuid!, $changes: ruchers_set_input!) { update_ruchers_by_pk(pk_columns: {id: $id}, _set: $changes) { id nom notes } }\",\n  \"variables\": {\n    \"id\": \"{{rucherId}}\",\n    \"changes\": {\n      \"notes\": \"Modifié depuis Postman\"\n    }\n  }\n}"
+                  "raw": "{\"query\":\"mutation($id: uuid!, $changes: ruchers_set_input!) { update_ruchers_by_pk(pk_columns: {id: $id}, _set: $changes) { id created_at updated_at nom notes } }\",\"variables\":{\"id\":\"{{rucherId}}\",\"changes\":{\"notes\":\"Modifié depuis Postman\"}}}"
                 },
                 "url": {
                   "raw": "{{hasuraBaseUrl}}/v1/graphql",
@@ -615,7 +615,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"query\": \"mutation($id: uuid!) { delete_ruchers_by_pk(id: $id) { id } }\",\n  \"variables\": {\n    \"id\": \"{{rucherId}}\"\n  }\n}"
+                  "raw": "{\"query\":\"mutation($id: uuid!) { delete_ruchers_by_pk(id: $id) { id created_at updated_at } }\",\"variables\":{\"id\":\"{{rucherId}}\"}}"
                 },
                 "url": {
                   "raw": "{{hasuraBaseUrl}}/v1/graphql",
@@ -651,7 +651,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"query\": \"query { ruches { id immatriculation type race statut maladie securisee rucher { id nom } reine { id } } }\"\n}"
+                  "raw": "{\"query\":\"query { ruches { id created_at updated_at immatriculation type race statut maladie securisee rucher { id nom } reine { id } } }\"}"
                 },
                 "url": {
                   "raw": "{{hasuraBaseUrl}}/v1/graphql",
@@ -682,7 +682,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"query\": \"query($id: uuid!) { ruches_by_pk(id: $id) { id immatriculation type race statut maladie securisee rucher { id nom } } }\",\n  \"variables\": {\n    \"id\": \"{{rucheId}}\"\n  }\n}"
+                  "raw": "{\"query\":\"query($id: uuid!) { ruches_by_pk(id: $id) { id created_at updated_at immatriculation type race statut maladie securisee rucher { id nom } } }\",\"variables\":{\"id\":\"{{rucheId}}\"}}"
                 },
                 "url": {
                   "raw": "{{hasuraBaseUrl}}/v1/graphql",
@@ -713,7 +713,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"query\": \"mutation($object: ruches_insert_input!) { insert_ruches_one(object: $object) { id } }\",\n  \"variables\": {\n    \"object\": {\n      \"immatriculation\": \"A1234567\",\n      \"type\": \"Dadant\",\n      \"race\": \"Buckfast\",\n      \"statut\": \"Active\",\n      \"maladie\": \"Aucune\",\n      \"securisee\": false,\n      \"rucher_id\": \"{{rucherId}}\"\n    }\n  }\n}"
+                  "raw": "{\"query\":\"mutation($object: ruches_insert_input!) { insert_ruches_one(object: $object) { id created_at updated_at } }\",\"variables\":{\"object\":{\"immatriculation\":\"A1234567\",\"type\":\"Dadant\",\"race\":\"Buckfast\",\"statut\":\"Active\",\"maladie\":\"Aucune\",\"securisee\":false,\"rucher_id\":\"{{rucherId}}\"}}}"
                 },
                 "url": {
                   "raw": "{{hasuraBaseUrl}}/v1/graphql",
@@ -761,7 +761,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"query\": \"mutation($id: uuid!, $changes: ruches_set_input!) { update_ruches_by_pk(pk_columns: {id: $id}, _set: $changes) { id immatriculation statut maladie securisee } }\",\n  \"variables\": {\n    \"id\": \"{{rucheId}}\",\n    \"changes\": {\n      \"securisee\": true,\n      \"maladie\": \"Varroose\"\n    }\n  }\n}"
+                  "raw": "{\"query\":\"mutation($id: uuid!, $changes: ruches_set_input!) { update_ruches_by_pk(pk_columns: {id: $id}, _set: $changes) { id created_at updated_at immatriculation statut maladie securisee } }\",\"variables\":{\"id\":\"{{rucheId}}\",\"changes\":{\"securisee\":true,\"maladie\":\"Varroose\"}}}"
                 },
                 "url": {
                   "raw": "{{hasuraBaseUrl}}/v1/graphql",
@@ -792,7 +792,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"query\": \"mutation($id: uuid!) { delete_ruches_by_pk(id: $id) { id } }\",\n  \"variables\": {\n    \"id\": \"{{rucheId}}\"\n  }\n}"
+                  "raw": "{\"query\":\"mutation($id: uuid!) { delete_ruches_by_pk(id: $id) { id created_at updated_at } }\",\"variables\":{\"id\":\"{{rucheId}}\"}}"
                 },
                 "url": {
                   "raw": "{{hasuraBaseUrl}}/v1/graphql",
@@ -828,7 +828,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"query\": \"query { reines { id anneeNaissance codeCouleur lignee noteDouceur commentaire nonReproductible entreprise { id nom adresse } ruche { id immatriculation } } }\"\n}"
+                  "raw": "{\"query\":\"query { reines { id created_at updated_at anneeNaissance codeCouleur lignee noteDouceur commentaire nonReproductible entreprise { id nom adresse } ruche { id immatriculation } } }\"}"
                 },
                 "url": {
                   "raw": "{{hasuraBaseUrl}}/v1/graphql",
@@ -859,7 +859,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"query\": \"query($id: uuid!) { reines_by_pk(id: $id) { id anneeNaissance codeCouleur lignee noteDouceur commentaire nonReproductible entreprise { id nom adresse } ruche { id immatriculation } } }\",\n  \"variables\": {\n    \"id\": \"{{reineId}}\"\n  }\n}"
+                  "raw": "{\"query\":\"query($id: uuid!) { reines_by_pk(id: $id) { id created_at updated_at anneeNaissance codeCouleur lignee noteDouceur commentaire nonReproductible entreprise { id nom adresse } ruche { id immatriculation } } }\",\"variables\":{\"id\":\"{{reineId}}\"}}"
                 },
                 "url": {
                   "raw": "{{hasuraBaseUrl}}/v1/graphql",
@@ -890,7 +890,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"query\": \"mutation($object: reines_insert_input!) { insert_reines_one(object: $object) { id } }\",\n  \"variables\": {\n    \"object\": {\n      \"entreprise_id\": \"{{entrepriseId}}\",\n      \"ruche_id\": null,\n      \"anneeNaissance\": 2022,\n      \"codeCouleur\": \"Jaune\",\n      \"lignee\": \"Buckfast\",\n      \"noteDouceur\": 8,\n      \"commentaire\": \"Créée depuis Postman\",\n      \"nonReproductible\": false\n    }\n  }\n}"
+                  "raw": "{\"query\":\"mutation($object: reines_insert_input!) { insert_reines_one(object: $object) { id created_at updated_at } }\",\"variables\":{\"object\":{\"entreprise_id\":\"{{entrepriseId}}\",\"ruche_id\":null,\"anneeNaissance\":2022,\"codeCouleur\":\"Jaune\",\"lignee\":\"Buckfast\",\"noteDouceur\":8,\"commentaire\":\"Créée depuis Postman\",\"nonReproductible\":false}}}"
                 },
                 "url": {
                   "raw": "{{hasuraBaseUrl}}/v1/graphql",
@@ -938,7 +938,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"query\": \"mutation($id: uuid!, $changes: reines_set_input!) { update_reines_by_pk(pk_columns: {id: $id}, _set: $changes) { id codeCouleur lignee noteDouceur entreprise { id nom } ruche { id immatriculation } } }\",\n  \"variables\": {\n    \"id\": \"{{reineId}}\",\n    \"changes\": {\n      \"codeCouleur\": \"Rouge\",\n      \"lignee\": \"Carnica\",\n      \"noteDouceur\": 9\n    }\n  }\n}"
+                  "raw": "{\"query\":\"mutation($id: uuid!, $changes: reines_set_input!) { update_reines_by_pk(pk_columns: {id: $id}, _set: $changes) { id created_at updated_at codeCouleur lignee noteDouceur entreprise { id nom } ruche { id immatriculation } } }\",\"variables\":{\"id\":\"{{reineId}}\",\"changes\":{\"codeCouleur\":\"Rouge\",\"lignee\":\"Carnica\",\"noteDouceur\":9}}}"
                 },
                 "url": {
                   "raw": "{{hasuraBaseUrl}}/v1/graphql",
@@ -969,7 +969,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"query\": \"mutation($id: uuid!) { delete_reines_by_pk(id: $id) { id } }\",\n  \"variables\": {\n    \"id\": \"{{reineId}}\"\n  }\n}"
+                  "raw": "{\"query\":\"mutation($id: uuid!) { delete_reines_by_pk(id: $id) { id created_at updated_at } }\",\"variables\":{\"id\":\"{{reineId}}\"}}"
                 },
                 "url": {
                   "raw": "{{hasuraBaseUrl}}/v1/graphql",
@@ -1182,7 +1182,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"query\": \"mutation($object: entreprises_insert_input!) { insert_entreprises_one(object: $object) { id nom adresse } }\",\n  \"variables\": {\n    \"object\": {\n      \"nom\": \"Mon Rucher SARL\",\n      \"adresse\": \"123 rue des Abeilles\"\n    }\n  }\n}"
+                  "raw": "{\"query\":\"mutation($object: entreprises_insert_input!) { insert_entreprises_one(object: $object) { id created_at updated_at nom adresse } }\",\"variables\":{\"object\":{\"nom\":\"Mon Rucher SARL\",\"adresse\":\"123 rue des Abeilles\"}}}"
                 },
                 "url": {
                   "raw": "{{hasuraBaseUrl}}/v1/graphql",
@@ -1234,7 +1234,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"query\": \"mutation($object: utilisateurs_entreprises_insert_input!) { insert_utilisateurs_entreprises_one(object: $object) { id role } }\",\n  \"variables\": {\n    \"object\": {\n      \"utilisateur_id\": \"{{userId}}\",\n      \"entreprise_id\": \"{{entrepriseId}}\",\n      \"role\": \"AdminEntreprise\"\n    }\n  }\n}"
+                  "raw": "{\"query\":\"mutation($object: utilisateurs_entreprises_insert_input!) { insert_utilisateurs_entreprises_one(object: $object) { id created_at updated_at role } }\",\"variables\":{\"object\":{\"utilisateur_id\":\"{{userId}}\",\"entreprise_id\":\"{{entrepriseId}}\",\"role\":\"AdminEntreprise\"}}}"
                 },
                 "url": {
                   "raw": "{{hasuraBaseUrl}}/v1/graphql",
@@ -1278,7 +1278,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"query\": \"mutation($object: invitations_insert_input!) { insert_invitations_one(object: $object) { id token email rolePropose entreprise_id } }\",\n  \"variables\": {\n    \"object\": {\n      \"email\": \"invite@example.com\",\n      \"token\": \"{{invitationToken}}\",\n      \"rolePropose\": \"Apiculteur\",\n      \"dateExpiration\": \"2026-02-10T00:00:00Z\",\n      \"dateEnvoi\": \"{{$isoTimestamp}}\",\n      \"acceptee\": false,\n      \"entreprise_id\": \"{{entrepriseId}}\",\n      \"envoyeePar_id\": \"{{userId}}\"\n    }\n  }\n}"
+                  "raw": "{\"query\":\"mutation($object: invitations_insert_input!) { insert_invitations_one(object: $object) { id created_at updated_at token email rolePropose entreprise_id } }\",\"variables\":{\"object\":{\"email\":\"invite@example.com\",\"token\":\"{{invitationToken}}\",\"rolePropose\":\"Apiculteur\",\"dateExpiration\":\"2026-02-10T00:00:00Z\",\"dateEnvoi\":\"{{$isoTimestamp}}\",\"acceptee\":false,\"entreprise_id\":\"{{entrepriseId}}\",\"envoyeePar_id\":\"{{userId}}\"}}}"
                 },
                 "url": {
                   "raw": "{{hasuraBaseUrl}}/v1/graphql",

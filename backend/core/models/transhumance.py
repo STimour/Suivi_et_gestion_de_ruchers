@@ -10,7 +10,12 @@ class Transhumance(TimestampedModel):
     origineLng = models.FloatField()
     destinationLat = models.FloatField()
     destinationLng = models.FloatField()
-    floreCible = models.CharField(max_length=20, choices=TypeFlore.choices)
+    floreCible = models.ForeignKey(
+        TypeFlore,
+        to_field='value',
+        db_column='floreCible',
+        on_delete=models.PROTECT,
+    )
     rucher = models.ForeignKey('Rucher', on_delete=models.CASCADE, related_name='transhumances')
 
     class Meta:
