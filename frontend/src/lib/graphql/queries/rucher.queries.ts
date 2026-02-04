@@ -77,3 +77,27 @@ export const GET_USER_RUCHERS = gql`
     }
   }
 `;
+
+// Query pour récupérer les détails complets d'un rucher
+export const GET_RUCHER_DETAILS = gql`
+  query GetRucherDetails($id: uuid!) {
+    ruchers_by_pk(id: $id) {
+      id
+      nom
+      latitude
+      longitude
+      flore
+      altitude
+      notes
+      ruches {
+        id
+        immatriculation
+        type
+        race
+        statut
+        maladie
+        securisee
+      }
+    }
+  }
+`;

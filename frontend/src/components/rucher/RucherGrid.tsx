@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { MapPin, Flower2, Mountain } from "lucide-react";
 import Link from 'next/link';
 import { RucherActions } from "./RucherActions";
+import { RucherMiniMapWrapper } from "./RucherMiniMapWrapper";
 
 interface RucherGridProps {
     ruchers: any[];
@@ -39,10 +40,12 @@ export function RucherGrid({ ruchers }: RucherGridProps) {
                         </div>
                     </CardHeader>
                     <CardContent className="pb-3">
-                        <div className="h-32 rounded-md bg-amber-100/50 mb-4 flex items-center justify-center overflow-hidden relative group-hover:bg-amber-100 transition-colors">
-                            {/* Placeholder map or image */}
-                            <div className="absolute inset-0 opacity-10 bg-[url('/pattern-hex.svg')] bg-repeat opacity-20"></div>
-                            <MapPin className="h-10 w-10 text-amber-400 group-hover:scale-110 transition-transform duration-300" />
+                        <div className="mb-4 h-32 rounded-md overflow-hidden">
+                            <RucherMiniMapWrapper
+                                latitude={rucher.latitude}
+                                longitude={rucher.longitude}
+                                nom={rucher.nom}
+                            />
                         </div>
 
                         <div className="grid grid-cols-2 gap-2 text-sm">

@@ -36,22 +36,21 @@ import { Switch } from '@/components/ui/switch';
 import { CREATE_RUCHE } from '@/lib/graphql/mutations/ruche.mutations';
 import { GET_RUCHES } from '@/lib/graphql/queries/ruche.queries';
 import { GET_RUCHERS } from '@/lib/graphql/queries/rucher.queries';
+import {
+  STATUT_OPTIONS,
+  TYPE_RUCHE_OPTIONS,
+  RACE_ABEILLE_OPTIONS,
+  MALADIE_OPTIONS
+} from '@/lib/constants/ruche.constants';
 import { Hexagon, Upload } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
-
-// Statuts disponibles
-const STATUT_OPTIONS = [
-  { value: 'Active', label: 'Active' },
-  { value: 'Faible', label: 'Faible' },
-  { value: 'Malade', label: 'Malade' },
-  { value: 'Morte', label: 'Morte' },
-];
 
 // Schéma de validation
 const bulkRucheSchema = z.object({
   type: z.string().min(1, 'Le type est requis').max(100, 'Le type est trop long'),
   race: z.string().min(1, 'La race est requise').max(100, 'La race est trop longue'),
   statut: z.string().min(1, 'Le statut est requis'),
+  maladie: z.string().max(50, 'Le nom de la maladie est trop long'),
   securisee: z.boolean(),
   rucherId: z.string().uuid('Sélectionnez un rucher'),
   prefixe: z.string().min(1, 'Le préfixe est requis').max(20, 'Le préfixe est trop long'),
@@ -89,6 +88,7 @@ export function BulkCreateRuchesDialog({ trigger, defaultRucherId }: BulkCreateR
       type: '',
       race: '',
       statut: 'Active',
+      maladie: 'Aucune',
       securisee: false,
       rucherId: defaultRucherId || '',
       prefixe: 'R',
@@ -117,6 +117,7 @@ export function BulkCreateRuchesDialog({ trigger, defaultRucherId }: BulkCreateR
               type: values.type,
               race: values.race,
               statut: values.statut,
+              maladie: values.maladie || 'Aucune',
               securisee: values.securisee,
               rucher_id: values.rucherId,
             },
@@ -247,9 +248,23 @@ export function BulkCreateRuchesDialog({ trigger, defaultRucherId }: BulkCreateR
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Type *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Ex: Dadant, Langstroth..." {...field} />
-                    </FormControl>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Sélectionner..." />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="bg-white">
+                        {TYPE_RUCHE_OPTIONS.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -261,9 +276,23 @@ export function BulkCreateRuchesDialog({ trigger, defaultRucherId }: BulkCreateR
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Race *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Ex: Buckfast, Italienne..." {...field} />
-                    </FormControl>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Sélectionner..." />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="bg-white">
+                        {RACE_ABEILLE_OPTIONS.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}

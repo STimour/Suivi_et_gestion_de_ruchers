@@ -9,8 +9,9 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Flower2 } from "lucide-react";
+import { Flower2 } from "lucide-react";
 import { RucherActions } from "./RucherActions";
+import { LocationDisplay } from "./LocationDisplay";
 
 interface RucherListProps {
     ruchers: any[];
@@ -45,10 +46,10 @@ export function RucherList({ ruchers }: RucherListProps) {
                                 {rucher.nom}
                             </TableCell>
                             <TableCell>
-                                <div className="flex items-center gap-1 text-sm text-gray-600">
-                                    <MapPin className="h-3 w-3 text-amber-600" />
-                                    {rucher.latitude.toFixed(4)}, {rucher.longitude.toFixed(4)}
-                                </div>
+                                <LocationDisplay
+                                    latitude={rucher.latitude}
+                                    longitude={rucher.longitude}
+                                />
                             </TableCell>
                             <TableCell className="text-center">
                                 <Badge variant="secondary" className="bg-amber-100 text-amber-800">

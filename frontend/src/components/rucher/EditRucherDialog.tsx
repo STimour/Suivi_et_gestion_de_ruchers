@@ -34,20 +34,9 @@ import {
 } from '@/components/ui/select';
 import { UPDATE_RUCHER } from '@/lib/graphql/mutations/rucher.mutations';
 import { GET_RUCHERS } from '@/lib/graphql/queries/rucher.queries';
+import { useEnums } from '@/hooks/useEnums';
 import { MapPin, Loader2 } from 'lucide-react';
 import { LocationPickerWrapper } from './LocationPickerWrapper';
-
-// Types de flore disponibles
-const FLORE_OPTIONS = [
-  { value: 'Acacia', label: 'Acacia' },
-  { value: 'Colza', label: 'Colza' },
-  { value: 'Lavande', label: 'Lavande' },
-  { value: 'Tournesol', label: 'Tournesol' },
-  { value: 'Chataignier', label: 'Châtaignier' },
-  { value: 'Bruyere', label: 'Bruyère' },
-  { value: 'Montagne', label: 'Montagne' },
-  { value: 'ToutesFleurs', label: 'Toutes fleurs' },
-];
 
 // Interface pour typer les données du rucher
 interface RucherData {
@@ -104,6 +93,7 @@ interface EditRucherDialogProps {
 
 export function EditRucherDialog({ rucherId, open, onOpenChange }: EditRucherDialogProps) {
   const [isLoading, setIsLoading] = useState(true);
+  const { enums } = useEnums();
 
   // Récupérer les données du rucher
   const { data: rucherData, loading: fetchLoading } = useQuery<RucherData>(GET_RUCHER_BY_ID, {
@@ -241,7 +231,7 @@ export function EditRucherDialog({ rucherId, open, onOpenChange }: EditRucherDia
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent className="bg-white">
-                          {FLORE_OPTIONS.map((option) => (
+                          {enums.flore.map((option) => (
                             <SelectItem key={option.value} value={option.value}>
                               {option.label}
                             </SelectItem>

@@ -36,15 +36,8 @@ import { Switch } from '@/components/ui/switch';
 import { CREATE_RUCHE } from '@/lib/graphql/mutations/ruche.mutations';
 import { GET_RUCHES } from '@/lib/graphql/queries/ruche.queries';
 import { GET_RUCHERS } from '@/lib/graphql/queries/rucher.queries';
+import { useEnums } from '@/hooks/useEnums';
 import { Hexagon, Plus } from 'lucide-react';
-
-// Statuts disponibles
-const STATUT_OPTIONS = [
-  { value: 'Active', label: 'Active' },
-  { value: 'Faible', label: 'Faible' },
-  { value: 'Malade', label: 'Malade' },
-  { value: 'Morte', label: 'Morte' },
-];
 
 // Schéma de validation
 const rucheSchema = z.object({
@@ -52,6 +45,7 @@ const rucheSchema = z.object({
   type: z.string().min(1, 'Le type est requis').max(100, 'Le type est trop long'),
   race: z.string().min(1, 'La race est requise').max(100, 'La race est trop longue'),
   statut: z.string().min(1, 'Le statut est requis'),
+  maladie: z.string().max(50, 'Le nom de la maladie est trop long'),
   securisee: z.boolean(),
   rucherId: z.string().uuid('Sélectionnez un rucher'),
 });
@@ -65,6 +59,9 @@ interface CreateRucheDialogProps {
 
 export function CreateRucheDialog({ trigger, defaultRucherId }: CreateRucheDialogProps) {
   const [open, setOpen] = useState(false);
+
+  // Récupérer les enums pour les selects
+  const { enums } = useEnums();
 
   // Récupérer la liste des ruchers pour le select
   const { data: ruchersData } = useQuery<any>(GET_RUCHERS);
@@ -90,6 +87,7 @@ export function CreateRucheDialog({ trigger, defaultRucherId }: CreateRucheDialo
       type: '',
       race: '',
       statut: 'Active',
+      maladie: 'Aucune',
       securisee: false,
       rucherId: defaultRucherId || '',
     },
@@ -105,6 +103,7 @@ export function CreateRucheDialog({ trigger, defaultRucherId }: CreateRucheDialo
             type: values.type,
             race: values.race,
             statut: values.statut,
+            maladie: values.maladie || 'Aucune',
             securisee: values.securisee,
             rucher_id: values.rucherId,
           },
@@ -163,9 +162,23 @@ export function CreateRucheDialog({ trigger, defaultRucherId }: CreateRucheDialo
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Type *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Ex: Dadant, Langstroth..." {...field} />
-                    </FormControl>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Sélectionner..." />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="bg-white">
+                        {enums.typeRuche.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -177,9 +190,23 @@ export function CreateRucheDialog({ trigger, defaultRucherId }: CreateRucheDialo
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Race *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Ex: Buckfast, Italienne..." {...field} />
-                    </FormControl>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Sélectionner..." />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="bg-white">
+                        {enums.raceAbeille.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -195,7 +222,7 @@ export function CreateRucheDialog({ trigger, defaultRucherId }: CreateRucheDialo
                     <FormLabel>Statut *</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      value={field.value}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -203,7 +230,7 @@ export function CreateRucheDialog({ trigger, defaultRucherId }: CreateRucheDialo
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent className="bg-white">
-                        {STATUT_OPTIONS.map((option) => (
+                        {enums.statut.map((option) => (
                           <SelectItem key={option.value} value={option.value}>
                             {option.label}
                           </SelectItem>
@@ -223,7 +250,7 @@ export function CreateRucheDialog({ trigger, defaultRucherId }: CreateRucheDialo
                     <FormLabel>Rucher *</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      value={field.value}
                     >
                       <FormControl>
                         <SelectTrigger>

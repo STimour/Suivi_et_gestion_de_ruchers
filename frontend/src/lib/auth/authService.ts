@@ -40,6 +40,7 @@ export interface EntrepriseResponse {
   id: string;
   nom: string;
   adresse: string;
+  access_token?: string;
 }
 
 class AuthService {
@@ -103,10 +104,26 @@ class AuthService {
 
     // 2. Create entreprise
     try {
-      await this.createEntreprise({
+      const entrepriseData = await this.createEntreprise({
         nom: data.entreprise_nom,
         adresse: data.entreprise_adresse,
       }, authData.access_token);
+
+      // Mettre à jour le token avec celui qui contient l'entreprise_id
+      if (entrepriseData.access_token) {
+        this.setToken(entrepriseData.access_token);
+        authData.access_token = entrepriseData.access_token;
+
+        // Ajouter les infos d'entreprise à l'objet user
+        authData.user.entreprises = [{
+          id: entrepriseData.id,
+          nom: entrepriseData.nom,
+          role: 'AdminEntreprise',
+        }];
+        authData.user.entreprise_id = entrepriseData.id;
+        authData.user.entreprise_nom = entrepriseData.nom;
+        authData.user.entreprise_role = 'AdminEntreprise';
+      }
     } catch (error) {
       console.error('Erreur lors de la création de l\'entreprise:', error);
       // On ne bloque pas l'inscription si la création d'entreprise échoue

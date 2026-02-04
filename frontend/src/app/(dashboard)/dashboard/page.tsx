@@ -194,9 +194,11 @@ export default function DashboardPage() {
                         </p>
                       </div>
                     </div>
-                    <Button variant="ghost" size="sm">
-                      Voir
-                    </Button>
+                    <Link href={`/dashboard/apiaries/${rucher.id}`}>
+                      <Button variant="ghost" size="sm">
+                        Voir
+                      </Button>
+                    </Link>
                   </div>
                 ))}
               </div>
