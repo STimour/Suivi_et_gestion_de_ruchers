@@ -41,6 +41,12 @@ export function Header() {
               Ruches
             </Link>
             <Link
+              href="/dashboard/reines"
+              className="text-sm font-medium text-amber-700/70 hover:text-amber-600 transition-colors"
+            >
+              Reines
+            </Link>
+            <Link
               href="/dashboard/interventions"
               className="text-sm font-medium text-amber-700/70 hover:text-amber-600 transition-colors"
             >
