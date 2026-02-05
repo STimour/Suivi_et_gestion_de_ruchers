@@ -7,13 +7,99 @@
             ruchers {
               altitude
               created_at
-              entreprise_id
               flore
-              id
               latitude
               longitude
-              nom
-              notes
+              updated_at
+            }
+          }
+      - name: reines
+        query: |
+          query MyQuery {
+            reines {
+              codeCouleur
+              anneeNaissance
+              created_at
+              lignee
+              nonReproductible
+              noteDouceur
+            }
+          }
+      - name: ruches
+        query: |
+          query MyQuery {
+            ruches {
+              race
+              securisee
+              statut
+              type
+              maladie
+              updated_at
+            }
+          }
+      - name: type_flore
+        query: |
+          query type_flore {
+            type_flore {
+              label
+              value
+            }
+          }
+      - name: type_maladie
+        query: |
+          query type_maladie {
+            type_maladie {
+              label
+              value
+            }
+          }
+      - name: type_race_abeille
+        query: |
+          query type_race_abeille {
+            type_race_abeille {
+              label
+              value
+            }
+          }
+      - name: type_ruche
+        query: |
+          query type_ruche {
+            type_ruche {
+              label
+              value
+            }
+          }
+      - name: lignee_reine
+        query: |
+          query lignee_reine {
+            lignee_reine {
+              label
+              value
+            }
+          }
+      - name: interventions
+        query: |
+          query interventions {
+            interventions {
+              created_at
+              date
+              dosage
+              nbHausses
+              poidsKg
+              produit
+            }
+          }
+      - name: transhumances
+        query: |
+          query transhumances {
+            transhumances {
+              created_at
+              date
+              destinationLat
+              destinationLng
+              floreCible
+              origineLat
+              origineLng
               updated_at
             }
           }

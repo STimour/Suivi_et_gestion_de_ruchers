@@ -212,4 +212,3 @@ delete_permissions:
                 utilisateur_id:
                   _eq: X-Hasura-User-Id
     comment: ""
-
