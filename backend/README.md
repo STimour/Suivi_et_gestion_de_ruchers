@@ -60,10 +60,11 @@ docker compose exec hasura /bin/hasura-cli --project /hasura metadata apply
 
 ## Accès aux services
 
-- **API Django** : http://localhost:8000
-- **Admin Django** : http://localhost:8000/admin
-- **Hasura Console** : http://localhost:8081/console
-- **Endpoint GraphQL Hasura** : http://localhost:8081/v1/graphql
+- **API Django** : http://api.localhost:8088
+- **Admin Django** : http://api.localhost:8088/admin
+- **Hasura Console** : http://hasura.localhost:8088/console
+- **Endpoint GraphQL Hasura** : http://hasura.localhost:8088/v1/graphql
+- **Traefik Dashboard** : http://localhost:8080
 
 ## Commandes utiles
 

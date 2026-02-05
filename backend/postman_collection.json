@@ -8,11 +8,11 @@
   "variable": [
     {
       "key": "djangoBaseUrl",
-      "value": "http://localhost:8000"
+      "value": "http://api.localhost:8088"
     },
     {
       "key": "hasuraBaseUrl",
-      "value": "http://localhost:8081"
+      "value": "http://hasura.localhost:8088"
     },
     {
       "key": "hasuraAdminSecret",
@@ -1320,3 +1320,5 @@
     }
   ]
 }
+
+

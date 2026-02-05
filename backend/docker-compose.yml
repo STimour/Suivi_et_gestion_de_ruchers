@@ -1,4 +1,22 @@
 services:
+  traefik:
+    image: traefik:v2.11
+    restart: always
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "8088:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.middlewares.ratelimit.ratelimit.average=20"
+      - "traefik.http.middlewares.ratelimit.ratelimit.burst=40"
+
   postgres:
     image: postgres:15
     restart: always
@@ -19,8 +37,6 @@ services:
   hasura:
     image: hasura/graphql-engine:v2.36.0.cli-migrations-v3
     restart: always
-    ports:
-      - "8081:8080"
     depends_on:
       postgres:
         condition: service_healthy
@@ -30,10 +46,17 @@ services:
       HASURA_GRAPHQL_DEV_MODE: "true"
       HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_GRAPHQL_ADMIN_SECRET}
       HASURA_GRAPHQL_JWT_SECRET: ${HASURA_GRAPHQL_JWT_SECRET}
+      HASURA_GRAPHQL_UNAUTHORIZED_ROLE: ${HASURA_GRAPHQL_UNAUTHORIZED_ROLE}
       HASURA_GRAPHQL_MIGRATIONS_DIR: /hasura-migrations
     volumes:
       - ./hasura:/hasura
       - ./hasura/migrations:/hasura-migrations
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.hasura.rule=Host(`hasura.localhost`)"
+      - "traefik.http.routers.hasura.entrypoints=web"
+      - "traefik.http.services.hasura.loadbalancer.server.port=8080"
+      - "traefik.http.routers.hasura.middlewares=ratelimit@docker"
 
   django:
     build: ./
@@ -54,8 +77,6 @@ services:
           path: Dockerfile
     env_file:
       - .env
-    ports:
-      - "8000:8000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -65,6 +86,12 @@ services:
       DATABASE_USER: ${POSTGRES_USER}
       DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.django.rule=Host(`api.localhost`)"
+      - "traefik.http.routers.django.entrypoints=web"
+      - "traefik.http.services.django.loadbalancer.server.port=8000"
+      - "traefik.http.routers.django.middlewares=ratelimit@docker"
 
 volumes:
   postgres_data:
