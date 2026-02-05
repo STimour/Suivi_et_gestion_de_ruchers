@@ -1,40 +1,38 @@
 {% extends "email/base.html" %}
 
 {% block content %}
-    <h2>🎉 Invitation à rejoindre une entreprise</h2>
-    
+    <h2>Vous avez une invitation sur Abbenage</h2>
+
     <p>Bonjour <strong>{{ recipient_name }}</strong>,</p>
-    
-    <p>Vous avez été invité(e) à rejoindre l'entreprise <strong>{{ entreprise_nom }}</strong> sur notre plateforme de gestion apicole.</p>
-    
+
+    <p><strong>{{ envoye_par_name }}</strong> vous invite à rejoindre <strong>{{ entreprise_nom }}</strong>.</p>
+
     <div class="highlight">
-        <p><strong>Détails de l'invitation :</strong></p>
-        <ul>
+        <p><strong>Détails</strong></p>
+        <ul class="meta-list">
             <li><strong>Entreprise :</strong> {{ entreprise_nom }}</li>
-            <li><strong>Rôle proposé :</strong> {{ role_display }}</li>
+            <li><strong>Rôle proposé :</strong> <span class="pill">{{ role_display }}</span></li>
             <li><strong>Invité par :</strong> {{ envoye_par_name }}</li>
-            <li><strong>Date d'expiration :</strong> {{ date_expiration }}</li>
+            <li><strong>Expire le :</strong> {{ date_expiration }}</li>
         </ul>
     </div>
-    
-    <p>Pour accepter cette invitation et rejoindre l'entreprise, cliquez sur le bouton ci-dessous :</p>
-    
+
+    <p>Validez l’invitation en un clic :</p>
+
     <div style="text-align: center;">
         <a href="{{ invitation_link }}" class="btn">
-            Accepter l'invitation
+            Rejoindre l’entreprise
         </a>
     </div>
-    
-    <p><strong>Important :</strong></p>
-    <ul>
-        <li>Cette invitation expire dans 7 jours</li>
-        <li>Si vous n'avez pas de compte, vous pourrez en créer un lors de l'acceptation</li>
-        <li>Si vous avez déjà un compte, connectez-vous avant d'accepter l'invitation</li>
+
+    <p><strong>Bon à savoir</strong></p>
+    <ul class="meta-list">
+        <li>Le lien est valable 7 jours</li>
+        <li>Pas encore de compte ? Vous pourrez en créer un en 30 secondes</li>
+        <li>Déjà membre ? Connectez-vous avant d’accepter</li>
     </ul>
-    
-    <p>Si vous ne souhaitez pas rejoindre cette entreprise, vous pouvez simplement ignorer cet email.</p>
-    
-    <p>Si vous avez des questions, n'hésitez pas à contacter l'administrateur de l'entreprise.</p>
-    
-    <p>À bientôt sur Apiculture Manager !</p>
+
+    <p>Si vous n’êtes pas concerné(e), vous pouvez ignorer cet email en toute sécurité.</p>
+
+    <p>À bientôt sur Abbenage.</p>
 {% endblock %}

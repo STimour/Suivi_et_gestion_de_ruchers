@@ -6,68 +6,120 @@
     <title>{{ subject }}</title>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: "Poppins", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
-            color: #333;
-            max-width: 600px;
+            color: #523114;
+            max-width: 640px;
             margin: 0 auto;
-            padding: 20px;
-            background-color: #f4f4f4;
+            padding: 28px 20px;
+            background-color: #FFFDF5;
         }
         .container {
-            background-color: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background-color: #FFFFFF;
+            padding: 0;
+            border-radius: 16px;
+            border: 1px solid #E4DECD;
+            box-shadow: 0 14px 40px rgba(82, 49, 20, 0.12);
+            overflow: hidden;
         }
         .header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #f0f0f0;
+            text-align: left;
+            padding: 28px 32px 24px;
+            background: linear-gradient(135deg, #FAF0D1 0%, #FFF6DD 60%, #FFFDF5 100%);
+            border-bottom: 1px solid #E4DECD;
+        }
+        .badge {
+            display: inline-block;
+            background-color: #FAF0D1;
+            color: #C8650E;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid #E4DECD;
+            margin-bottom: 12px;
         }
         .logo {
-            font-size: 24px;
-            font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 10px;
+            font-size: 26px;
+            font-weight: 700;
+            color: #C8650E;
+            letter-spacing: 0.2px;
+            margin-bottom: 6px;
+        }
+        .subtitle {
+            color: #A17045;
+            font-size: 14px;
+            font-weight: 500;
         }
         .content {
-            margin-bottom: 30px;
+            padding: 28px 32px 8px;
+            color: #523114;
+        }
+        .content h2 {
+            color: #523114;
+            font-size: 22px;
+            margin: 0 0 14px;
+        }
+        .content p {
+            margin: 10px 0;
+        }
+        .content a {
+            color: #C8650E;
         }
         .footer {
             text-align: center;
-            padding-top: 20px;
-            border-top: 1px solid #f0f0f0;
+            padding: 20px 24px 26px;
+            border-top: 1px solid #E4DECD;
             font-size: 12px;
-            color: #666;
+            color: #A17045;
+            background-color: #FFF9EA;
         }
         .btn {
             display: inline-block;
-            padding: 12px 24px;
-            background-color: #3498db;
-            color: white;
+            padding: 12px 26px;
+            background: linear-gradient(135deg, #F59F0A 0%, #C8650E 100%);
+            color: #FFFFFF !important;
             text-decoration: none;
-            border-radius: 5px;
-            margin: 15px 0;
-            transition: background-color 0.3s;
+            border-radius: 10px;
+            margin: 14px 0;
+            font-weight: 600;
+            box-shadow: 0 10px 20px rgba(197, 101, 14, 0.18);
         }
         .btn:hover {
-            background-color: #2980b9;
+            background: linear-gradient(135deg, #C8650E 0%, #A8500A 100%);
         }
         .highlight {
-            background-color: #e8f4f8;
-            padding: 15px;
-            border-left: 4px solid #3498db;
-            margin: 15px 0;
+            background-color: #FAF0D1;
+            padding: 14px 16px;
+            border: 1px solid #E4DECD;
+            border-radius: 12px;
+            margin: 16px 0;
+        }
+        .meta-list {
+            padding-left: 18px;
+        }
+        .meta-list li {
+            margin: 6px 0;
+        }
+        .pill {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background-color: #FFF3D6;
+            color: #C8650E;
+            font-weight: 600;
+            font-size: 12px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <div class="logo">🐝 Apiculture Manager</div>
-            <div>{{ header_subtitle|default:"Gestion de votre rucher" }}</div>
+            <div class="badge">Invitation</div>
+            <div class="logo">🐝 Abbenage</div>
+            <div class="subtitle">{{ header_subtitle|default:"Gestion moderne de vos ruchers" }}</div>
         </div>
         
         <div class="content">
@@ -75,9 +127,9 @@
         </div>
         
         <div class="footer">
-            <p>Cet email a été envoyé automatiquement par Apiculture Manager.</p>
+            <p>Cet email a été envoyé automatiquement par Abbenage.</p>
             <p>Si vous ne souhaitez plus recevoir ces emails, veuillez nous contacter.</p>
-            <p>© 2025 Apiculture Manager. Tous droits réservés.</p>
+            <p>© 2026 Abbenage. Tous droits réservés.</p>
         </div>
     </div>
 </body>

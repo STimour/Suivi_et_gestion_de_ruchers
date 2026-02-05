@@ -17,9 +17,9 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 # Arguments de build
-ARG NEXT_PUBLIC_GRAPHQL_ENDPOINT=http://localhost:8081/v1/graphql
+ARG NEXT_PUBLIC_GRAPHQL_ENDPOINT=http://hasura.localhost:8088/v1/graphql
 ARG NEXT_PUBLIC_HASURA_ADMIN_SECRET=adminsecret
-ARG NEXT_PUBLIC_DJANGO_API_URL=http://localhost:8000
+ARG NEXT_PUBLIC_DJANGO_API_URL=http://api.localhost:8088
 
 # Convertir les args en variables d'environnement pour le build
 ENV NEXT_PUBLIC_GRAPHQL_ENDPOINT=$NEXT_PUBLIC_GRAPHQL_ENDPOINT

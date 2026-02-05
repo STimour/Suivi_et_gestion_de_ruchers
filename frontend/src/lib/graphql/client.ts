@@ -85,7 +85,7 @@ const authLink = setContext((_, { headers }) => {
 
 // Lien HTTP vers Hasura
 const httpLink = new HttpLink({
-  uri: process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT || 'http://localhost:8081/v1/graphql',
+  uri: process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT || 'http://hasura.localhost:8088/v1/graphql',
 });
 
 // Configuration du cache Apollo
