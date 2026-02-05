@@ -45,4 +45,3 @@ select_permissions:
         - value
       filter: {}
     comment: ""
-

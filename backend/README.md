@@ -49,13 +49,21 @@ Les migrations Hasura sont dans `backend/hasura/`.
 ### Appliquer les migrations
 
 ```bash
-docker compose exec hasura /bin/hasura-cli --project /hasura migrate apply --database-name default
+docker compose exec hasura /bin/hasura-cli --project /hasura migrate apply --database-name default --endpoint http://hasura:8080
 ```
 
 ### Appliquer les metadata (si utilisées)
 
 ```bash
-docker compose exec hasura /bin/hasura-cli --project /hasura metadata apply
+docker compose exec hasura /bin/hasura-cli --project /hasura metadata apply --endpoint http://hasura:8080
+```
+
+### Exporter les metadata (depuis le conteneur Hasura)
+
+Si vous exécutez la commande **dans le conteneur** (via `docker compose exec`), utilisez le nom de service Docker (`hasura`) et le port interne (`8080`) :
+
+```bash
+docker compose exec hasura /bin/hasura-cli --project /hasura metadata export --endpoint http://hasura:8080
 ```
 
 ## Accès aux services

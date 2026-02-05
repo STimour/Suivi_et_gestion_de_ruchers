@@ -138,6 +138,19 @@ select_permissions:
                     utilisateur_id:
                       _eq: X-Hasura-User-Id
     comment: ""
+  - role: anonymous
+    permission:
+      columns:
+        - created_at
+        - date
+        - dosage
+        - nbHausses
+        - poidsKg
+        - produit
+        - type
+        - updated_at
+      filter: {}
+    comment: ""
 update_permissions:
   - role: AdminEntreprise
     permission:

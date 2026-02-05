@@ -49,6 +49,14 @@
     {
       "key": "reineId",
       "value": ""
+    },
+    {
+      "key": "traitementId",
+      "value": ""
+    },
+    {
+      "key": "transhumenceId",
+      "value": ""
     }
   ],
   "item": [
@@ -1200,6 +1208,360 @@
                 "body": {
                   "mode": "raw",
                   "raw": "{\n  \"query\": \"mutation($id: uuid!) { delete_maladies_by_pk(id: $id) { id } }\",\n  \"variables\": {\n    \"id\": \"{{maladieId}}\"\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "CRUD - Traitements",
+          "item": [
+            {
+              "name": "Traitements - List",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"query\":\"query { interventions(where: {type: {_eq: \\\"Traitement\\\"}}) { id created_at updated_at type date observations produit dosage ruche { id immatriculation } } }\"}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Traitements - Get by id",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"query\":\"query($id: uuid!) { interventions_by_pk(id: $id) { id created_at updated_at type date observations produit dosage ruche { id immatriculation } } }\",\"variables\":{\"id\":\"{{traitementId}}\"}}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Traitements - Create",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"query\":\"mutation($object: interventions_insert_input!) { insert_interventions_one(object: $object) { id created_at updated_at } }\",\"variables\":{\"object\":{\"type\":\"Traitement\",\"date\":\"2026-02-05\",\"observations\":\"Traitement anti-varroa\",\"produit\":\"Acide oxalique\",\"dosage\":\"5 ml\",\"ruche_id\":\"{{rucheId}}\"}}}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "try {",
+                      "  const json = pm.response.json();",
+                      "  const id = json?.data?.insert_interventions_one?.id;",
+                      "  if (id) {",
+                      "    pm.collectionVariables.set('traitementId', id);",
+                      "  }",
+                      "} catch (e) {}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Traitements - Update",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"query\":\"mutation($id: uuid!, $changes: interventions_set_input!) { update_interventions_by_pk(pk_columns: {id: $id}, _set: $changes) { id created_at updated_at type date observations produit dosage } }\",\"variables\":{\"id\":\"{{traitementId}}\",\"changes\":{\"observations\":\"Traitement terminé\",\"dosage\":\"6 ml\"}}}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Traitements - Delete",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"query\":\"mutation($id: uuid!) { delete_interventions_by_pk(id: $id) { id created_at updated_at } }\",\"variables\":{\"id\":\"{{traitementId}}\"}}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "CRUD - Transhumences",
+          "item": [
+            {
+              "name": "Transhumences - List",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"query\":\"query { transhumances { id created_at updated_at date origineLat origineLng destinationLat destinationLng floreCible rucher { id nom } } }\"}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Transhumences - Get by id",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"query\":\"query($id: uuid!) { transhumances_by_pk(id: $id) { id created_at updated_at date origineLat origineLng destinationLat destinationLng floreCible rucher { id nom } } }\",\"variables\":{\"id\":\"{{transhumenceId}}\"}}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Transhumences - Create",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"query\":\"mutation($object: transhumances_insert_input!) { insert_transhumances_one(object: $object) { id created_at updated_at } }\",\"variables\":{\"object\":{\"date\":\"2026-02-05\",\"origineLat\":48.8566,\"origineLng\":2.3522,\"destinationLat\":43.2965,\"destinationLng\":5.3698,\"floreCible\":\"Lavande\",\"rucher_id\":\"{{rucherId}}\"}}}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "try {",
+                      "  const json = pm.response.json();",
+                      "  const id = json?.data?.insert_transhumances_one?.id;",
+                      "  if (id) {",
+                      "    pm.collectionVariables.set('transhumenceId', id);",
+                      "  }",
+                      "} catch (e) {}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Transhumences - Update",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"query\":\"mutation($id: uuid!, $changes: transhumances_set_input!) { update_transhumances_by_pk(pk_columns: {id: $id}, _set: $changes) { id created_at updated_at date origineLat origineLng destinationLat destinationLng floreCible } }\",\"variables\":{\"id\":\"{{transhumenceId}}\",\"changes\":{\"destinationLat\":45.7640,\"destinationLng\":4.8357,\"floreCible\":\"ToutesFleurs\"}}}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Transhumences - Delete",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"query\":\"mutation($id: uuid!) { delete_transhumances_by_pk(id: $id) { id created_at updated_at } }\",\"variables\":{\"id\":\"{{transhumenceId}}\"}}"
                 },
                 "url": {
                   "raw": "{{hasuraBaseUrl}}/v1/graphql",

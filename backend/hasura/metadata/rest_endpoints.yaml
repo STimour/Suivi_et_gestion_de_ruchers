@@ -2,8 +2,89 @@
   definition:
     query:
       collection_name: allowed-queries
+      query_name: interventions
+  methods:
+    - GET
+  name: interventions
+  url: interventions
+- comment: ""
+  definition:
+    query:
+      collection_name: allowed-queries
+      query_name: lignee_reine
+  methods:
+    - GET
+  name: lignee_reine
+  url: lignee_reine
+- comment: ""
+  definition:
+    query:
+      collection_name: allowed-queries
+      query_name: reines
+  methods:
+    - GET
+  name: reines
+  url: reines
+- comment: ""
+  definition:
+    query:
+      collection_name: allowed-queries
       query_name: ruchers
   methods:
     - GET
   name: ruchers
   url: ruchers
+- comment: ""
+  definition:
+    query:
+      collection_name: allowed-queries
+      query_name: ruches
+  methods:
+    - GET
+  name: ruches
+  url: ruches
+- comment: ""
+  definition:
+    query:
+      collection_name: allowed-queries
+      query_name: transhumances
+  methods:
+    - GET
+  name: transhumances
+  url: transhumances
+- comment: ""
+  definition:
+    query:
+      collection_name: allowed-queries
+      query_name: type_flore
+  methods:
+    - GET
+  name: type_flore
+  url: type_flore
+- comment: ""
+  definition:
+    query:
+      collection_name: allowed-queries
+      query_name: type_maladie
+  methods:
+    - GET
+  name: type_maladie
+  url: type_maladie
+- comment: ""
+  definition:
+    query:
+      collection_name: allowed-queries
+      query_name: type_race_abeille
+  methods:
+    - GET
+  name: type_race_abeille
+  url: type_race_abeille
+- comment: ""
+  definition:
+    query:
+      collection_name: allowed-queries
+      query_name: type_ruche
+  methods:
+    - GET
+  name: type_ruche
+  url: type_ruche
