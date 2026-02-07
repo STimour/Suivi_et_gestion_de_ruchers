@@ -44,10 +44,29 @@ class TypeProfileEntreprise(models.TextChoices):
     POLLINISATEUR = 'Pollinisateur', 'Pollinisateur'
 
 
+class TypeProfileEntrepriseModel(models.Model):
+    value = models.CharField(primary_key=True, max_length=40)
+    titre = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+
+    class Meta:
+        db_table = 'type_profile_entreprise'
+        verbose_name = 'Type de profil entreprise'
+        verbose_name_plural = 'Types de profil entreprise'
+
+    def __str__(self):
+        return self.titre
+
+
 class EntrepriseProfile(TimestampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     entreprise = models.ForeignKey(Entreprise, on_delete=models.CASCADE, related_name='profils')
-    typeProfile = models.CharField(max_length=30, choices=TypeProfileEntreprise.choices)
+    typeProfile = models.ForeignKey(
+        TypeProfileEntrepriseModel,
+        to_field="value",
+        db_column="typeProfile",
+        on_delete=models.PROTECT,
+    )
 
     class Meta:
         db_table = 'entreprise_profiles'

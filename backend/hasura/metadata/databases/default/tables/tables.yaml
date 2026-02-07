@@ -25,6 +25,7 @@
 - "!include public_type_flore.yaml"
 - "!include public_type_maladie.yaml"
 - "!include public_type_offre.yaml"
+- "!include public_type_profile_entreprise.yaml"
 - "!include public_type_race_abeille.yaml"
 - "!include public_type_ruche.yaml"
 - "!include public_utilisateurs.yaml"

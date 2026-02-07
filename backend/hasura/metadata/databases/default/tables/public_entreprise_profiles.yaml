@@ -5,3 +5,6 @@ object_relationships:
   - name: entreprise
     using:
       foreign_key_constraint_on: entreprise_id
+  - name: type_profile_entreprise
+    using:
+      foreign_key_constraint_on: typeProfile

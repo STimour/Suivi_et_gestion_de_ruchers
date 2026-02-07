@@ -30,6 +30,44 @@ Puis éditez `.env` :
 docker compose up -d
 ```
 
+### 2bis) Stripe (dev) - Webhook Premium
+
+Pour que le passage Premium soit activé après paiement, Stripe doit appeler le webhook :
+
+`/api/stripe/webhook`
+
+En dev, on utilise `stripe-cli` dans Docker.
+
+1) Démarrer le service Stripe CLI :
+
+```bash
+docker compose up -d stripe-cli
+```
+
+2) Récupérer le secret webhook :
+
+```bash
+docker compose logs -f stripe-cli
+```
+
+Vous verrez une ligne :
+
+```
+Your webhook signing secret is whsec_...
+```
+
+3) Mettre ce secret dans `.env` :
+
+```
+STRIPE_WEBHOOK_SECRET=whsec_...
+```
+
+4) Redémarrer Django :
+
+```bash
+docker compose up -d --force-recreate django
+```
+
 ### 3) Appliquer les migrations Django
 
 ```bash

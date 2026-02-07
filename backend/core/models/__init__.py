@@ -4,6 +4,7 @@ from .utilisateur import (
     Entreprise,
     EntrepriseProfile,
     TypeProfileEntreprise,
+    TypeProfileEntrepriseModel,
     UtilisateurEntreprise,
     Invitation,
 )
@@ -26,6 +27,7 @@ from .offre import Offre, TypeOffre, TypeOffreModel, LimitationOffre
 
 __all__ = [
     'Utilisateur', 'RoleUtilisateur', 'Entreprise', 'EntrepriseProfile', 'TypeProfileEntreprise',
+    'TypeProfileEntrepriseModel',
     'UtilisateurEntreprise', 'Invitation',
     'Offre', 'TypeOffre', 'TypeOffreModel', 'LimitationOffre',
     'Rucher', 'Ruche', 'Reine', 'StatutRuche', 'TypeFlore', 'TypeMaladie',

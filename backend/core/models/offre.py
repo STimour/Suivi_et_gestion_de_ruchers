@@ -14,6 +14,9 @@ class TypeOffreModel(models.Model):
     value = models.CharField(primary_key=True, max_length=20)
     titre = models.CharField(max_length=100)
     description = models.TextField(blank=True)
+    prixHT = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    prixTTC = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    stripeProductId = models.CharField(max_length=255, blank=True)
 
     class Meta:
         db_table = "type_offre"

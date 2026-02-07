@@ -12,6 +12,18 @@ export interface RegisterData {
   entreprise_adresse: string;
 }
 
+export interface RegisterUserData {
+  email: string;
+  password: string;
+  nom: string;
+  prenom: string;
+}
+
+export interface EntrepriseCreateData {
+  nom: string;
+  adresse: string;
+}
+
 export interface LoginData {
   email: string;
   password: string;
@@ -41,6 +53,28 @@ export interface EntrepriseResponse {
   nom: string;
   adresse: string;
   access_token?: string;
+}
+
+export interface OffreLimitation {
+  nbRuchersMax: number;
+  nbCapteursMax: number;
+  nbReinesMax: number;
+}
+
+export interface OffreItem {
+  value: string;
+  titre: string;
+  description?: string;
+  prixHT?: number | null;
+  prixTTC?: number | null;
+  stripeProductId?: string | null;
+  limitations_offres?: OffreLimitation[];
+}
+
+export interface ProfileType {
+  value: string;
+  titre: string;
+  description?: string;
 }
 
 class AuthService {
@@ -127,6 +161,35 @@ class AuthService {
     } catch (error) {
       console.error('Erreur lors de la création de l\'entreprise:', error);
       // On ne bloque pas l'inscription si la création d'entreprise échoue
+    }
+
+    return authData;
+  }
+
+  async registerUser(data: RegisterUserData): Promise<AuthResponse> {
+    const registerResponse = await fetch(`${DJANGO_API_URL}/api/auth/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: data.email,
+        password: data.password,
+        nom: data.nom,
+        prenom: data.prenom,
+      }),
+    });
+
+    if (!registerResponse.ok) {
+      const error = await registerResponse.json();
+      throw new Error(error.message || 'Erreur lors de l\'inscription');
+    }
+
+    const authData: AuthResponse = await registerResponse.json();
+
+    this.setToken(authData.access_token);
+    if (authData.refresh_token) {
+      this.setRefreshToken(authData.refresh_token);
     }
 
     return authData;
@@ -315,6 +378,192 @@ class AuthService {
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.message || 'Erreur lors de la création de l\'entreprise');
+    }
+
+    return response.json();
+  }
+
+  async createEntrepriseForOnboarding(data: EntrepriseCreateData, token: string): Promise<EntrepriseResponse> {
+    return this.createEntreprise(data, token);
+  }
+
+  async updateEntrepriseOffre(entrepriseId: string, typeOffre: string): Promise<any> {
+    const token = this.getToken();
+    if (!token) {
+      throw new Error('Non authentifié');
+    }
+
+    const response = await this.fetchWithErrorHandling(`${DJANGO_API_URL}/api/entreprises/${entrepriseId}/offre`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ typeOffre }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Erreur lors de la mise à jour de l\'offre');
+    }
+
+    return response.json();
+  }
+
+  async updateEntrepriseProfiles(entrepriseId: string, typeProfiles: string[]): Promise<any> {
+    const token = this.getToken();
+    if (!token) {
+      throw new Error('Non authentifié');
+    }
+
+    const response = await this.fetchWithErrorHandling(`${DJANGO_API_URL}/api/entreprises/${entrepriseId}/profiles`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ typeProfiles }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Erreur lors de la mise à jour des profils');
+    }
+
+    return response.json();
+  }
+
+  async createPremiumCheckout(entrepriseId: string): Promise<{ url: string }> {
+    const token = this.getToken();
+    if (!token) {
+      throw new Error('Non authentifié');
+    }
+
+    const response = await this.fetchWithErrorHandling(
+      `${DJANGO_API_URL}/api/entreprises/${entrepriseId}/checkout/premium`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || error.message || 'Erreur lors de la création du paiement');
+    }
+
+    return response.json();
+  }
+
+  private async graphqlRequest<T>(
+    query: string,
+    variables?: Record<string, any>,
+    token?: string
+  ): Promise<T> {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(GRAPHQL_URL, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ query, variables }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Erreur GraphQL');
+    }
+
+    const result = await response.json();
+    if (result.errors?.length) {
+      throw new Error(result.errors[0]?.message || 'Erreur GraphQL');
+    }
+
+    return result.data as T;
+  }
+
+  async listOffres(): Promise<OffreItem[]> {
+    const query = `
+      query {
+        type_offre {
+          value
+          titre
+          description
+          prixHT
+          prixTTC
+          stripeProductId
+          limitations_offres {
+            nbRuchersMax
+            nbCapteursMax
+            nbReinesMax
+          }
+        }
+      }
+    `;
+
+    try {
+      const data = await this.graphqlRequest<{ type_offre: OffreItem[] }>(query);
+      return data.type_offre || [];
+    } catch (error) {
+      const fallbackQuery = `
+        query {
+          type_offre {
+            value
+            titre
+            description
+            limitations_offres {
+              nbRuchersMax
+              nbCapteursMax
+              nbReinesMax
+            }
+          }
+        }
+      `;
+      const data = await this.graphqlRequest<{ type_offre: OffreItem[] }>(fallbackQuery);
+      return data.type_offre || [];
+    }
+  }
+
+  async listProfiles(): Promise<ProfileType[]> {
+    const token = this.getToken();
+    const headers: Record<string, string> = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${DJANGO_API_URL}/api/profiles`, {
+      method: 'GET',
+      headers,
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || error.message || 'Erreur lors du chargement des profils');
+    }
+
+    const data = await response.json();
+    return data.profiles || [];
+  }
+
+  async getEntrepriseOffreStatus(entrepriseId: string, token: string): Promise<any> {
+    const response = await this.fetchWithErrorHandling(
+      `${DJANGO_API_URL}/api/entreprises/${entrepriseId}/offre/status`,
+      {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || error.message || 'Erreur lors du chargement du statut');
     }
 
     return response.json();

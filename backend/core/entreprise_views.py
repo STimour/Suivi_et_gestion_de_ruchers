@@ -22,6 +22,7 @@ from core.models import (
     TypeOffre,
     TypeOffreModel,
     LimitationOffre,
+    TypeProfileEntrepriseModel,
 )
 from core.auth_views import _json_body, _get_user_from_request, _make_access_token
 from core.email_utils import send_email
@@ -55,7 +56,9 @@ def _parse_type_offre(value):
 
 
 def _parse_profiles(value):
-    if not value:
+    if value is None:
+        return []
+    if value == "":
         return []
     if isinstance(value, str):
         values = [value]
@@ -63,7 +66,9 @@ def _parse_profiles(value):
         try:
             values = list(value)
         except TypeError:
-            return []
+            return None
+    if not values:
+        return []
     allowed = {
         TypeProfileEntreprise.APICULTEUR_PRODUCTEUR.value,
         TypeProfileEntreprise.ELEVEUR_DE_REINES.value,
@@ -72,10 +77,12 @@ def _parse_profiles(value):
     profiles = []
     for item in values:
         v = (item or "").strip()
+        if not v:
+            continue
         if v in allowed:
             profiles.append(v)
         else:
-            return []
+            return None
     # Deduplicate while keeping order
     seen = set()
     unique_profiles = []
@@ -141,10 +148,16 @@ def create_entreprise(request):
 
     nom = (data.get("nom") or "").strip()
     adresse = (data.get("adresse") or "").strip()
-    type_profiles = _parse_profiles(data.get("typeProfiles"))
-    if not nom or not adresse or not type_profiles:
+    raw_profiles = data.get("typeProfiles")
+    type_profiles = _parse_profiles(raw_profiles)
+    if raw_profiles is not None and type_profiles is None:
         return JsonResponse(
-            {"error": "missing_fields", "detail": "nom, adresse et typeProfiles requis"},
+            {"error": "invalid_profiles", "detail": "typeProfiles invalides"},
+            status=400,
+        )
+    if not nom or not adresse:
+        return JsonResponse(
+            {"error": "missing_fields", "detail": "nom et adresse requis"},
             status=400,
         )
 
@@ -166,11 +179,12 @@ def create_entreprise(request):
         )
 
     entreprise = Entreprise.objects.create(nom=nom, adresse=adresse)
-    for type_profile in type_profiles:
-        EntrepriseProfile.objects.create(
-            entreprise=entreprise,
-            typeProfile=type_profile,
-        )
+    if type_profiles:
+        for type_profile in type_profiles:
+            EntrepriseProfile.objects.create(
+                entreprise=entreprise,
+                typeProfile_id=type_profile,
+            )
     UtilisateurEntreprise.objects.create(
         utilisateur=user,
         entreprise=entreprise,
@@ -360,6 +374,239 @@ def create_premium_checkout(request, entreprise_id):
 
 
 @csrf_exempt
+def update_entreprise_offre(request, entreprise_id):
+    """POST /api/entreprises/{id}/offre - Mettre a jour le type d'offre d'une entreprise."""
+    if request.method != "POST":
+        return JsonResponse({"error": "method_not_allowed"}, status=405)
+
+    user, err = _get_user_from_request(request)
+    if err:
+        return err
+
+    try:
+        entreprise = Entreprise.objects.get(id=entreprise_id)
+    except Entreprise.DoesNotExist:
+        return JsonResponse({"error": "entreprise_not_found"}, status=404)
+
+    _, err = _require_admin_entreprise(user, entreprise)
+    if err:
+        return err
+
+    data = _json_body(request)
+    if data is None:
+        return JsonResponse({"error": "invalid_json"}, status=400)
+
+    raw_type_offre = data.get("typeOffre")
+    type_offre = _parse_type_offre(raw_type_offre)
+    if type_offre is None:
+        return JsonResponse(
+            {"error": "invalid_type_offre", "detail": "typeOffre doit etre Freemium ou Premium"},
+            status=400,
+        )
+
+    limitation_offre = (
+        LimitationOffre.objects.filter(typeOffre_id=type_offre).order_by("id").first()
+    )
+    if not limitation_offre:
+        return JsonResponse(
+            {"error": "limitation_offre_not_found", "detail": f"Aucune limitation pour {type_offre}"},
+            status=400,
+        )
+
+    if type_offre == TypeOffre.PREMIUM.value:
+        limits = _premium_limits()
+    else:
+        limits = {
+            "nbRuchersMax": limitation_offre.nbRuchersMax,
+            "nbCapteursMax": limitation_offre.nbCapteursMax,
+            "nbReinesMax": limitation_offre.nbReinesMax,
+        }
+
+    with transaction.atomic():
+        offre, created = Offre.objects.select_for_update().get_or_create(
+            entreprise=entreprise,
+            defaults={
+                "type_id": type_offre,
+                "dateDebut": timezone.now(),
+                "active": True,
+                "nbRuchersMax": limits["nbRuchersMax"],
+                "nbCapteursMax": limits["nbCapteursMax"],
+                "nbReinesMax": limits["nbReinesMax"],
+                "stripeCustomerId": "",
+                "stripeSubscriptionId": "",
+                "limitationOffre": limitation_offre,
+            },
+        )
+        if not created:
+            offre.type_id = type_offre
+            offre.dateDebut = timezone.now()
+            offre.dateFin = None
+            offre.active = True
+            offre.nbRuchersMax = limits["nbRuchersMax"]
+            offre.nbCapteursMax = limits["nbCapteursMax"]
+            offre.nbReinesMax = limits["nbReinesMax"]
+            if type_offre == TypeOffre.FREEMIUM.value:
+                offre.stripeSubscriptionId = ""
+            offre.limitationOffre = limitation_offre
+            offre.save()
+
+    return JsonResponse(
+        {
+            "entreprise_id": str(entreprise.id),
+            "typeOffre": type_offre,
+            "nbRuchersMax": limits["nbRuchersMax"],
+            "nbCapteursMax": limits["nbCapteursMax"],
+            "nbReinesMax": limits["nbReinesMax"],
+        },
+        status=200,
+    )
+
+
+@csrf_exempt
+def update_entreprise_profiles(request, entreprise_id):
+    """POST /api/entreprises/{id}/profiles - Mettre a jour les profils d'une entreprise."""
+    if request.method != "POST":
+        return JsonResponse({"error": "method_not_allowed"}, status=405)
+
+    user, err = _get_user_from_request(request)
+    if err:
+        return err
+
+    try:
+        entreprise = Entreprise.objects.get(id=entreprise_id)
+    except Entreprise.DoesNotExist:
+        return JsonResponse({"error": "entreprise_not_found"}, status=404)
+
+    _, err = _require_admin_entreprise(user, entreprise)
+    if err:
+        return err
+
+    data = _json_body(request)
+    if data is None:
+        return JsonResponse({"error": "invalid_json"}, status=400)
+
+    raw_profiles = data.get("typeProfiles")
+    if raw_profiles is None:
+        return JsonResponse(
+            {"error": "missing_fields", "detail": "typeProfiles requis"},
+            status=400,
+        )
+
+    type_profiles = _parse_profiles(raw_profiles)
+    if type_profiles is None:
+        return JsonResponse(
+            {"error": "invalid_profiles", "detail": "typeProfiles invalides"},
+            status=400,
+        )
+
+    # S'assurer que les profils existent dans la table type_profile_entreprise
+    for profile_value in (
+        TypeProfileEntreprise.APICULTEUR_PRODUCTEUR.value,
+        TypeProfileEntreprise.ELEVEUR_DE_REINES.value,
+        TypeProfileEntreprise.POLLINISATEUR.value,
+    ):
+        TypeProfileEntrepriseModel.objects.get_or_create(
+            value=profile_value,
+            defaults={"titre": profile_value, "description": ""},
+        )
+
+    with transaction.atomic():
+        EntrepriseProfile.objects.filter(entreprise=entreprise).delete()
+        for type_profile in type_profiles:
+            EntrepriseProfile.objects.create(
+                entreprise=entreprise,
+                typeProfile_id=type_profile,
+            )
+
+    return JsonResponse(
+        {
+            "entreprise_id": str(entreprise.id),
+            "typeProfiles": type_profiles,
+        },
+        status=200,
+    )
+
+
+@csrf_exempt
+def get_entreprise_offre_status(request, entreprise_id):
+    """GET /api/entreprises/{id}/offre/status - Statut de l'offre pour l'entreprise."""
+    if request.method != "GET":
+        return JsonResponse({"error": "method_not_allowed"}, status=405)
+
+    user, err = _get_user_from_request(request)
+    if err:
+        return err
+
+    try:
+        entreprise = Entreprise.objects.get(id=entreprise_id)
+    except Entreprise.DoesNotExist:
+        return JsonResponse({"error": "entreprise_not_found"}, status=404)
+
+    _, err = _require_admin_entreprise(user, entreprise)
+    if err:
+        return err
+
+    offre = Offre.objects.filter(entreprise=entreprise).first()
+    if not offre:
+        return JsonResponse({"error": "offre_not_found"}, status=404)
+
+    type_value = (offre.type_id or "").strip()
+    is_premium = type_value.lower() == TypeOffre.PREMIUM.value.lower()
+    paid = bool(is_premium and (offre.stripeSubscriptionId or offre.stripeCustomerId))
+
+    return JsonResponse(
+        {
+            "entreprise_id": str(entreprise.id),
+            "type": type_value,
+            "active": offre.active,
+            "stripeCustomerId": offre.stripeCustomerId or "",
+            "stripeSubscriptionId": offre.stripeSubscriptionId or "",
+            "paid": paid,
+        },
+        status=200,
+    )
+
+
+@csrf_exempt
+def list_type_profiles(request):
+    """GET /api/profiles - Liste des profils entreprise."""
+    if request.method != "GET":
+        return JsonResponse({"error": "method_not_allowed"}, status=405)
+
+    profiles = list(TypeProfileEntrepriseModel.objects.all().order_by("value"))
+    if profiles:
+        data = [
+            {
+                "value": profile.value,
+                "titre": profile.titre,
+                "description": profile.description,
+            }
+            for profile in profiles
+        ]
+    else:
+        # Fallback si la table n'est pas seedee
+        data = [
+            {
+                "value": TypeProfileEntreprise.APICULTEUR_PRODUCTEUR.value,
+                "titre": "ApiculteurProducteur",
+                "description": "",
+            },
+            {
+                "value": TypeProfileEntreprise.ELEVEUR_DE_REINES.value,
+                "titre": "EleveurDeReines",
+                "description": "",
+            },
+            {
+                "value": TypeProfileEntreprise.POLLINISATEUR.value,
+                "titre": "Pollinisateur",
+                "description": "",
+            },
+        ]
+
+    return JsonResponse({"profiles": data}, status=200)
+
+
+@csrf_exempt
 def stripe_webhook(request):
     """POST /api/stripe/webhook - Webhook Stripe pour activer l'offre Premium."""
     if request.method != "POST":
@@ -379,8 +626,10 @@ def stripe_webhook(request):
             secret=settings.STRIPE_WEBHOOK_SECRET,
         )
     except ValueError:
+        logger.warning("Webhook Stripe payload invalide")
         return JsonResponse({"error": "invalid_payload"}, status=400)
     except stripe.error.SignatureVerificationError:
+        logger.warning("Webhook Stripe signature invalide")
         return JsonResponse({"error": "invalid_signature"}, status=400)
 
     event_type = event.get("type")

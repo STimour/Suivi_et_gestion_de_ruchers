@@ -96,8 +96,8 @@ class LimitationOffreAdmin(admin.ModelAdmin):
 
 @admin.register(TypeOffreModel)
 class TypeOffreModelAdmin(admin.ModelAdmin):
-    list_display = ('value', 'titre', 'description')
-    search_fields = ('value', 'titre', 'description')
+    list_display = ('value', 'titre', 'description', 'prixHT', 'prixTTC', 'stripeProductId')
+    search_fields = ('value', 'titre', 'description', 'stripeProductId')
 
 @admin.register(Intervention)
 class InterventionAdmin(admin.ModelAdmin):

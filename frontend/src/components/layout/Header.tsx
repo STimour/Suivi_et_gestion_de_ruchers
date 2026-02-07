@@ -1,10 +1,12 @@
 'use client';
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Bell, User, Menu, LogOut } from "lucide-react";
 import { useAuth } from "@/lib/auth/AuthContext";
+import { authService } from "@/lib/auth/authService";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,6 +18,41 @@ import { EntrepriseSwitcher } from "./EntrepriseSwitcher";
 
 export function Header() {
   const { user, logout } = useAuth();
+  const [isPremium, setIsPremium] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const entrepriseId = user?.entreprise_id;
+    if (!entrepriseId) {
+      setIsPremium(null);
+      return;
+    }
+    const token = authService.getToken();
+    if (!token) {
+      setIsPremium(null);
+      return;
+    }
+
+    let isActive = true;
+    const loadStatus = async () => {
+      try {
+        const status = await authService.getEntrepriseOffreStatus(entrepriseId, token);
+        const typeValue = (status?.type || "").toLowerCase();
+        const premium = Boolean(status?.paid || typeValue === "premium");
+        if (isActive) {
+          setIsPremium(premium);
+        }
+      } catch {
+        if (isActive) {
+          setIsPremium(null);
+        }
+      }
+    };
+
+    loadStatus();
+    return () => {
+      isActive = false;
+    };
+  }, [user?.entreprise_id]);
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
       <div className="container mx-auto px-4">
@@ -76,6 +113,17 @@ export function Header() {
               </span>
             </Link>
             <EntrepriseSwitcher />
+            {isPremium !== null && (
+              <span
+                className={`rounded-full border px-2 py-1 text-[11px] font-semibold uppercase tracking-wide ${
+                  isPremium
+                    ? "border-green-200 bg-green-50 text-green-700"
+                    : "border-amber-200 bg-amber-50 text-amber-700"
+                }`}
+              >
+                {isPremium ? "Premium" : "Freemium"}
+              </span>
+            )}
           </div>
 
           {/* Right - Notifications & Profile */}
