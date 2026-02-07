@@ -57,7 +57,7 @@ def _make_access_token(user: Utilisateur, entreprise_id=None):
             .first()
         )
         if offre:
-            offre_type = offre.type
+            offre_type = offre.type_id
         else:
             offre_type = TypeOffre.FREEMIUM.value
 

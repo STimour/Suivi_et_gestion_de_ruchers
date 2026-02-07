@@ -1,10 +1,26 @@
 from django.contrib import admin
 from .models import (
-    Utilisateur, RoleUtilisateur, Entreprise, UtilisateurEntreprise, Invitation,
-    Rucher, Ruche, Reine,
-    Intervention, Transhumance,
-    Capteur, Mesure, Alerte,
-    TypeFlore, TypeRuche, TypeRaceAbeille, LigneeReine, TypeMaladie
+    Utilisateur,
+    Entreprise,
+    EntrepriseProfile,
+    UtilisateurEntreprise,
+    Invitation,
+    Offre,
+    TypeOffreModel,
+    LimitationOffre,
+    Rucher,
+    Ruche,
+    Reine,
+    TypeFlore,
+    TypeMaladie,
+    TypeRuche,
+    TypeRaceAbeille,
+    LigneeReine,
+    Intervention,
+    Transhumance,
+    Alerte,
+    Capteur,
+    Mesure,
 )
 
 @admin.register(Utilisateur)
@@ -17,6 +33,12 @@ class UtilisateurAdmin(admin.ModelAdmin):
 class EntrepriseAdmin(admin.ModelAdmin):
     list_display = ('nom', 'created_at')
     search_fields = ('nom',)
+
+@admin.register(EntrepriseProfile)
+class EntrepriseProfileAdmin(admin.ModelAdmin):
+    list_display = ('entreprise', 'typeProfile', 'created_at')
+    list_filter = ('typeProfile', 'created_at')
+    raw_id_fields = ('entreprise',)
 
 @admin.register(UtilisateurEntreprise)
 class UtilisateurEntrepriseAdmin(admin.ModelAdmin):
@@ -49,6 +71,33 @@ class ReineAdmin(admin.ModelAdmin):
     list_display = ('codeCouleur', 'anneeNaissance', 'lignee', 'noteDouceur')
     list_filter = ('anneeNaissance',)
     raw_id_fields = ('entreprise', 'ruche')
+
+@admin.register(Offre)
+class OffreAdmin(admin.ModelAdmin):
+    list_display = (
+        'entreprise',
+        'type',
+        'active',
+        'dateDebut',
+        'dateFin',
+        'nbRuchersMax',
+        'nbCapteursMax',
+        'nbReinesMax',
+        'limitationOffre',
+    )
+    list_filter = ('type', 'active')
+    search_fields = ('entreprise__nom',)
+    raw_id_fields = ('entreprise', 'limitationOffre')
+
+@admin.register(LimitationOffre)
+class LimitationOffreAdmin(admin.ModelAdmin):
+    list_display = ('typeOffre', 'nbRuchersMax', 'nbCapteursMax', 'nbReinesMax')
+    list_filter = ('typeOffre',)
+
+@admin.register(TypeOffreModel)
+class TypeOffreModelAdmin(admin.ModelAdmin):
+    list_display = ('value', 'titre', 'description')
+    search_fields = ('value', 'titre', 'description')
 
 @admin.register(Intervention)
 class InterventionAdmin(admin.ModelAdmin):

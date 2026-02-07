@@ -1,0 +1,56 @@
+table:
+  name: limitations_offres
+  schema: public
+object_relationships:
+  - name: type_offre
+    using:
+      foreign_key_constraint_on: typeOffre
+array_relationships:
+  - name: offres
+    using:
+      foreign_key_constraint_on:
+        column: limitationOffre_id
+        table:
+          name: offres
+          schema: public
+select_permissions:
+  - role: AdminEntreprise
+    permission:
+      columns:
+        - typeOffre
+        - nbCapteursMax
+        - nbReinesMax
+        - nbRuchersMax
+        - id
+      filter: {}
+    comment: ""
+  - role: Apiculteur
+    permission:
+      columns:
+        - typeOffre
+        - nbCapteursMax
+        - nbReinesMax
+        - nbRuchersMax
+        - id
+      filter: {}
+    comment: ""
+  - role: Lecteur
+    permission:
+      columns:
+        - typeOffre
+        - nbCapteursMax
+        - nbReinesMax
+        - nbRuchersMax
+        - id
+      filter: {}
+    comment: ""
+  - role: anonymous
+    permission:
+      columns:
+        - typeOffre
+        - nbCapteursMax
+        - nbReinesMax
+        - nbRuchersMax
+        - id
+      filter: {}
+    comment: ""

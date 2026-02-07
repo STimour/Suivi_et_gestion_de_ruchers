@@ -1,0 +1,7 @@
+table:
+  name: entreprise_profiles
+  schema: public
+object_relationships:
+  - name: entreprise
+    using:
+      foreign_key_constraint_on: entreprise_id

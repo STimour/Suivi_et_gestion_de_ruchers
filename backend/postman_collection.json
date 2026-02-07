@@ -318,7 +318,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nom\": \"Mon Rucher SARL\",\n  \"adresse\": \"123 rue des Abeilles\"\n}"
+              "raw": "{\n  \"nom\": \"Mon Rucher SARL\",\n  \"adresse\": \"123 rue des Abeilles\",\n  \"typeProfiles\": [\n    \"ApiculteurProducteur\",\n    \"EleveurDeReines\"\n  ],\n  \"typeOffre\": \"Premium\"\n}"
             },
             "url": {
               "raw": "{{djangoBaseUrl}}/api/entreprise",
@@ -514,6 +514,32 @@
               }
             }
           ]
+        },
+        {
+          "name": "Offres - List (avec limitations)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query { type_offre { value titre description limitations_offres { nbRuchersMax nbCapteursMax nbReinesMax } } }\"\n}"
+            },
+            "url": {
+              "raw": "{{hasuraBaseUrl}}/v1/graphql",
+              "host": [
+                "{{hasuraBaseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "graphql"
+              ]
+            }
+          }
         },
         {
           "name": "CRUD - Ruchers",

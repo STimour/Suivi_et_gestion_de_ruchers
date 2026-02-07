@@ -37,6 +37,26 @@ class Entreprise(TimestampedModel):
     def __str__(self):
         return self.nom
 
+
+class TypeProfileEntreprise(models.TextChoices):
+    APICULTEUR_PRODUCTEUR = 'ApiculteurProducteur', 'ApiculteurProducteur'
+    ELEVEUR_DE_REINES = 'EleveurDeReines', 'EleveurDeReines'
+    POLLINISATEUR = 'Pollinisateur', 'Pollinisateur'
+
+
+class EntrepriseProfile(TimestampedModel):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    entreprise = models.ForeignKey(Entreprise, on_delete=models.CASCADE, related_name='profils')
+    typeProfile = models.CharField(max_length=30, choices=TypeProfileEntreprise.choices)
+
+    class Meta:
+        db_table = 'entreprise_profiles'
+        verbose_name = 'EntrepriseProfile'
+        verbose_name_plural = 'EntrepriseProfiles'
+
+    def __str__(self):
+        return f"{self.entreprise} - {self.typeProfile}"
+
 class UtilisateurEntreprise(TimestampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     utilisateur = models.ForeignKey(Utilisateur, on_delete=models.CASCADE, related_name='appartenances')

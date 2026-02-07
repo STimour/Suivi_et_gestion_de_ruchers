@@ -5,6 +5,12 @@ object_relationships:
   - name: entreprise
     using:
       foreign_key_constraint_on: entreprise_id
+  - name: limitations_offre
+    using:
+      foreign_key_constraint_on: limitationOffre_id
+  - name: type_offre
+    using:
+      foreign_key_constraint_on: type
 insert_permissions:
   - role: AdminEntreprise
     permission:

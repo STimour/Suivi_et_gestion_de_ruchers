@@ -1,0 +1,51 @@
+table:
+  name: type_offre
+  schema: public
+array_relationships:
+  - name: limitations_offres
+    using:
+      foreign_key_constraint_on:
+        column: typeOffre
+        table:
+          name: limitations_offres
+          schema: public
+  - name: offres
+    using:
+      foreign_key_constraint_on:
+        column: type
+        table:
+          name: offres
+          schema: public
+select_permissions:
+  - role: AdminEntreprise
+    permission:
+      columns:
+        - titre
+        - value
+        - description
+      filter: {}
+    comment: ""
+  - role: Apiculteur
+    permission:
+      columns:
+        - titre
+        - value
+        - description
+      filter: {}
+    comment: ""
+  - role: Lecteur
+    permission:
+      columns:
+        - titre
+        - value
+        - description
+      filter: {}
+    comment: ""
+  - role: anonymous
+    permission:
+      columns:
+        - titre
+        - value
+        - description
+      filter: {}
+    comment: ""
