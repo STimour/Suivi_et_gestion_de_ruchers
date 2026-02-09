@@ -86,6 +86,10 @@ services:
       DATABASE_USER: ${POSTGRES_USER}
       DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
+      TRACCAR_BASE_URL: ${TRACCAR_BASE_URL}
+      TRACCAR_USER: ${TRACCAR_USER}
+      TRACCAR_PASSWORD: ${TRACCAR_PASSWORD}
+      TRACCAR_TOKEN: ${TRACCAR_TOKEN}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.django.rule=Host(`api.localhost`)"
@@ -103,5 +107,46 @@ services:
       STRIPE_DEVICE_NAME: "local-docker"
     command: listen --forward-to http://django:8000/api/stripe/webhook
 
+  traccar-db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_DB: traccar
+      POSTGRES_USER: traccar
+      POSTGRES_PASSWORD: traccar
+    volumes:
+      - traccar_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U traccar"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  traccar:
+    image: traccar/traccar:latest
+    restart: always
+    depends_on:
+      traccar-db:
+        condition: service_healthy
+    environment:
+      CONFIG_USE_ENVIRONMENT_VARIABLES: "true"
+      DATABASE_DRIVER: org.postgresql.Driver
+      DATABASE_URL: jdbc:postgresql://traccar-db:5432/traccar
+      DATABASE_USER: traccar
+      DATABASE_PASSWORD: traccar
+    volumes:
+      - traccar_data:/opt/traccar/data
+    ports:
+      - "8082:8082"
+      - "5055:5055"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traccar.rule=Host(`traccar.localhost`)"
+      - "traefik.http.routers.traccar.entrypoints=web"
+      - "traefik.http.services.traccar.loadbalancer.server.port=8082"
+      - "traefik.http.routers.traccar.middlewares=ratelimit@docker"
+
 volumes:
   postgres_data:
+  traccar_db_data:
+  traccar_data:

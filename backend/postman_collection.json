@@ -31,6 +31,14 @@
       "value": ""
     },
     {
+      "key": "capteurId",
+      "value": ""
+    },
+    {
+      "key": "capteurIdentifiant",
+      "value": ""
+    },
+    {
       "key": "entrepriseId",
       "value": ""
     },
@@ -597,6 +605,145 @@
               }
             }
           ]
+        }
+      ]
+    },
+    {
+      "name": "IoT",
+      "item": [
+        {
+          "name": "Associer capteur (Traccar)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ruche_id\": \"{{rucheId}}\",\n  \"type\": \"GPS\",\n  \"identifiant\": \"{{capteurIdentifiant}}\",\n  \"name\": \"GPS - Ruche A\"\n}"
+            },
+            "url": {
+              "raw": "{{djangoBaseUrl}}/api/capteurs/associate",
+              "host": [
+                "{{djangoBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "capteurs",
+                "associate"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "try {",
+                  "  const json = pm.response.json();",
+                  "  const id = json?.capteur?.id;",
+                  "  if (id) {",
+                  "    pm.collectionVariables.set('capteurId', id);",
+                  "  }",
+                  "} catch (e) {}"
+                ]
+              }
+            }
+          ]
+        }
+        ,
+        {
+          "name": "Capteurs - List",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{djangoBaseUrl}}/api/capteurs",
+              "host": [
+                "{{djangoBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "capteurs"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Capteurs - Update",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"GPS\",\n  \"identifiant\": \"{{capteurIdentifiant}}\",\n  \"actif\": true,\n  \"name\": \"GPS - Ruche A\"\n}"
+            },
+            "url": {
+              "raw": "{{djangoBaseUrl}}/api/capteurs/{{capteurId}}",
+              "host": [
+                "{{djangoBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "capteurs",
+                "{{capteurId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Capteurs - Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{djangoBaseUrl}}/api/capteurs/{{capteurId}}/delete",
+              "host": [
+                "{{djangoBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "capteurs",
+                "{{capteurId}}",
+                "delete"
+              ]
+            }
+          }
         }
       ]
     },

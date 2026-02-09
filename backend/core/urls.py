@@ -1,6 +1,6 @@
 from django.urls import path
 
-from core import auth_views, entreprise_views
+from core import auth_views, entreprise_views, iot_views
 
 urlpatterns = [
     path('auth/register', auth_views.register, name='auth-register'),
@@ -18,4 +18,8 @@ urlpatterns = [
     path('entreprises/<uuid:entreprise_id>/offre/status', entreprise_views.get_entreprise_offre_status, name='entreprise-offre-status'),
     path('profiles', entreprise_views.list_type_profiles, name='profiles-list'),
     path('stripe/webhook', entreprise_views.stripe_webhook, name='stripe-webhook'),
+    path('capteurs/associate', iot_views.associate_capteur, name='capteurs-associate'),
+    path('capteurs', iot_views.list_capteurs, name='capteurs-list'),
+    path('capteurs/<uuid:capteur_id>', iot_views.update_capteur, name='capteurs-update'),
+    path('capteurs/<uuid:capteur_id>/delete', iot_views.delete_capteur, name='capteurs-delete'),
 ]
