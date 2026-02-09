@@ -3,21 +3,18 @@ from core.models import Rucher, Entreprise, TypeFlore
 
 
 class RucherModelTest(TestCase):
-    
+
     def setUp(self):
+        TypeFlore.objects.get_or_create(value=TypeFlore.LAVANDE, defaults={"label": "Lavande"})
         self.entreprise = Entreprise.objects.create(
             nom="Ruches & Co",
             adresse="Lyon"
-        )
-        self.flore, _ = TypeFlore.objects.get_or_create(
-            value=TypeFlore.LAVANDE,
-            defaults={"label": "Lavande"},
         )
         self.rucher = Rucher.objects.create(
             nom="Rucher Principal",
             latitude=45.0,
             longitude=4.0,
-            flore=self.flore,
+            flore_id=TypeFlore.LAVANDE,
             altitude=500,
             entreprise=self.entreprise
         )

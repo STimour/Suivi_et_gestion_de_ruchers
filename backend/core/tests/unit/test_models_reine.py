@@ -4,16 +4,13 @@ from core.models import Reine, LigneeReine
 
 
 class ReineModelTest(TestCase):
-    
+
     def setUp(self):
-        self.lignee, _ = LigneeReine.objects.get_or_create(
-            value=LigneeReine.BUCKFAST,
-            defaults={"label": "Buckfast"},
-        )
+        LigneeReine.objects.get_or_create(value=LigneeReine.BUCKFAST, defaults={"label": "Buckfast"})
         self.reine = Reine.objects.create(
             anneeNaissance=2020,
             codeCouleur="Rouge",
-            lignee=self.lignee,
+            lignee_id=LigneeReine.BUCKFAST,
             noteDouceur=8
         )
     
@@ -25,7 +22,7 @@ class ReineModelTest(TestCase):
         reine = Reine(
             anneeNaissance=1800,
             codeCouleur="Blanc",
-            lignee=self.lignee,
+            lignee_id=LigneeReine.BUCKFAST,
             noteDouceur=5
         )
         with self.assertRaises(ValidationError):
@@ -35,7 +32,7 @@ class ReineModelTest(TestCase):
         reine = Reine(
             anneeNaissance=2200,
             codeCouleur="Blanc",
-            lignee=self.lignee,
+            lignee_id=LigneeReine.BUCKFAST,
             noteDouceur=5
         )
         with self.assertRaises(ValidationError):
@@ -45,7 +42,7 @@ class ReineModelTest(TestCase):
         reine = Reine(
             anneeNaissance=2020,
             codeCouleur="Blanc",
-            lignee=self.lignee,
+            lignee_id=LigneeReine.BUCKFAST,
             noteDouceur=20
         )
         with self.assertRaises(ValidationError):
