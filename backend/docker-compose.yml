@@ -115,12 +115,12 @@ services:
     restart: always
     environment:
       POSTGRES_DB: traccar
-      POSTGRES_USER: traccar
-      POSTGRES_PASSWORD: traccar
+      POSTGRES_USER: ${TRACCAR_DB_USER}
+      POSTGRES_PASSWORD: ${TRACCAR_DB_PASSWORD}
     volumes:
       - traccar_db_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U traccar"]
+      test: ["CMD-SHELL", "pg_isready -U ${TRACCAR_DB_USER}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -135,8 +135,8 @@ services:
       CONFIG_USE_ENVIRONMENT_VARIABLES: "true"
       DATABASE_DRIVER: org.postgresql.Driver
       DATABASE_URL: jdbc:postgresql://traccar-db:5432/traccar
-      DATABASE_USER: traccar
-      DATABASE_PASSWORD: traccar
+      DATABASE_USER: ${TRACCAR_DB_USER}
+      DATABASE_PASSWORD: ${TRACCAR_DB_PASSWORD}
     volumes:
       - traccar_data:/opt/traccar/data
     ports:
