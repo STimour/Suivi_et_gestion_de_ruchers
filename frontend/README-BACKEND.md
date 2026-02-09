@@ -20,7 +20,7 @@ Frontend (Next.js)          Backend
 **Fichier** : `src/lib/graphql/client.ts`
 - Client Apollo avec gestion des erreurs
 - Cache configuré pour les entités principales
-- Connexion à Hasura sur `http://localhost:8081/v1/graphql`
+- Connexion à Hasura sur `http://hasura.localhost:8088/v1/graphql`
 
 ### 2. Provider Apollo
 
@@ -162,7 +162,7 @@ Si vous avez des erreurs de connexion :
 
 1. Vérifier que Hasura est accessible :
 ```bash
-curl http://localhost:8081/v1/graphql
+curl http://hasura.localhost:8088/v1/graphql
 ```
 
 2. Vérifier les logs Hasura :

@@ -125,10 +125,8 @@ def _serialize_offre(offre: Offre):
     if not offre:
         return None
     type_model = getattr(offre, "type", None)
-    limitation = getattr(offre, "limitationOffre", None)
     return {
         "id": str(offre.id),
-        "entrepriseId": str(offre.entreprise_id),
         "type": {
             "value": getattr(type_model, "value", None),
             "titre": getattr(type_model, "titre", None),
@@ -147,15 +145,6 @@ def _serialize_offre(offre: Offre):
         "nbReinesMax": offre.nbReinesMax,
         "stripeCustomerId": offre.stripeCustomerId or "",
         "stripeSubscriptionId": offre.stripeSubscriptionId or "",
-        "limitationOffre": {
-            "id": str(limitation.id),
-            "typeOffre": limitation.typeOffre_id,
-            "nbRuchersMax": limitation.nbRuchersMax,
-            "nbCapteursMax": limitation.nbCapteursMax,
-            "nbReinesMax": limitation.nbReinesMax,
-        }
-        if limitation
-        else None,
         "createdAt": offre.created_at.isoformat() if offre.created_at else None,
         "updatedAt": offre.updated_at.isoformat() if offre.updated_at else None,
     }
