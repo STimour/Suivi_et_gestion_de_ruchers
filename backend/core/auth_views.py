@@ -17,6 +17,7 @@ from core.models import (
     Invitation,
     Offre,
     TypeOffre,
+    EntrepriseProfile,
 )
 from django.contrib.auth.hashers import check_password, make_password
 
@@ -273,15 +274,47 @@ def me(request):
     # Récupérer les entreprises et rôles de l'utilisateur
     user_entreprises = UtilisateurEntreprise.objects.filter(
         utilisateur=user
-    ).select_related('entreprise')
-    
+    ).select_related("entreprise")
+
     entreprises_data = []
     for ue in user_entreprises:
-        entreprises_data.append({
-            "id": str(ue.entreprise.id),
-            "nom": ue.entreprise.nom,
-            "role": ue.role
-        })
+        entreprise_id = str(ue.entreprise.id)
+        offre = (
+            Offre.objects.filter(entreprise_id=entreprise_id, active=True)
+            .order_by("-dateDebut")
+            .first()
+        )
+        if offre:
+            type_offre = offre.type_id
+            subscription_active = bool(offre.active)
+            paid = bool(
+                (offre.type_id or "").lower() == TypeOffre.PREMIUM.value.lower()
+                and (offre.stripeSubscriptionId or offre.stripeCustomerId)
+                and offre.active
+            )
+        else:
+            type_offre = TypeOffre.FREEMIUM.value
+            subscription_active = True
+            paid = False
+        type_profiles = list(
+            EntrepriseProfile.objects.filter(entreprise_id=entreprise_id)
+            .order_by("typeProfile_id")
+            .values_list("typeProfile_id", flat=True)
+        )
+        entreprises_data.append(
+            {
+                "id": entreprise_id,
+                "nom": ue.entreprise.nom,
+                "role": ue.role,
+                "typeOffre": type_offre,
+                "typeProfiles": type_profiles,
+                "subscriptionActive": subscription_active,
+                "paid": paid,
+            }
+        )
+
+    claims = payload.get("https://hasura.io/jwt/claims") or {}
+    entreprise_id = (claims.get("x-hasura-entreprise-id") or "").strip()
     
     return JsonResponse(
         {
@@ -414,3 +447,82 @@ def switch_entreprise(request):
         },
         status=200,
     )
+
+
+@csrf_exempt
+def current_entreprise(request):
+    """GET /api/auth/current-entreprise - Retourne l'entreprise courante du token."""
+    if request.method != "GET":
+        return JsonResponse({"error": "method_not_allowed"}, status=405)
+
+    token = _get_bearer_token(request)
+    if not token:
+        return JsonResponse({"error": "missing_authorization"}, status=401)
+
+    try:
+        payload = _decode_token(token)
+    except jwt.ExpiredSignatureError:
+        return JsonResponse({"error": "token_expired"}, status=401)
+    except jwt.InvalidTokenError:
+        return JsonResponse({"error": "invalid_token"}, status=401)
+
+    user_id = payload.get("sub")
+    if not user_id:
+        return JsonResponse({"error": "invalid_token"}, status=401)
+
+    claims = payload.get("https://hasura.io/jwt/claims") or {}
+    entreprise_id = (claims.get("x-hasura-entreprise-id") or "").strip()
+    if not entreprise_id:
+        return JsonResponse({"entreprise": None}, status=200)
+
+    try:
+        user = Utilisateur.objects.get(id=user_id)
+    except Utilisateur.DoesNotExist:
+        return JsonResponse({"error": "user_not_found"}, status=404)
+
+    try:
+        user_entreprise = UtilisateurEntreprise.objects.select_related("entreprise").get(
+            utilisateur=user,
+            entreprise_id=entreprise_id,
+        )
+    except UtilisateurEntreprise.DoesNotExist:
+        return JsonResponse({"error": "not_in_entreprise"}, status=403)
+
+    offre = (
+        Offre.objects.filter(entreprise_id=entreprise_id, active=True)
+        .order_by("-dateDebut")
+        .first()
+    )
+    if offre:
+        type_offre = offre.type_id
+        subscription_active = bool(offre.active)
+        paid = bool(
+            (offre.type_id or "").lower() == TypeOffre.PREMIUM.value.lower()
+            and (offre.stripeSubscriptionId or offre.stripeCustomerId)
+            and offre.active
+        )
+    else:
+        type_offre = TypeOffre.FREEMIUM.value
+        subscription_active = True
+        paid = False
+
+    type_profiles = list(
+        EntrepriseProfile.objects.filter(entreprise_id=entreprise_id)
+        .order_by("typeProfile_id")
+        .values_list("typeProfile_id", flat=True)
+    )
+
+    return JsonResponse(
+        {
+            "entreprise": {
+            "id": str(user_entreprise.entreprise.id),
+            "nom": user_entreprise.entreprise.nom,
+            "role": user_entreprise.role,
+            "typeOffre": type_offre,
+            "typeProfiles": type_profiles,
+            "subscriptionActive": subscription_active,
+            "paid": paid,
+        }
+    },
+    status=200,
+)

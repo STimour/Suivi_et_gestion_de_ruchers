@@ -633,8 +633,10 @@ def stripe_webhook(request):
         return JsonResponse({"error": "invalid_signature"}, status=400)
 
     event_type = event.get("type")
+    data_obj = event.get("data", {}).get("object", {}) or {}
+
     if event_type == "checkout.session.completed":
-        session = event.get("data", {}).get("object", {}) or {}
+        session = data_obj
         metadata = session.get("metadata") or {}
         entreprise_id = (metadata.get("entreprise_id") or "").strip()
         if not entreprise_id:
@@ -693,5 +695,54 @@ def stripe_webhook(request):
                     offre.stripeSubscriptionId = subscription_id
                 offre.limitationOffre = limitation_offre
                 offre.save()
+
+        return JsonResponse({"status": "ok"}, status=200)
+
+    if event_type in ("invoice.payment_failed", "invoice.payment_succeeded"):
+        subscription_id = (data_obj.get("subscription") or "").strip()
+        if not subscription_id:
+            return JsonResponse({"status": "ignored"}, status=200)
+        with transaction.atomic():
+            try:
+                offre = Offre.objects.select_for_update().get(stripeSubscriptionId=subscription_id)
+            except Offre.DoesNotExist:
+                return JsonResponse({"status": "ignored"}, status=200)
+
+            offre.active = event_type == "invoice.payment_succeeded"
+            offre.save(update_fields=["active"])
+
+        return JsonResponse({"status": "ok"}, status=200)
+
+    if event_type == "customer.subscription.deleted":
+        subscription_id = (data_obj.get("id") or "").strip()
+        if not subscription_id:
+            return JsonResponse({"status": "ignored"}, status=200)
+        limitation_offre = (
+            LimitationOffre.objects.filter(typeOffre_id=TypeOffre.FREEMIUM.value)
+            .order_by("id")
+            .first()
+        )
+        if not limitation_offre:
+            logger.error("Limitation Freemium introuvable")
+            return JsonResponse({"error": "freemium_config_missing"}, status=500)
+
+        with transaction.atomic():
+            try:
+                offre = Offre.objects.select_for_update().get(stripeSubscriptionId=subscription_id)
+            except Offre.DoesNotExist:
+                return JsonResponse({"status": "ignored"}, status=200)
+
+            offre.type_id = TypeOffre.FREEMIUM.value
+            offre.dateDebut = timezone.now()
+            offre.dateFin = None
+            offre.active = True
+            offre.nbRuchersMax = limitation_offre.nbRuchersMax
+            offre.nbCapteursMax = limitation_offre.nbCapteursMax
+            offre.nbReinesMax = limitation_offre.nbReinesMax
+            offre.stripeSubscriptionId = ""
+            offre.limitationOffre = limitation_offre
+            offre.save()
+
+        return JsonResponse({"status": "ok"}, status=200)
 
     return JsonResponse({"status": "ok"}, status=200)

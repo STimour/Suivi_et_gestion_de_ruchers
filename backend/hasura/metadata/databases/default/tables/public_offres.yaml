@@ -58,17 +58,20 @@ select_permissions:
   - role: AdminEntreprise
     permission:
       columns:
+        - active
+        - stripeCustomerId
+        - stripeSubscriptionId
         - type
+        - nbCapteursMax
+        - nbReinesMax
+        - nbRuchersMax
+        - created_at
         - dateDebut
         - dateFin
-        - active
-        - nbRuchersMax
-        - nbCapteursMax
-        - stripeCustomerId
+        - updated_at
         - entreprise_id
         - id
-        - created_at
-        - updated_at
+        - limitationOffre_id
       filter:
         _and:
           - entreprise_id:
@@ -81,17 +84,20 @@ select_permissions:
   - role: Apiculteur
     permission:
       columns:
+        - active
+        - stripeCustomerId
+        - stripeSubscriptionId
         - type
+        - nbCapteursMax
+        - nbReinesMax
+        - nbRuchersMax
+        - created_at
         - dateDebut
         - dateFin
-        - active
-        - nbRuchersMax
-        - nbCapteursMax
-        - stripeCustomerId
+        - updated_at
         - entreprise_id
         - id
-        - created_at
-        - updated_at
+        - limitationOffre_id
       filter:
         _and:
           - entreprise_id:
@@ -104,17 +110,20 @@ select_permissions:
   - role: Lecteur
     permission:
       columns:
+        - active
+        - stripeCustomerId
+        - stripeSubscriptionId
         - type
+        - nbCapteursMax
+        - nbReinesMax
+        - nbRuchersMax
+        - created_at
         - dateDebut
         - dateFin
-        - active
-        - nbRuchersMax
-        - nbCapteursMax
-        - stripeCustomerId
+        - updated_at
         - entreprise_id
         - id
-        - created_at
-        - updated_at
+        - limitationOffre_id
       filter:
         _and:
           - entreprise_id:
