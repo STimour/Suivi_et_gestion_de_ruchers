@@ -1,4 +1,4 @@
-name: CI Simple
+name: CI Suivi Et Gestion Ruchers
 
 on:
   push:
@@ -51,6 +51,27 @@ jobs:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
           SECRET_KEY: test-secret-key
         run: python manage.py test --verbosity=2
+      
+      - name: Install coverage tools
+        working-directory: ./backend
+        run: pip install coverage
+      
+      - name: Run tests with coverage
+        working-directory: ./backend
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
+          SECRET_KEY: test-secret-key
+        run: |
+          coverage run --source='core' manage.py test
+          coverage report -m
+          coverage xml
+      
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./backend/coverage.xml
+          flags: backend
+          fail_ci_if_error: false
 
   frontend:
     runs-on: ubuntu-latest
