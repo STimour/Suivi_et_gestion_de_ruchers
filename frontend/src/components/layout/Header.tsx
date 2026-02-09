@@ -67,7 +67,7 @@ export function Header() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 gap-3">
           {/* Left - Navigation */}
-          <nav className="hidden lg:flex items-center gap-6 justify-start">
+          <nav className="hidden lg:flex items-center gap-6 justify-start flex-1">
             <Link
               href="/dashboard"
               className="text-sm font-medium text-amber-900 hover:text-amber-600 transition-colors"
@@ -154,7 +154,7 @@ export function Header() {
           </div>
 
           {/* Center - Logo, Title & Entreprise Switcher */}
-          <div className="flex flex-1 items-center gap-3 justify-center min-w-0">
+          <div className="flex items-center gap-3 justify-center min-w-0">
             <Link href="/dashboard" className="flex items-center gap-2">
               <Image
                 src="/logo_ruche_1.png"
@@ -182,7 +182,7 @@ export function Header() {
           </div>
 
           {/* Right - Notifications & Profile */}
-          <div className="flex items-center gap-2 justify-end">
+          <div className="flex items-center gap-2 justify-end flex-1">
             {/* Notifications */}
             <Button variant="ghost" size="icon" className="relative">
               <Bell className="h-5 w-5 text-amber-700" />
