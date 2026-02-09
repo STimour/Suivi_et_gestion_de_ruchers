@@ -111,6 +111,7 @@ docker compose exec hasura /bin/hasura-cli --project /hasura metadata export --e
 - **Hasura Console** : http://hasura.localhost:8088/console
 - **Endpoint GraphQL Hasura** : http://hasura.localhost:8088/v1/graphql
 - **Traefik Dashboard** : http://localhost:8080
+- **Traccar** : http://traccar.localhost:8088
 
 ## Commandes utiles
 
@@ -131,6 +132,22 @@ docker compose down
 ```bash
 docker compose up -d --build
 ```
+
+## Traccar - Token API
+
+Pour que l'API Django puisse creer des capteurs dans Traccar, il faut un jeton Traccar :
+
+1) Ouvrir Traccar (http://traccar.localhost:8088).
+2) Creer un utilisateur admin (ou utiliser un admin existant).
+3) Aller dans **Preferences** -> **Jeton**.
+4) Cliquer sur **Generer un jeton** et copier la valeur.
+5) Dans `.env`, definir :
+
+```
+TRACCAR_TOKEN=le_jeton_ici
+```
+
+Redemarrer le service Django apres mise a jour de `.env`.
 
 ## Dépannage
 

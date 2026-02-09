@@ -95,3 +95,9 @@ STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET', '')
 STRIPE_PREMIUM_PRICE_ID = os.getenv('STRIPE_PREMIUM_PRICE_ID', '')
 STRIPE_SUCCESS_URL = os.getenv('STRIPE_SUCCESS_URL', f"{FRONTEND_URL}/checkout/success")
 STRIPE_CANCEL_URL = os.getenv('STRIPE_CANCEL_URL', f"{FRONTEND_URL}/checkout/cancel")
+
+# Traccar
+TRACCAR_BASE_URL = os.getenv('TRACCAR_BASE_URL', 'http://traccar:8082')
+TRACCAR_USER = os.getenv('TRACCAR_USER', '')
+TRACCAR_PASSWORD = os.getenv('TRACCAR_PASSWORD', '')
+TRACCAR_TOKEN = os.getenv('TRACCAR_TOKEN', '')
