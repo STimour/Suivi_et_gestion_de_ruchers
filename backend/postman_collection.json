@@ -357,6 +357,98 @@
           ]
         },
         {
+          "name": "Changer offre",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"typeOffre\": \"Premium\"\n}"
+            },
+            "url": {
+              "raw": "{{djangoBaseUrl}}/api/entreprises/{{entrepriseId}}/offre",
+              "host": [
+                "{{djangoBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "entreprises",
+                "{{entrepriseId}}",
+                "offre"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Changer profils",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"typeProfiles\": [\n    \"ApiculteurProducteur\",\n    \"EleveurDeReines\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{djangoBaseUrl}}/api/entreprises/{{entrepriseId}}/profiles",
+              "host": [
+                "{{djangoBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "entreprises",
+                "{{entrepriseId}}",
+                "profiles"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "Switch Entreprise",
           "request": {
             "method": "POST",
@@ -514,6 +606,58 @@
               }
             }
           ]
+        },
+        {
+          "name": "Offres - List (avec limitations)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query { type_offre { value titre description prixHT prixTTC stripeProductId limitations_offres { nbRuchersMax nbCapteursMax nbReinesMax } } }\"\n}"
+            },
+            "url": {
+              "raw": "{{hasuraBaseUrl}}/v1/graphql",
+              "host": [
+                "{{hasuraBaseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "graphql"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Type Profil - List",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query { type_profile_entreprise { value titre description } }\"\n}"
+            },
+            "url": {
+              "raw": "{{hasuraBaseUrl}}/v1/graphql",
+              "host": [
+                "{{hasuraBaseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "graphql"
+              ]
+            }
+          }
         },
         {
           "name": "CRUD - Ruchers",

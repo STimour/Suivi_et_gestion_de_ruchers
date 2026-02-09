@@ -31,6 +31,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'core.middleware.FreemiumProfileLimitMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -86,3 +87,10 @@ CORS_ALLOWED_ORIGINS = [
 
 # Frontend URL for email links and redirects
 FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:3000')
+
+# Stripe
+STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY', '')
+STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET', '')
+STRIPE_PREMIUM_PRICE_ID = os.getenv('STRIPE_PREMIUM_PRICE_ID', '')
+STRIPE_SUCCESS_URL = os.getenv('STRIPE_SUCCESS_URL', f"{FRONTEND_URL}/checkout/success")
+STRIPE_CANCEL_URL = os.getenv('STRIPE_CANCEL_URL', f"{FRONTEND_URL}/checkout/cancel")

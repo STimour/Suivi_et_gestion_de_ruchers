@@ -93,5 +93,15 @@ services:
       - "traefik.http.services.django.loadbalancer.server.port=8000"
       - "traefik.http.routers.django.middlewares=ratelimit@docker"
 
+  stripe-cli:
+    image: stripe/stripe-cli:latest
+    restart: unless-stopped
+    depends_on:
+      - django
+    environment:
+      STRIPE_API_KEY: ${STRIPE_SECRET_KEY}
+      STRIPE_DEVICE_NAME: "local-docker"
+    command: listen --forward-to http://django:8000/api/stripe/webhook
+
 volumes:
   postgres_data:

@@ -11,4 +11,10 @@ urlpatterns = [
     path('auth/switch-entreprise', auth_views.switch_entreprise, name='auth-switch-entreprise'),
     path('entreprise', entreprise_views.create_entreprise, name='entreprise-create'),
     path('entreprise/invitation', entreprise_views.create_invitation, name='entreprise-invitation'),
+    path('entreprises/<uuid:entreprise_id>/checkout/premium', entreprise_views.create_premium_checkout, name='entreprise-checkout-premium'),
+    path('entreprises/<uuid:entreprise_id>/offre', entreprise_views.update_entreprise_offre, name='entreprise-update-offre'),
+    path('entreprises/<uuid:entreprise_id>/profiles', entreprise_views.update_entreprise_profiles, name='entreprise-update-profiles'),
+    path('entreprises/<uuid:entreprise_id>/offre/status', entreprise_views.get_entreprise_offre_status, name='entreprise-offre-status'),
+    path('profiles', entreprise_views.list_type_profiles, name='profiles-list'),
+    path('stripe/webhook', entreprise_views.stripe_webhook, name='stripe-webhook'),
 ]

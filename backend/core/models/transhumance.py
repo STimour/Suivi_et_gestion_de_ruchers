@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 import uuid
 from .organisation import TypeFlore
 from .base import TimestampedModel
@@ -37,6 +38,7 @@ class TypeAlerte(models.TextChoices):
 class Alerte(TimestampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     type = models.CharField(max_length=30, choices=TypeAlerte.choices)
+    date = models.DateTimeField(default=timezone.now)
     message = models.TextField()
     acquittee = models.BooleanField(default=False)
     capteur = models.ForeignKey('Capteur', on_delete=models.CASCADE, related_name='alertes')

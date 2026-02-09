@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 import uuid
 from .base import TimestampedModel
 
@@ -30,6 +31,7 @@ class Capteur(TimestampedModel):
 
 class Mesure(TimestampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    date = models.DateTimeField(default=timezone.now)
     valeur = models.FloatField()
     capteur = models.ForeignKey(Capteur, on_delete=models.CASCADE, related_name='mesures')
 

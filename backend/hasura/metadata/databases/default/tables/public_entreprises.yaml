@@ -12,6 +12,13 @@ object_relationships:
           name: offres
           schema: public
 array_relationships:
+  - name: entreprise_profiles
+    using:
+      foreign_key_constraint_on:
+        column: entreprise_id
+        table:
+          name: entreprise_profiles
+          schema: public
   - name: invitations
     using:
       foreign_key_constraint_on:

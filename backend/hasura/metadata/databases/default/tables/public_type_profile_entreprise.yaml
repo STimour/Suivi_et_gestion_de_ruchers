@@ -1,0 +1,44 @@
+table:
+  name: type_profile_entreprise
+  schema: public
+array_relationships:
+  - name: entreprise_profiles
+    using:
+      foreign_key_constraint_on:
+        column: typeProfile
+        table:
+          name: entreprise_profiles
+          schema: public
+select_permissions:
+  - role: AdminEntreprise
+    permission:
+      columns:
+        - value
+        - titre
+        - description
+      filter: {}
+    comment: ""
+  - role: Apiculteur
+    permission:
+      columns:
+        - value
+        - titre
+        - description
+      filter: {}
+    comment: ""
+  - role: Lecteur
+    permission:
+      columns:
+        - value
+        - titre
+        - description
+      filter: {}
+    comment: ""
+  - role: anonymous
+    permission:
+      columns:
+        - value
+        - titre
+        - description
+      filter: {}
+    comment: ""
