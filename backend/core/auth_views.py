@@ -390,9 +390,11 @@ def accept_invitation(request):
         {"id": str(ue.entreprise.id), "nom": ue.entreprise.nom, "role": ue.role}
         for ue in user_entreprises
     ]
+    token = _make_access_token(user, entreprise_id=invitation.entreprise_id)
     return JsonResponse(
         {
             "message": "invitation_accepted",
+            "access_token": token,
             "entreprise": {
                 "id": str(invitation.entreprise.id),
                 "nom": invitation.entreprise.nom,
