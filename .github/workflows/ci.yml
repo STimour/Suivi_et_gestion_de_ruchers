@@ -130,7 +130,7 @@ jobs:
         working-directory: ./frontend
         run: npm audit --audit-level=high || true
 
-sonarcloud:
+  sonarcloud:
     name: SonarCloud Analysis
     runs-on: ubuntu-latest
     steps:
