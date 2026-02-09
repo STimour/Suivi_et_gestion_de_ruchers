@@ -9,6 +9,7 @@ urlpatterns = [
     path('auth/me', auth_views.me, name='auth-me'),
     path('auth/accept-invitation', auth_views.accept_invitation, name='auth-accept-invitation'),
     path('auth/switch-entreprise', auth_views.switch_entreprise, name='auth-switch-entreprise'),
+    path('auth/current-entreprise', auth_views.current_entreprise, name='auth-current-entreprise'),
     path('entreprise', entreprise_views.create_entreprise, name='entreprise-create'),
     path('entreprise/invitation', entreprise_views.create_invitation, name='entreprise-invitation'),
     path('entreprises/<uuid:entreprise_id>/checkout/premium', entreprise_views.create_premium_checkout, name='entreprise-checkout-premium'),

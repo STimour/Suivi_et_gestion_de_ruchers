@@ -130,8 +130,8 @@ class Ruche(TimestampedModel):
         unique=True,
         validators=[
             RegexValidator(
-                regex=r"^A\d{7}$",
-                message="L'immatriculation doit être au format A1234567.",
+                regex=r"^[A-Z]\d{7}$",
+                message="L'immatriculation doit être au format X1234567.",
             )
         ],
     )

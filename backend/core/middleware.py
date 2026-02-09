@@ -99,3 +99,75 @@ class FreemiumProfileLimitMiddleware:
             },
             status=400,
         )
+
+
+class PremiumPaymentRequiredMiddleware:
+    """
+    Block access when a Premium subscription is unpaid (offre.active = False).
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self._check_request(request)
+        if response is not None:
+            return response
+        return self.get_response(request)
+
+    def _check_request(self, request):
+        path = request.path or ""
+        if not path.startswith("/api/"):
+            return None
+
+        # Allow checkout + webhook + auth endpoints
+        if path.startswith("/api/stripe/webhook"):
+            return None
+        if path.startswith("/api/entreprises/") and path.rstrip("/").endswith("/checkout/premium"):
+            return None
+        if path.startswith("/api/auth/"):
+            return None
+
+        entreprise_id = self._entreprise_id_from_token(request)
+        if not entreprise_id:
+            return None
+
+        offre = (
+            Offre.objects.filter(entreprise_id=entreprise_id)
+            .order_by("-dateDebut")
+            .first()
+        )
+        if not offre:
+            return None
+
+        if offre.type_id == TypeOffre.PREMIUM.value and not offre.active:
+            return JsonResponse(
+                {
+                    "error": "payment_required",
+                    "message": "Paiement Premium requis pour continuer.",
+                },
+                status=402,
+            )
+
+        return None
+
+    def _entreprise_id_from_token(self, request):
+        auth = request.headers.get("Authorization") or request.META.get("HTTP_AUTHORIZATION")
+        if not auth:
+            return None
+        parts = auth.split(" ", 1)
+        if len(parts) != 2:
+            return None
+        scheme, token = parts
+        if scheme.lower() != "bearer" or not token:
+            return None
+        try:
+            payload = jwt.decode(
+                token,
+                getattr(settings, "JWT_SECRET", None) or settings.SECRET_KEY,
+                algorithms=["HS256"],
+            )
+        except jwt.InvalidTokenError:
+            return None
+        claims = payload.get("https://hasura.io/jwt/claims") or {}
+        return claims.get("x-hasura-entreprise-id")
