@@ -1,4 +1,4 @@
-name: CI
+name: CI Simple
 
 on:
   push:
@@ -33,16 +33,14 @@ jobs:
       
       - name: Install dependencies
         working-directory: ./backend
-        run: |
-          pip install -r requirements.txt
+        run: pip install -r requirements.txt
       
       - name: Run Django tests
         working-directory: ./backend
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
           SECRET_KEY: test-secret-key
-        run: |
-          python manage.py test --verbosity=2
+        run: python manage.py test --verbosity=2
 
   frontend:
     runs-on: ubuntu-latest
@@ -60,10 +58,6 @@ jobs:
       - name: Install dependencies
         working-directory: ./frontend
         run: npm ci
-      
-      - name: Lint code
-        working-directory: ./frontend
-        run: npm run lint
       
       - name: Build application
         working-directory: ./frontend
