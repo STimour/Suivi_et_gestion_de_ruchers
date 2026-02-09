@@ -121,6 +121,46 @@ def _get_user_from_request(request):
     return user, None
 
 
+def _serialize_offre(offre: Offre):
+    if not offre:
+        return None
+    type_model = getattr(offre, "type", None)
+    limitation = getattr(offre, "limitationOffre", None)
+    return {
+        "id": str(offre.id),
+        "entrepriseId": str(offre.entreprise_id),
+        "type": {
+            "value": getattr(type_model, "value", None),
+            "titre": getattr(type_model, "titre", None),
+            "description": getattr(type_model, "description", None),
+            "prixHT": getattr(type_model, "prixHT", None),
+            "prixTTC": getattr(type_model, "prixTTC", None),
+            "stripeProductId": getattr(type_model, "stripeProductId", None),
+        }
+        if type_model
+        else None,
+        "dateDebut": offre.dateDebut.isoformat() if offre.dateDebut else None,
+        "dateFin": offre.dateFin.isoformat() if offre.dateFin else None,
+        "active": offre.active,
+        "nbRuchersMax": offre.nbRuchersMax,
+        "nbCapteursMax": offre.nbCapteursMax,
+        "nbReinesMax": offre.nbReinesMax,
+        "stripeCustomerId": offre.stripeCustomerId or "",
+        "stripeSubscriptionId": offre.stripeSubscriptionId or "",
+        "limitationOffre": {
+            "id": str(limitation.id),
+            "typeOffre": limitation.typeOffre_id,
+            "nbRuchersMax": limitation.nbRuchersMax,
+            "nbCapteursMax": limitation.nbCapteursMax,
+            "nbReinesMax": limitation.nbReinesMax,
+        }
+        if limitation
+        else None,
+        "createdAt": offre.created_at.isoformat() if offre.created_at else None,
+        "updatedAt": offre.updated_at.isoformat() if offre.updated_at else None,
+    }
+
+
 @csrf_exempt
 def register(request):
     if request.method != "POST":
@@ -310,6 +350,7 @@ def me(request):
                 "typeProfiles": type_profiles,
                 "subscriptionActive": subscription_active,
                 "paid": paid,
+                "offre": _serialize_offre(offre),
             }
         )
 
@@ -524,6 +565,7 @@ def current_entreprise(request):
             "typeProfiles": type_profiles,
             "subscriptionActive": subscription_active,
             "paid": paid,
+            "offre": _serialize_offre(offre),
         }
     },
     status=200,
