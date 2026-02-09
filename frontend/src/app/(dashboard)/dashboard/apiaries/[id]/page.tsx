@@ -12,6 +12,7 @@ import { TranshumanceDialog } from '@/components/rucher/TranshumanceDialog';
 import { BulkInterventionDialog } from '@/components/rucher/BulkInterventionDialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { GET_RUCHER_DETAILS } from '@/lib/graphql/queries/rucher.queries';
+import { useCanEdit } from '@/hooks/useCanEdit';
 
 interface RucherDetailsData {
   ruchers_by_pk: {
@@ -38,6 +39,8 @@ export default function RucherDetailPage() {
   const params = useParams();
   const router = useRouter();
   const rucherId = params.id as string;
+
+  const canEdit = useCanEdit();
 
   const { data, loading, error } = useQuery<RucherDetailsData>(GET_RUCHER_DETAILS, {
     variables: { id: rucherId },
@@ -92,20 +95,22 @@ export default function RucherDetailPage() {
             <LocationDisplay latitude={rucher.latitude} longitude={rucher.longitude} />
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <BulkInterventionDialog
-            rucherId={rucher.id}
-            rucherNom={rucher.nom}
-            ruches={rucher.ruches.map(r => ({ id: r.id, immatriculation: r.immatriculation }))}
-          />
-          <TranshumanceDialog
-            rucherId={rucher.id}
-            rucherNom={rucher.nom}
-            currentLat={rucher.latitude}
-            currentLng={rucher.longitude}
-            currentFlore={rucher.flore}
-          />
-        </div>
+        {canEdit && (
+          <div className="flex items-center gap-3">
+            <BulkInterventionDialog
+              rucherId={rucher.id}
+              rucherNom={rucher.nom}
+              ruches={rucher.ruches.map(r => ({ id: r.id, immatriculation: r.immatriculation }))}
+            />
+            <TranshumanceDialog
+              rucherId={rucher.id}
+              rucherNom={rucher.nom}
+              currentLat={rucher.latitude}
+              currentLng={rucher.longitude}
+              currentFlore={rucher.flore}
+            />
+          </div>
+        )}
       </div>
 
       {/* Grille principale */}

@@ -2,13 +2,25 @@ import { useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Hexagon, MapPin, Shield, ShieldOff, Crown, Pencil, AlertTriangle, Calendar, ClipboardList } from "lucide-react";
+import { Hexagon, MapPin, Shield, ShieldOff, Crown, Pencil, Trash2, AlertTriangle, Calendar, ClipboardList } from "lucide-react";
 import Link from 'next/link';
 import { EditRucheDialog } from './EditRucheDialog';
 import { AddInterventionDialog } from './AddInterventionDialog';
+import { useCanEdit } from '@/hooks/useCanEdit';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface RucheGridProps {
     ruches: any[];
+    onDelete: (id: string) => void;
 }
 
 const getStatutColor = (statut: string) => {
@@ -50,12 +62,21 @@ const formatDate = (dateString: string) => {
     });
 };
 
-export function RucheGrid({ ruches }: RucheGridProps) {
+export function RucheGrid({ ruches, onDelete }: RucheGridProps) {
     const [editingRucheId, setEditingRucheId] = useState<string | null>(null);
+    const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+    const canEdit = useCanEdit();
 
     if (ruches.length === 0) {
         return null;
     }
+
+    const handleDeleteConfirm = () => {
+        if (deleteConfirmId) {
+            onDelete(deleteConfirmId);
+            setDeleteConfirmId(null);
+        }
+    };
 
     return (
         <>
@@ -135,22 +156,24 @@ export function RucheGrid({ ruches }: RucheGridProps) {
                                 </div>
                             </div>
                         </CardContent>
-                        <CardFooter className="pt-3 border-t border-gray-100 flex items-center justify-between gap-2">
-                            <AddInterventionDialog
-                                rucheId={ruche.id}
-                                rucheImmatriculation={ruche.immatriculation}
-                                trigger={
-                                    <Button
-                                        size="sm"
-                                        variant="outline"
-                                        className="text-green-600 border-green-200 hover:bg-green-50"
-                                    >
-                                        <ClipboardList className="h-4 w-4 mr-1" />
-                                        Intervention
-                                    </Button>
-                                }
-                            />
-                            <div className="flex items-center gap-2">
+                        <CardFooter className="pt-3 border-t border-gray-100 flex items-center justify-center gap-1 flex-wrap">
+                            {canEdit && (
+                                <AddInterventionDialog
+                                    rucheId={ruche.id}
+                                    rucheImmatriculation={ruche.immatriculation}
+                                    trigger={
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="text-green-600 border-green-200 hover:bg-green-50"
+                                        >
+                                            <ClipboardList className="h-4 w-4 mr-1" />
+                                            Intervention
+                                        </Button>
+                                    }
+                                />
+                            )}
+                            {canEdit && (
                                 <Button
                                     size="sm"
                                     variant="ghost"
@@ -159,23 +182,55 @@ export function RucheGrid({ ruches }: RucheGridProps) {
                                 >
                                     <Pencil className="h-4 w-4" />
                                 </Button>
-                                <Link href={`/dashboard/hives/${ruche.id}`}>
-                                    <Button size="sm" variant="outline" className="text-green-700 border-green-200 hover:bg-green-50">
-                                        Voir détails
-                                    </Button>
-                                </Link>
-                            </div>
+                            )}
+                            {canEdit && (
+                                <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                                    onClick={() => setDeleteConfirmId(ruche.id)}
+                                >
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                            )}
+                            <Link href={`/dashboard/hives/${ruche.id}`}>
+                                <Button size="sm" variant="outline" className="text-green-700 border-green-200 hover:bg-green-50">
+                                    Voir détails
+                                </Button>
+                            </Link>
                         </CardFooter>
                     </Card>
                 ))}
             </div>
 
-            {editingRucheId && (
+            {canEdit && editingRucheId && (
                 <EditRucheDialog
                     rucheId={editingRucheId}
                     open={!!editingRucheId}
                     onOpenChange={(open) => !open && setEditingRucheId(null)}
                 />
+            )}
+
+            {canEdit && (
+                <AlertDialog open={!!deleteConfirmId} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
+                    <AlertDialogContent className="bg-white">
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                Êtes-vous sûr de vouloir supprimer cette ruche ? Cette action est irréversible.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Annuler</AlertDialogCancel>
+                            <AlertDialogAction
+                                onClick={handleDeleteConfirm}
+                                className="bg-red-600 hover:bg-red-700"
+                            >
+                                Supprimer
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
             )}
         </>
     );

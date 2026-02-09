@@ -18,6 +18,7 @@
 - "!include public_lignee_reine.yaml"
 - "!include public_limitations_offres.yaml"
 - "!include public_mesures.yaml"
+- "!include public_notifications.yaml"
 - "!include public_offres.yaml"
 - "!include public_reines.yaml"
 - "!include public_ruchers.yaml"

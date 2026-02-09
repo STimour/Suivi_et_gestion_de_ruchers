@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Bell, User, Menu, LogOut, Home, MapPin, Hexagon, Crown } from "lucide-react";
+import { Bell, User, Menu, LogOut, Home, MapPin, Hexagon, Crown, UserPlus } from "lucide-react";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { authService } from "@/lib/auth/authService";
 import {
@@ -22,10 +22,13 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { EntrepriseSwitcher } from "./EntrepriseSwitcher";
+import { InviteMemberDialog } from "./InviteMemberDialog";
+import { NotificationPanel } from "./NotificationPanel";
 
 export function Header() {
   const { user, logout } = useAuth();
   const [isPremium, setIsPremium] = useState<boolean | null>(null);
+  const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
 
   useEffect(() => {
     const entrepriseId = user?.entreprise_id;
@@ -65,7 +68,7 @@ export function Header() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 gap-3">
           {/* Left - Navigation */}
-          <nav className="hidden lg:flex items-center gap-6 justify-start">
+          <nav className="hidden lg:flex items-center gap-6 justify-start flex-1">
             <Link
               href="/dashboard"
               className="text-sm font-medium text-amber-900 hover:text-amber-600 transition-colors"
@@ -152,7 +155,7 @@ export function Header() {
           </div>
 
           {/* Center - Logo, Title & Entreprise Switcher */}
-          <div className="flex flex-1 items-center gap-3 justify-center min-w-0">
+          <div className="flex items-center gap-3 justify-center min-w-0">
             <Link href="/dashboard" className="flex items-center gap-2">
               <Image
                 src="/logo_ruche_1.png"
@@ -180,12 +183,9 @@ export function Header() {
           </div>
 
           {/* Right - Notifications & Profile */}
-          <div className="flex items-center gap-2 justify-end">
+          <div className="flex items-center gap-2 justify-end flex-1">
             {/* Notifications */}
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="h-5 w-5 text-amber-700" />
-              <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
-            </Button>
+            <NotificationPanel />
 
             {/* User Menu */}
             <DropdownMenu>
@@ -210,6 +210,15 @@ export function Header() {
                   <User className="mr-2 h-4 w-4" />
                   Mon profil
                 </DropdownMenuItem>
+                {user?.entreprise_role === 'AdminEntreprise' && (
+                  <DropdownMenuItem
+                    className="cursor-pointer"
+                    onClick={() => setInviteDialogOpen(true)}
+                  >
+                    <UserPlus className="mr-2 h-4 w-4" />
+                    Inviter un membre
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="text-red-600 focus:text-red-600 cursor-pointer"
@@ -223,6 +232,7 @@ export function Header() {
           </div>
         </div>
       </div>
+      <InviteMemberDialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen} />
     </header>
   );
 }

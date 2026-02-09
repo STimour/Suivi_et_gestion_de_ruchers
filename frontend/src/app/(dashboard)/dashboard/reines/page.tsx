@@ -21,6 +21,8 @@ import { DELETE_REINE } from '@/lib/graphql/mutations/reine.mutations';
 import { CreateReineDialog } from '@/components/reine/CreateReineDialog';
 import { ReineList } from '@/components/reine/ReineList';
 import { ReineGrid } from '@/components/reine/ReineGrid';
+import { useCanEdit } from '@/hooks/useCanEdit';
+import { useQuota } from '@/hooks/useQuota';
 
 type ViewMode = 'grid' | 'list';
 
@@ -30,6 +32,8 @@ export default function ReinesPage() {
     const [rucherFilter, setRucherFilter] = useState<string>('all');
     const [statutFilter, setStatutFilter] = useState<string>('all');
 
+    const canEdit = useCanEdit();
+    const { canCreateReine } = useQuota();
     const { data, loading, error, refetch } = useQuery<any>(GET_REINES);
     const { data: ruchersData } = useQuery<any>(GET_RUCHERS);
 
@@ -85,16 +89,25 @@ export default function ReinesPage() {
                         {totalReines} reines au total • {reinesAvecRuche} avec ruche • {reinesSansRuche} sans ruche
                     </p>
                 </div>
-                <div className="flex gap-2">
-                    <CreateReineDialog
-                        trigger={
-                            <Button className="bg-amber-600 hover:bg-amber-700 text-white gap-2 shadow-sm">
+                {canEdit && (
+                    <div className="flex gap-2">
+                        {canCreateReine ? (
+                            <CreateReineDialog
+                                trigger={
+                                    <Button className="bg-amber-600 hover:bg-amber-700 text-white gap-2 shadow-sm">
+                                        <Plus className="h-4 w-4" />
+                                        Nouvelle reine
+                                    </Button>
+                                }
+                            />
+                        ) : (
+                            <Button className="bg-amber-600 text-white gap-2 shadow-sm" disabled>
                                 <Plus className="h-4 w-4" />
-                                Nouvelle reine
+                                Nouvelle reine (limite Freemium atteinte)
                             </Button>
-                        }
-                    />
-                </div>
+                        )}
+                    </div>
+                )}
             </div>
 
             {/* Controls Bar */}
@@ -224,14 +237,22 @@ export default function ReinesPage() {
                         <div className="text-center py-12 bg-white rounded-lg border border-dashed border-amber-200">
                             <Crown className="h-12 w-12 mx-auto mb-3 text-amber-200" />
                             <p className="text-amber-700/70 mb-4">Aucune reine pour le moment</p>
-                            <CreateReineDialog
-                                trigger={
-                                    <Button className="bg-amber-600 hover:bg-amber-700 text-white gap-2">
-                                        <Plus className="h-4 w-4" />
-                                        Ajouter une reine
-                                    </Button>
-                                }
-                            />
+                            {canEdit && canCreateReine && (
+                                <CreateReineDialog
+                                    trigger={
+                                        <Button className="bg-amber-600 hover:bg-amber-700 text-white gap-2">
+                                            <Plus className="h-4 w-4" />
+                                            Ajouter une reine
+                                        </Button>
+                                    }
+                                />
+                            )}
+                            {canEdit && !canCreateReine && (
+                                <Button className="bg-amber-600 text-white gap-2" disabled>
+                                    <Plus className="h-4 w-4" />
+                                    Ajouter une reine (limite Freemium atteinte)
+                                </Button>
+                            )}
                         </div>
                     )}
                 </>

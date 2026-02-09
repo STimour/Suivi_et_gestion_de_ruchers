@@ -18,6 +18,33 @@ export const CREATE_RUCHE = gql`
   }
 `;
 
+// Mutation pour créer une ruche avec une reine (transaction unique)
+export const CREATE_RUCHE_WITH_REINE = gql`
+  mutation CreateRucheWithReine($ruche: ruches_insert_input!, $reine: reines_insert_input!) {
+    insert_ruches_one(object: $ruche) {
+      id
+      immatriculation
+      type
+      race
+      statut
+      securisee
+      rucher {
+        id
+        nom
+      }
+    }
+    insert_reines_one(object: $reine) {
+      id
+      anneeNaissance
+      codeCouleur
+      lignee
+      noteDouceur
+      commentaire
+      nonReproductible
+    }
+  }
+`;
+
 // Mutation pour mettre à jour une ruche
 export const UPDATE_RUCHE = gql`
   mutation UpdateRuche($id: uuid!, $changes: ruches_set_input!) {

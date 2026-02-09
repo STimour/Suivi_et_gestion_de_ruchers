@@ -1,6 +1,6 @@
 from django.urls import path
 
-from core import auth_views, entreprise_views, iot_views
+from core import auth_views, entreprise_views, iot_views, notification_views
 
 urlpatterns = [
     path('auth/register', auth_views.register, name='auth-register'),
@@ -25,4 +25,6 @@ urlpatterns = [
     path('capteurs/<uuid:capteur_id>/gps-alert/activate', iot_views.activate_gps_alert, name='capteurs-gps-alert-activate'),
     path('capteurs/<uuid:capteur_id>/gps-alert/check', iot_views.check_gps_alert, name='capteurs-gps-alert-check'),
     path('capteurs/<uuid:capteur_id>/gps-alert/deactivate', iot_views.deactivate_gps_alert, name='capteurs-gps-alert-deactivate'),
+    path('webhooks/intervention-created', notification_views.webhook_intervention_created, name='webhook-intervention-created'),
+    path('webhooks/daily-notifications', notification_views.webhook_daily_notifications, name='webhook-daily-notifications'),
 ]

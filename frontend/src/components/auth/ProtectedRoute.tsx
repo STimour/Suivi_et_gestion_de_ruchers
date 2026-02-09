@@ -13,6 +13,9 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
         if (!loading && !user) {
             router.push('/login');
         }
+        if (!loading && user && !user.entreprise_id) {
+            router.push('/register');
+        }
     }, [user, loading, router]);
 
     // Show loading state while checking authentication
@@ -33,8 +36,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
         );
     }
 
-    // Don't render anything if not authenticated (will redirect)
-    if (!user) {
+    if (!user || !user.entreprise_id) {
         return null;
     }
 
