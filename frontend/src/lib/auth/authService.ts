@@ -382,6 +382,9 @@ class AuthService {
       userData.entreprise_id = activeEntreprise.id;
       userData.entreprise_nom = activeEntreprise.nom;
       userData.entreprise_role = activeEntreprise.role;
+      userData.entreprise_typeOffre = activeEntreprise.typeOffre;
+      userData.entreprise_nbRuchersMax = activeEntreprise.offre?.nbRuchersMax ?? activeEntreprise.offre?.limitationOffre?.nbRuchersMax;
+      userData.entreprise_nbReinesMax = activeEntreprise.offre?.nbReinesMax ?? activeEntreprise.offre?.limitationOffre?.nbReinesMax;
     }
 
     return userData;

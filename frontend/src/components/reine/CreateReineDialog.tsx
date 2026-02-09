@@ -48,12 +48,24 @@ const COLOR_OPTIONS = [
   { value: 'Bleu', label: 'Bleu (années en 5 ou 0)' },
 ];
 
-// Statuts possibles
+// Statuts possibles (valeurs DB)
 const STATUT_OPTIONS = [
-  { value: 'ACTIVE', label: 'Active' },
-  { value: 'LOST', label: 'Perdue' },
-  { value: 'REPLACED', label: 'Remplacée' },
-  { value: 'DEAD', label: 'Morte' },
+  { value: 'Fecondee', label: 'Fécondée' },
+  { value: 'NonFecondee', label: 'Non fécondée' },
+  { value: 'DisponibleVente', label: 'Disponible à la vente' },
+  { value: 'Vendu', label: 'Vendue' },
+  { value: 'Perdue', label: 'Perdue' },
+  { value: 'Eliminee', label: 'Éliminée' },
+];
+
+// Lignées valides (FK vers lignee_reine)
+const LIGNEE_OPTIONS = [
+  { value: 'Buckfast', label: 'Buckfast' },
+  { value: 'Carnica', label: 'Carnica' },
+  { value: 'Ligustica', label: 'Ligustica' },
+  { value: 'Caucasica', label: 'Caucasica' },
+  { value: 'Locale', label: 'Locale' },
+  { value: 'Inconnue', label: 'Inconnue' },
 ];
 
 // Schéma de validation
@@ -109,7 +121,7 @@ export function CreateReineDialog({ trigger, defaultRucheId }: CreateReineDialog
       lignee: '',
       rucheId: defaultRucheId || '',
       noteDouceur: 5,
-      statut: 'ACTIVE',
+      statut: 'Fecondee',
       commentaire: '',
     },
   });
@@ -125,8 +137,10 @@ export function CreateReineDialog({ trigger, defaultRucheId }: CreateReineDialog
             lignee: values.lignee,
             ruche_id: values.rucheId,
             noteDouceur: values.noteDouceur,
+            statut: values.statut,
             commentaire: values.commentaire || '',
             nonReproductible: false,
+            isElevage: false,
             entreprise_id: user?.entreprise_id || null,
           },
         },
@@ -215,12 +229,23 @@ export function CreateReineDialog({ trigger, defaultRucheId }: CreateReineDialog
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Lignée *</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Ex: Buckfast, Carnica, Noire..."
-                      {...field}
-                    />
-                  </FormControl>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionner..." />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent className="bg-white">
+                      {LIGNEE_OPTIONS.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormDescription>
                     Origine génétique de la reine
                   </FormDescription>

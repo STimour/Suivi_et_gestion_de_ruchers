@@ -12,6 +12,7 @@ import { CreateRucherDialog } from '@/components/rucher/RucherDialog';
 import { RucherList } from '@/components/rucher/RucherList';
 import { RucherGrid } from '@/components/rucher/RucherGrid';
 import { useCanEdit } from '@/hooks/useCanEdit';
+import { useQuota } from '@/hooks/useQuota';
 
 type ViewMode = 'grid' | 'list';
 
@@ -20,6 +21,7 @@ export default function ApiariesPage() {
     const [searchQuery, setSearchQuery] = useState('');
 
     const canEdit = useCanEdit();
+    const { canCreateRucher } = useQuota();
     const { data, loading, error } = useQuery<any>(GET_RUCHERS);
 
     const filteredRuchers = data?.ruchers?.filter((rucher: any) =>
@@ -37,7 +39,7 @@ export default function ApiariesPage() {
                         Gérez vos emplacements et suivez l'état de vos ruches
                     </p>
                 </div>
-                {canEdit && (
+                {canEdit && canCreateRucher && (
                     <CreateRucherDialog
                         trigger={
                             <Button className="bg-amber-600 hover:bg-amber-700 text-white gap-2 shadow-sm">
@@ -46,6 +48,12 @@ export default function ApiariesPage() {
                             </Button>
                         }
                     />
+                )}
+                {canEdit && !canCreateRucher && (
+                    <Button className="bg-amber-600 text-white gap-2 shadow-sm" disabled>
+                        <Plus className="h-4 w-4" />
+                        Nouveau rucher (limite Freemium atteinte)
+                    </Button>
                 )}
             </div>
 

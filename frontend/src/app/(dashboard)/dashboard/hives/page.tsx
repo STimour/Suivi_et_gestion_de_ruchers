@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useQuery } from '@apollo/client/react';
+import { useQuery, useMutation } from '@apollo/client/react';
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -14,7 +14,9 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { toast } from 'sonner';
 import { GET_RUCHES } from '@/lib/graphql/queries/ruche.queries';
+import { DELETE_RUCHE } from '@/lib/graphql/mutations/ruche.mutations';
 import { CreateRucheDialog } from '@/components/ruche/CreateRucheDialog';
 import { BulkCreateRuchesDialog } from '@/components/ruche/BulkCreateRuchesDialog';
 import { RucheList } from '@/components/ruche/RucheList';
@@ -29,7 +31,23 @@ export default function HivesPage() {
     const [statutFilter, setStatutFilter] = useState<string>('all');
 
     const canEdit = useCanEdit();
-    const { data, loading, error } = useQuery<any>(GET_RUCHES);
+    const { data, loading, error, refetch } = useQuery<any>(GET_RUCHES);
+
+    const [deleteRuche] = useMutation(DELETE_RUCHE, {
+        onCompleted: () => {
+            toast.success('Ruche supprimée avec succès');
+            refetch();
+        },
+        onError: (error) => {
+            toast.error('Erreur lors de la suppression', {
+                description: error.message,
+            });
+        },
+    });
+
+    const handleDelete = (id: string) => {
+        deleteRuche({ variables: { id } });
+    };
 
     const filteredRuches = data?.ruches?.filter((ruche: any) => {
         const matchesSearch = ruche.immatriculation.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -159,9 +177,9 @@ export default function HivesPage() {
             ) : (
                 <>
                     {viewMode === 'list' ? (
-                        <RucheList ruches={filteredRuches} />
+                        <RucheList ruches={filteredRuches} onDelete={handleDelete} />
                     ) : (
-                        <RucheGrid ruches={filteredRuches} />
+                        <RucheGrid ruches={filteredRuches} onDelete={handleDelete} />
                     )}
 
                     {!loading && filteredRuches.length === 0 && (

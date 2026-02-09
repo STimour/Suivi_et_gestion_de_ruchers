@@ -16,6 +16,7 @@ import { BulkCreateRuchesDialog } from '@/components/ruche/BulkCreateRuchesDialo
 import { CreateReineDialog } from '@/components/reine/CreateReineDialog';
 import Link from "next/link";
 import { useCanEdit } from '@/hooks/useCanEdit';
+import { useQuota } from '@/hooks/useQuota';
 
 // Charger la carte uniquement côté client pour éviter les erreurs SSR
 const RuchersMap = dynamic(
@@ -44,6 +45,7 @@ export default function DashboardPage() {
   const { data: reinesData, loading: reinesLoading, error: reinesError } = useQuery<any>(GET_REINES);
 
   const canEdit = useCanEdit();
+  const { canCreateRucher, canCreateReine } = useQuota();
 
   const totalRuchers = ruchersData?.ruchers?.length || 0;
   const totalRuches = ruchesData?.ruches?.length || 0;
@@ -178,7 +180,7 @@ export default function DashboardPage() {
                 </CardDescription>
               </div>
               <div className="flex gap-2">
-                {canEdit && (
+                {canEdit && canCreateRucher && (
                   <CreateRucherDialog
                     trigger={
                       <Button variant="outline" size="sm" className="border-amber-200">
@@ -187,6 +189,12 @@ export default function DashboardPage() {
                       </Button>
                     }
                   />
+                )}
+                {canEdit && !canCreateRucher && (
+                  <Button variant="outline" size="sm" className="border-amber-200" disabled>
+                    <Plus className="h-4 w-4 mr-1" />
+                    Nouveau (limite Freemium atteinte)
+                  </Button>
                 )}
                 <Link href="/dashboard/apiaries">
                   <Button variant="outline" size="sm" className="border-amber-200">
@@ -233,7 +241,7 @@ export default function DashboardPage() {
               <div className="text-center py-8 text-amber-700/70">
                 <MapPin className="h-12 w-12 mx-auto mb-3 opacity-30" />
                 <p>Aucun rucher pour le moment</p>
-                {canEdit && (
+                {canEdit && canCreateRucher && (
                   <CreateRucherDialog
                     trigger={
                       <Button variant="outline" size="sm" className="mt-3 border-amber-200">
@@ -242,6 +250,12 @@ export default function DashboardPage() {
                       </Button>
                     }
                   />
+                )}
+                {canEdit && !canCreateRucher && (
+                  <Button variant="outline" size="sm" className="mt-3 border-amber-200" disabled>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Créer un rucher (limite Freemium atteinte)
+                  </Button>
                 )}
               </div>
             )}
@@ -359,7 +373,7 @@ export default function DashboardPage() {
               </CardDescription>
             </div>
             <div className="flex gap-2">
-              {canEdit && (
+              {canEdit && canCreateReine && (
                 <CreateReineDialog
                   trigger={
                     <Button variant="outline" size="sm" className="border-amber-200">
@@ -368,6 +382,12 @@ export default function DashboardPage() {
                     </Button>
                   }
                 />
+              )}
+              {canEdit && !canCreateReine && (
+                <Button variant="outline" size="sm" className="border-amber-200" disabled>
+                  <Plus className="h-4 w-4 mr-1" />
+                  Nouvelle (limite Freemium atteinte)
+                </Button>
               )}
               <Link href="/dashboard/reines">
                 <Button variant="outline" size="sm" className="border-amber-200">
@@ -414,7 +434,7 @@ export default function DashboardPage() {
             <div className="text-center py-8 text-amber-700/70">
               <Crown className="h-12 w-12 mx-auto mb-3 opacity-30" />
               <p className="mb-4">Aucune reine pour le moment</p>
-              {canEdit && (
+              {canEdit && canCreateReine && (
                 <CreateReineDialog
                   trigger={
                     <Button variant="outline" size="sm" className="border-amber-200">
@@ -423,6 +443,12 @@ export default function DashboardPage() {
                     </Button>
                   }
                 />
+              )}
+              {canEdit && !canCreateReine && (
+                <Button variant="outline" size="sm" className="border-amber-200" disabled>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Ajouter une reine (limite Freemium atteinte)
+                </Button>
               )}
             </div>
           )}

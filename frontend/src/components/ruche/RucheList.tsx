@@ -8,15 +8,26 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Hexagon, MapPin, Shield, ShieldOff, Pencil, AlertTriangle, ClipboardList } from "lucide-react";
+import { Hexagon, MapPin, Shield, ShieldOff, Pencil, Trash2, AlertTriangle, ClipboardList } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { EditRucheDialog } from './EditRucheDialog';
 import { AddInterventionDialog } from './AddInterventionDialog';
 import { useCanEdit } from '@/hooks/useCanEdit';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface RucheListProps {
     ruches: any[];
+    onDelete: (id: string) => void;
 }
 
 const getStatutColor = (statut: string) => {
@@ -43,13 +54,21 @@ const formatDate = (dateString: string) => {
     });
 };
 
-export function RucheList({ ruches }: RucheListProps) {
+export function RucheList({ ruches, onDelete }: RucheListProps) {
     const [editingRucheId, setEditingRucheId] = useState<string | null>(null);
+    const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
     const canEdit = useCanEdit();
 
     if (ruches.length === 0) {
         return null;
     }
+
+    const handleDeleteConfirm = () => {
+        if (deleteConfirmId) {
+            onDelete(deleteConfirmId);
+            setDeleteConfirmId(null);
+        }
+    };
 
     return (
         <>
@@ -140,6 +159,16 @@ export function RucheList({ ruches }: RucheListProps) {
                                                 <Pencil className="h-4 w-4" />
                                             </Button>
                                         )}
+                                        {canEdit && (
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50"
+                                                onClick={() => setDeleteConfirmId(ruche.id)}
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        )}
                                         <Link href={`/dashboard/hives/${ruche.id}`}>
                                             <Button variant="ghost" size="sm">
                                                 Voir
@@ -159,6 +188,28 @@ export function RucheList({ ruches }: RucheListProps) {
                     open={!!editingRucheId}
                     onOpenChange={(open) => !open && setEditingRucheId(null)}
                 />
+            )}
+
+            {canEdit && (
+                <AlertDialog open={!!deleteConfirmId} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
+                    <AlertDialogContent className="bg-white">
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                Êtes-vous sûr de vouloir supprimer cette ruche ? Cette action est irréversible.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Annuler</AlertDialogCancel>
+                            <AlertDialogAction
+                                onClick={handleDeleteConfirm}
+                                className="bg-red-600 hover:bg-red-700"
+                            >
+                                Supprimer
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
             )}
         </>
     );
