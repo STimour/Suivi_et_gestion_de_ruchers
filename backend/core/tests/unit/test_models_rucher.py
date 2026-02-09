@@ -1,10 +1,11 @@
 from django.test import TestCase
-from core.models import Rucher, Entreprise
+from core.models import Rucher, Entreprise, TypeFlore
 
 
 class RucherModelTest(TestCase):
-    
+
     def setUp(self):
+        TypeFlore.objects.get_or_create(value=TypeFlore.LAVANDE, defaults={"label": "Lavande"})
         self.entreprise = Entreprise.objects.create(
             nom="Ruches & Co",
             adresse="Lyon"
@@ -13,7 +14,7 @@ class RucherModelTest(TestCase):
             nom="Rucher Principal",
             latitude=45.0,
             longitude=4.0,
-            flore="Lavande",
+            flore_id=TypeFlore.LAVANDE,
             altitude=500,
             entreprise=self.entreprise
         )
