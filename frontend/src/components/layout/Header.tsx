@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Bell, User, Menu, LogOut, Home, MapPin, Hexagon, Crown } from "lucide-react";
+import { Bell, User, Menu, LogOut, Home, MapPin, Hexagon, Crown, UserPlus } from "lucide-react";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { authService } from "@/lib/auth/authService";
 import {
