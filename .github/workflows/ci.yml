@@ -6,13 +6,18 @@ on:
   pull_request:
     branches: [ main, develop ]
 
+env:
+  PYTHON_VERSION: '3.12'
+  NODE_VERSION: '20'
+  POSTGRES_VERSION: '16'
+
 jobs:
   backend:
     runs-on: ubuntu-latest
     
     services:
       postgres:
-        image: postgres:16-alpine
+        image: postgres:${{ env.POSTGRES_VERSION }}-alpine
         env:
           POSTGRES_DB: test_db
           POSTGRES_USER: postgres
@@ -27,7 +32,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: ${{ env.PYTHON_VERSION }}
           cache: 'pip'
           cache-dependency-path: 'backend/requirements.txt'
       
@@ -51,7 +56,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
           cache-dependency-path: 'frontend/package-lock.json'
       
