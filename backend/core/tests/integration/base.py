@@ -56,7 +56,7 @@ def generate_jwt_token(
 
 
 def is_hasura_available(endpoint: str = None) -> bool:
-    endpoint = endpoint or os.getenv("HASURA_GRAPHQL_ENDPOINT", "http://localhost:8081/v1/graphql")
+    endpoint = endpoint or os.getenv("HASURA_GRAPHQL_ENDPOINT", "http://hasura.localhost:8088/v1/graphql")
     try:
         response = requests.post(
             endpoint,
@@ -70,8 +70,8 @@ def is_hasura_available(endpoint: str = None) -> bool:
 
 
 class GraphQLTestCase(TransactionTestCase):
-    HASURA_ENDPOINT = os.getenv("HASURA_GRAPHQL_ENDPOINT", "http://localhost:8081/v1/graphql")
-    HASURA_ADMIN_SECRET = os.getenv("HASURA_GRAPHQL_ADMIN_SECRET", "myadminsecret")
+    HASURA_ENDPOINT = os.getenv("HASURA_GRAPHQL_ENDPOINT", "http://hasura.localhost:8088/v1/graphql")
+    HASURA_ADMIN_SECRET = os.getenv("HASURA_GRAPHQL_ADMIN_SECRET", "your_admin_secret_here")
     skip_graphql_tests = False
 
     @classmethod
