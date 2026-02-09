@@ -15,6 +15,7 @@ import { CreateRucheDialog } from '@/components/ruche/CreateRucheDialog';
 import { BulkCreateRuchesDialog } from '@/components/ruche/BulkCreateRuchesDialog';
 import { CreateReineDialog } from '@/components/reine/CreateReineDialog';
 import Link from "next/link";
+import { useCanEdit } from '@/hooks/useCanEdit';
 
 // Charger la carte uniquement côté client pour éviter les erreurs SSR
 const RuchersMap = dynamic(
@@ -42,6 +43,8 @@ export default function DashboardPage() {
   const { data: ruchesData, loading: ruchesLoading, error: ruchesError } = useQuery<any>(GET_RUCHES);
   const { data: reinesData, loading: reinesLoading, error: reinesError } = useQuery<any>(GET_REINES);
 
+  const canEdit = useCanEdit();
+
   const totalRuchers = ruchersData?.ruchers?.length || 0;
   const totalRuches = ruchesData?.ruches?.length || 0;
   const totalReines = reinesData?.reines?.length || 0;
@@ -58,10 +61,12 @@ export default function DashboardPage() {
             Vue d'ensemble de vos ruchers et ruches
           </p>
         </div>
-        <Button className="bg-green-600 hover:bg-green-700 text-white gap-2">
-          <Plus className="h-4 w-4" />
-          Nouvelle intervention
-        </Button>
+        {canEdit && (
+          <Button className="bg-green-600 hover:bg-green-700 text-white gap-2">
+            <Plus className="h-4 w-4" />
+            Nouvelle intervention
+          </Button>
+        )}
       </div>
 
       {/* Stats Cards */}
@@ -173,14 +178,16 @@ export default function DashboardPage() {
                 </CardDescription>
               </div>
               <div className="flex gap-2">
-                <CreateRucherDialog
-                  trigger={
-                    <Button variant="outline" size="sm" className="border-amber-200">
-                      <Plus className="h-4 w-4 mr-1" />
-                      Nouveau
-                    </Button>
-                  }
-                />
+                {canEdit && (
+                  <CreateRucherDialog
+                    trigger={
+                      <Button variant="outline" size="sm" className="border-amber-200">
+                        <Plus className="h-4 w-4 mr-1" />
+                        Nouveau
+                      </Button>
+                    }
+                  />
+                )}
                 <Link href="/dashboard/apiaries">
                   <Button variant="outline" size="sm" className="border-amber-200">
                     Voir tout
@@ -226,14 +233,16 @@ export default function DashboardPage() {
               <div className="text-center py-8 text-amber-700/70">
                 <MapPin className="h-12 w-12 mx-auto mb-3 opacity-30" />
                 <p>Aucun rucher pour le moment</p>
-                <CreateRucherDialog
-                  trigger={
-                    <Button variant="outline" size="sm" className="mt-3 border-amber-200">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Créer un rucher
-                    </Button>
-                  }
-                />
+                {canEdit && (
+                  <CreateRucherDialog
+                    trigger={
+                      <Button variant="outline" size="sm" className="mt-3 border-amber-200">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Créer un rucher
+                      </Button>
+                    }
+                  />
+                )}
               </div>
             )}
           </CardContent>
@@ -250,22 +259,26 @@ export default function DashboardPage() {
                 </CardDescription>
               </div>
               <div className="flex gap-2">
-                <CreateRucheDialog
-                  trigger={
-                    <Button variant="outline" size="sm" className="border-green-200">
-                      <Plus className="h-4 w-4 mr-1" />
-                      Nouvelle
-                    </Button>
-                  }
-                />
-                <BulkCreateRuchesDialog
-                  trigger={
-                    <Button variant="outline" size="sm" className="border-green-200 text-green-700">
-                      <Upload className="h-4 w-4 mr-1" />
-                      Import masse
-                    </Button>
-                  }
-                />
+                {canEdit && (
+                  <CreateRucheDialog
+                    trigger={
+                      <Button variant="outline" size="sm" className="border-green-200">
+                        <Plus className="h-4 w-4 mr-1" />
+                        Nouvelle
+                      </Button>
+                    }
+                  />
+                )}
+                {canEdit && (
+                  <BulkCreateRuchesDialog
+                    trigger={
+                      <Button variant="outline" size="sm" className="border-green-200 text-green-700">
+                        <Upload className="h-4 w-4 mr-1" />
+                        Import masse
+                      </Button>
+                    }
+                  />
+                )}
                 <Link href="/dashboard/hives">
                   <Button variant="outline" size="sm" className="border-green-200">
                     Voir tout
@@ -309,24 +322,26 @@ export default function DashboardPage() {
               <div className="text-center py-8 text-amber-700/70">
                 <Hexagon className="h-12 w-12 mx-auto mb-3 opacity-30" />
                 <p className="mb-4">Aucune ruche pour le moment</p>
-                <div className="flex gap-2 justify-center">
-                  <CreateRucheDialog
-                    trigger={
-                      <Button variant="outline" size="sm" className="border-green-200">
-                        <Plus className="h-4 w-4 mr-2" />
-                        Ajouter une ruche
-                      </Button>
-                    }
-                  />
-                  <BulkCreateRuchesDialog
-                    trigger={
-                      <Button variant="outline" size="sm" className="border-green-200 text-green-700">
-                        <Upload className="h-4 w-4 mr-2" />
-                        Import en masse
-                      </Button>
-                    }
-                  />
-                </div>
+                {canEdit && (
+                  <div className="flex gap-2 justify-center">
+                    <CreateRucheDialog
+                      trigger={
+                        <Button variant="outline" size="sm" className="border-green-200">
+                          <Plus className="h-4 w-4 mr-2" />
+                          Ajouter une ruche
+                        </Button>
+                      }
+                    />
+                    <BulkCreateRuchesDialog
+                      trigger={
+                        <Button variant="outline" size="sm" className="border-green-200 text-green-700">
+                          <Upload className="h-4 w-4 mr-2" />
+                          Import en masse
+                        </Button>
+                      }
+                    />
+                  </div>
+                )}
               </div>
             )}
           </CardContent>
@@ -344,14 +359,16 @@ export default function DashboardPage() {
               </CardDescription>
             </div>
             <div className="flex gap-2">
-              <CreateReineDialog
-                trigger={
-                  <Button variant="outline" size="sm" className="border-amber-200">
-                    <Plus className="h-4 w-4 mr-1" />
-                    Nouvelle
-                  </Button>
-                }
-              />
+              {canEdit && (
+                <CreateReineDialog
+                  trigger={
+                    <Button variant="outline" size="sm" className="border-amber-200">
+                      <Plus className="h-4 w-4 mr-1" />
+                      Nouvelle
+                    </Button>
+                  }
+                />
+              )}
               <Link href="/dashboard/reines">
                 <Button variant="outline" size="sm" className="border-amber-200">
                   Voir tout
@@ -397,14 +414,16 @@ export default function DashboardPage() {
             <div className="text-center py-8 text-amber-700/70">
               <Crown className="h-12 w-12 mx-auto mb-3 opacity-30" />
               <p className="mb-4">Aucune reine pour le moment</p>
-              <CreateReineDialog
-                trigger={
-                  <Button variant="outline" size="sm" className="border-amber-200">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Ajouter une reine
-                  </Button>
-                }
-              />
+              {canEdit && (
+                <CreateReineDialog
+                  trigger={
+                    <Button variant="outline" size="sm" className="border-amber-200">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Ajouter une reine
+                    </Button>
+                  }
+                />
+              )}
             </div>
           )}
         </CardContent>

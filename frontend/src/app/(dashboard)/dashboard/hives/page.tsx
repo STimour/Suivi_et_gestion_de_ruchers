@@ -19,6 +19,7 @@ import { CreateRucheDialog } from '@/components/ruche/CreateRucheDialog';
 import { BulkCreateRuchesDialog } from '@/components/ruche/BulkCreateRuchesDialog';
 import { RucheList } from '@/components/ruche/RucheList';
 import { RucheGrid } from '@/components/ruche/RucheGrid';
+import { useCanEdit } from '@/hooks/useCanEdit';
 
 type ViewMode = 'grid' | 'list';
 
@@ -27,6 +28,7 @@ export default function HivesPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [statutFilter, setStatutFilter] = useState<string>('all');
 
+    const canEdit = useCanEdit();
     const { data, loading, error } = useQuery<any>(GET_RUCHES);
 
     const filteredRuches = data?.ruches?.filter((ruche: any) => {
@@ -57,24 +59,26 @@ export default function HivesPage() {
                         {totalRuches} ruches au total • {ruchesActives} actives • {ruchesMalades} alertes
                     </p>
                 </div>
-                <div className="flex gap-2">
-                    <CreateRucheDialog
-                        trigger={
-                            <Button className="bg-green-600 hover:bg-green-700 text-white gap-2 shadow-sm">
-                                <Plus className="h-4 w-4" />
-                                Nouvelle ruche
-                            </Button>
-                        }
-                    />
-                    <BulkCreateRuchesDialog
-                        trigger={
-                            <Button variant="outline" className="border-green-200 text-green-700 hover:bg-green-50 gap-2">
-                                <Upload className="h-4 w-4" />
-                                Import masse
-                            </Button>
-                        }
-                    />
-                </div>
+                {canEdit && (
+                    <div className="flex gap-2">
+                        <CreateRucheDialog
+                            trigger={
+                                <Button className="bg-green-600 hover:bg-green-700 text-white gap-2 shadow-sm">
+                                    <Plus className="h-4 w-4" />
+                                    Nouvelle ruche
+                                </Button>
+                            }
+                        />
+                        <BulkCreateRuchesDialog
+                            trigger={
+                                <Button variant="outline" className="border-green-200 text-green-700 hover:bg-green-50 gap-2">
+                                    <Upload className="h-4 w-4" />
+                                    Import masse
+                                </Button>
+                            }
+                        />
+                    </div>
+                )}
             </div>
 
             {/* Controls Bar */}

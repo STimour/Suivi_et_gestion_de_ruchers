@@ -255,6 +255,60 @@ class AuthService {
     return data;
   }
 
+  async sendInvitation(email: string, rolePropose: string, entrepriseId: string): Promise<any> {
+    const token = this.getToken();
+
+    if (!token) {
+      throw new Error('Non authentifié');
+    }
+
+    const response = await this.fetchWithErrorHandling(`${DJANGO_API_URL}/api/entreprise/invitation`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ email, rolePropose, entreprise_id: entrepriseId }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Erreur lors de l\'envoi de l\'invitation');
+    }
+
+    return response.json();
+  }
+
+  async acceptInvitation(invitationToken: string): Promise<any> {
+    const token = this.getToken();
+
+    if (!token) {
+      throw new Error('Non authentifié');
+    }
+
+    const response = await this.fetchWithErrorHandling(`${DJANGO_API_URL}/api/auth/accept-invitation`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ token: invitationToken }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Erreur lors de l\'acceptation de l\'invitation');
+    }
+
+    const data = await response.json();
+
+    if (data.access_token) {
+      this.setToken(data.access_token);
+    }
+
+    return data;
+  }
+
   async logout(): Promise<void> {
     const token = this.getToken();
 

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Bell, User, Menu, LogOut } from "lucide-react";
+import { Bell, User, Menu, LogOut, UserPlus } from "lucide-react";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { authService } from "@/lib/auth/authService";
 import {
@@ -15,10 +15,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { EntrepriseSwitcher } from "./EntrepriseSwitcher";
+import { InviteMemberDialog } from "./InviteMemberDialog";
 
 export function Header() {
   const { user, logout } = useAuth();
   const [isPremium, setIsPremium] = useState<boolean | null>(null);
+  const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
 
   useEffect(() => {
     const entrepriseId = user?.entreprise_id;
@@ -157,6 +159,15 @@ export function Header() {
                   <User className="mr-2 h-4 w-4" />
                   Mon profil
                 </DropdownMenuItem>
+                {user?.entreprise_role === 'AdminEntreprise' && (
+                  <DropdownMenuItem
+                    className="cursor-pointer"
+                    onClick={() => setInviteDialogOpen(true)}
+                  >
+                    <UserPlus className="mr-2 h-4 w-4" />
+                    Inviter un membre
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="text-red-600 focus:text-red-600 cursor-pointer"
@@ -170,6 +181,7 @@ export function Header() {
           </div>
         </div>
       </div>
+      <InviteMemberDialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen} />
     </header>
   );
 }

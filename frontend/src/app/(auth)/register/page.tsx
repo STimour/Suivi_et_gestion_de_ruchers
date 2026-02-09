@@ -1,7 +1,7 @@
 'use client';
 
 import { Suspense, useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { authService, OffreItem, ProfileType } from "@/lib/auth/authService";
@@ -10,15 +10,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle, ArrowLeft, ArrowRight, CheckCircle2, CreditCard, Loader2, Sparkles } from "lucide-react";
+import { AlertTriangle, ArrowLeft, ArrowRight, Building2, CheckCircle2, CreditCard, Loader2, Sparkles, Users } from "lucide-react";
 
 function RegisterPageInner() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [authToken, setAuthToken] = useState<string | null>(null);
   const [entrepriseId, setEntrepriseId] = useState<string | null>(null);
+  const [invitationToken, setInvitationToken] = useState('');
 
   const [userData, setUserData] = useState({
     prenom: '',
@@ -47,10 +49,11 @@ function RegisterPageInner() {
 
   const steps = [
     { id: 1, label: "Compte" },
-    { id: 2, label: "Entreprise" },
-    { id: 3, label: "Offre" },
-    { id: 4, label: "Paiement" },
-    { id: 5, label: "Profils" },
+    { id: 2, label: "Choix" },
+    { id: 3, label: "Entreprise" },
+    { id: 4, label: "Offre" },
+    { id: 5, label: "Paiement" },
+    { id: 6, label: "Profils" },
   ];
 
   const isFreemium = useMemo(() => {
@@ -62,6 +65,16 @@ function RegisterPageInner() {
     return !!selectedOffer?.stripeProductId;
   }, [selectedOffer]);
 
+  // Si l'utilisateur est déjà connecté (compte créé mais pas d'entreprise), sauter au step 2
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const existingToken = authService.getToken();
+    if (existingToken && step === 1) {
+      setAuthToken(existingToken);
+      setStep(2);
+    }
+  }, []);
+
   useEffect(() => {
     if (isFreemium && selectedProfiles.length > 1) {
       setSelectedProfiles(selectedProfiles.slice(0, 1));
@@ -70,7 +83,7 @@ function RegisterPageInner() {
 
   useEffect(() => {
     const loadOffres = async () => {
-      if (step !== 3) return;
+      if (step !== 4) return;
       setLoading(true);
       setError('');
       try {
@@ -87,7 +100,7 @@ function RegisterPageInner() {
 
   useEffect(() => {
     const loadProfiles = async () => {
-      if (step !== 5) return;
+      if (step !== 6) return;
       setLoading(true);
       setError('');
       try {
@@ -120,19 +133,25 @@ function RegisterPageInner() {
     const paymentParam = searchParams?.get('payment');
     if (paymentParam === 'success') {
       setPaymentStatus('paid');
-      setStep(5);
+      setStep(6);
       localStorage.setItem(storageKeys.paymentStatus, 'paid');
     } else if (paymentStatus === 'idle') {
       const savedStatus = localStorage.getItem(storageKeys.paymentStatus);
       if (savedStatus === 'pending') {
         setPaymentStatus('pending');
-        setStep(4);
+        setStep(5);
       }
+    }
+
+    // Load pending invitation token
+    const pendingToken = localStorage.getItem('pending_invitation_token');
+    if (pendingToken) {
+      setInvitationToken(pendingToken);
     }
   }, [authToken, entrepriseId, paymentStatus, searchParams]);
 
   useEffect(() => {
-    if (step !== 4 || paymentStatus !== 'pending') return;
+    if (step !== 5 || paymentStatus !== 'pending') return;
     if (!entrepriseId || !authToken) return;
 
     const interval = setInterval(async () => {
@@ -140,7 +159,7 @@ function RegisterPageInner() {
         const status = await authService.getEntrepriseOffreStatus(entrepriseId, authToken);
         if (status?.paid || (status?.type?.toLowerCase() === 'premium' && status?.stripeCustomerId)) {
           setPaymentStatus('paid');
-          setStep(5);
+          setStep(6);
         }
       } catch (err) {
         setPaymentStatus('error');
@@ -151,13 +170,13 @@ function RegisterPageInner() {
   }, [step, paymentStatus, entrepriseId, authToken]);
 
   useEffect(() => {
-    if (step !== 4 || paymentStatus !== 'pending') return;
+    if (step !== 5 || paymentStatus !== 'pending') return;
 
     const handleMessage = (event: MessageEvent) => {
       if (event.origin !== window.location.origin) return;
       if (event.data?.type === 'stripe_checkout_success') {
         setPaymentStatus('paid');
-        setStep(5);
+        setStep(6);
       }
     };
 
@@ -214,7 +233,7 @@ function RegisterPageInner() {
         setAuthToken(entreprise.access_token);
       }
       setEntrepriseId(entreprise.id);
-      setStep(3);
+      setStep(4);
     } catch (err: any) {
       setError(err.message || 'Erreur lors de la création de l\'entreprise');
     } finally {
@@ -240,7 +259,7 @@ function RegisterPageInner() {
         const checkout = await authService.createPremiumCheckout(entrepriseId);
         setCheckoutUrl(checkout.url);
         setPaymentStatus('pending');
-        setStep(4);
+        setStep(5);
         if (typeof window !== 'undefined') {
           localStorage.setItem(storageKeys.authToken, authToken || '');
           localStorage.setItem(storageKeys.entrepriseId, entrepriseId);
@@ -251,7 +270,7 @@ function RegisterPageInner() {
       }
 
       await authService.updateEntrepriseOffre(entrepriseId, selectedOffer.value);
-      setStep(5);
+      setStep(6);
     } catch (err: any) {
       setError(err.message || 'Erreur lors de la sélection de l\'offre');
     } finally {
@@ -299,6 +318,26 @@ function RegisterPageInner() {
     });
   };
 
+  const handleAcceptInvitation = async () => {
+    if (!invitationToken.trim()) {
+      setError('Veuillez saisir un token d\'invitation');
+      return;
+    }
+
+    setError('');
+    setLoading(true);
+
+    try {
+      await authService.acceptInvitation(invitationToken.trim());
+      localStorage.removeItem('pending_invitation_token');
+      window.location.href = '/dashboard';
+    } catch (err: any) {
+      setError(err.message || 'Erreur lors de l\'acceptation de l\'invitation');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#fef3c7,_#ecfccb,_#dcfce7)] flex items-center justify-center p-4">
       <Card className="w-full max-w-4xl shadow-2xl border border-amber-100/60 bg-white/90 backdrop-blur">
@@ -322,13 +361,17 @@ function RegisterPageInner() {
             </CardDescription>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-3">
-            {steps.map((s) => (
+            {steps.map((s) => {
+              const displayStep = step === 7 ? 2 : step;
+              const isActive = displayStep === s.id;
+              const isDone = displayStep > s.id;
+              return (
               <div
                 key={s.id}
                 className={`flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${
-                  step === s.id
+                  isActive
                     ? "bg-green-600 text-white"
-                    : step > s.id
+                    : isDone
                     ? "bg-green-100 text-green-700"
                     : "bg-amber-100 text-amber-700"
                 }`}
@@ -338,7 +381,8 @@ function RegisterPageInner() {
                 </span>
                 {s.label}
               </div>
-            ))}
+              );
+            })}
           </div>
         </CardHeader>
         <CardContent>
@@ -449,6 +493,101 @@ function RegisterPageInner() {
             <div className="space-y-6">
               <div className="flex items-center gap-2 text-sm font-semibold text-amber-900">
                 <CheckCircle2 className="h-4 w-4" />
+                Comment souhaitez-vous continuer ?
+              </div>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <button
+                  type="button"
+                  onClick={() => setStep(3)}
+                  className="rounded-2xl border border-amber-100 bg-white p-6 text-left transition hover:border-amber-300 hover:shadow-lg"
+                >
+                  <Building2 className="mb-3 h-8 w-8 text-amber-600" />
+                  <h4 className="text-lg font-semibold text-amber-900">Créer une entreprise</h4>
+                  <p className="mt-1 text-sm text-amber-800/70">
+                    Créez votre propre entreprise et configurez vos ruchers.
+                  </p>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => invitationToken ? handleAcceptInvitation() : setStep(7)}
+                  className="rounded-2xl border border-amber-100 bg-white p-6 text-left transition hover:border-green-300 hover:shadow-lg"
+                >
+                  <Users className="mb-3 h-8 w-8 text-green-600" />
+                  <h4 className="text-lg font-semibold text-amber-900">Rejoindre une entreprise</h4>
+                  <p className="mt-1 text-sm text-amber-800/70">
+                    J&apos;ai reçu une invitation pour rejoindre une entreprise existante.
+                  </p>
+                </button>
+              </div>
+              <div className="flex items-center justify-start">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="text-amber-700"
+                  onClick={() => setStep(1)}
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Précédent
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {step === 7 && (
+            <div className="space-y-6">
+              <div className="flex items-center gap-2 text-sm font-semibold text-amber-900">
+                <Users className="h-4 w-4" />
+                Rejoindre une entreprise
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="invitation_token" className="text-amber-900">Token d&apos;invitation *</Label>
+                <Input
+                  id="invitation_token"
+                  value={invitationToken}
+                  onChange={(e) => setInvitationToken(e.target.value)}
+                  type="text"
+                  placeholder="Collez votre token d'invitation ici"
+                  required
+                  className="border-amber-200 focus:border-amber-500 focus:ring-amber-500"
+                />
+                <p className="text-xs text-amber-700/70">
+                  Vous trouverez ce token dans l&apos;email d&apos;invitation que vous avez reçu.
+                </p>
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="text-amber-700"
+                  onClick={() => setStep(2)}
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Précédent
+                </Button>
+                <Button
+                  type="button"
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                  size="lg"
+                  onClick={handleAcceptInvitation}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Validation...
+                    </>
+                  ) : (
+                    'Rejoindre l\'entreprise'
+                  )}
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {step === 3 && (
+            <div className="space-y-6">
+              <div className="flex items-center gap-2 text-sm font-semibold text-amber-900">
+                <CheckCircle2 className="h-4 w-4" />
                 Création de l'entreprise
               </div>
               <div className="space-y-2">
@@ -480,7 +619,7 @@ function RegisterPageInner() {
                   type="button"
                   variant="ghost"
                   className="text-amber-700"
-                  onClick={() => setStep(1)}
+                  onClick={() => setStep(2)}
                 >
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Précédent
@@ -508,7 +647,7 @@ function RegisterPageInner() {
             </div>
           )}
 
-          {step === 3 && (
+          {step === 4 && (
             <div className="space-y-6">
               <div className="flex items-center gap-2 text-sm font-semibold text-amber-900">
                 <Sparkles className="h-4 w-4" />
@@ -575,7 +714,7 @@ function RegisterPageInner() {
                   type="button"
                   variant="ghost"
                   className="text-amber-700"
-                  onClick={() => setStep(2)}
+                  onClick={() => setStep(3)}
                 >
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Précédent
@@ -603,7 +742,7 @@ function RegisterPageInner() {
             </div>
           )}
 
-          {step === 4 && (
+          {step === 5 && (
             <div className="space-y-6 text-center">
               <div className="flex items-center justify-center gap-2 text-sm font-semibold text-amber-900">
                 <CreditCard className="h-4 w-4" />
@@ -642,7 +781,7 @@ function RegisterPageInner() {
                   className="text-amber-700"
                   onClick={() => {
                     setPaymentStatus('idle');
-                    setStep(3);
+                    setStep(4);
                   }}
                 >
                   <ArrowLeft className="mr-2 h-4 w-4" />
@@ -668,7 +807,7 @@ function RegisterPageInner() {
             </div>
           )}
 
-          {step === 5 && (
+          {step === 6 && (
             <div className="space-y-6">
               <div className="flex items-center gap-2 text-sm font-semibold text-amber-900">
                 <CheckCircle2 className="h-4 w-4" />
@@ -721,7 +860,7 @@ function RegisterPageInner() {
                   type="button"
                   variant="ghost"
                   className="text-amber-700"
-                  onClick={() => setStep(stripeRequired ? 4 : 3)}
+                  onClick={() => setStep(stripeRequired ? 5 : 4)}
                 >
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Précédent

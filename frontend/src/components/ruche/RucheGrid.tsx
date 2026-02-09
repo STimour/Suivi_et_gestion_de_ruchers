@@ -6,6 +6,7 @@ import { Hexagon, MapPin, Shield, ShieldOff, Crown, Pencil, AlertTriangle, Calen
 import Link from 'next/link';
 import { EditRucheDialog } from './EditRucheDialog';
 import { AddInterventionDialog } from './AddInterventionDialog';
+import { useCanEdit } from '@/hooks/useCanEdit';
 
 interface RucheGridProps {
     ruches: any[];
@@ -52,6 +53,7 @@ const formatDate = (dateString: string) => {
 
 export function RucheGrid({ ruches }: RucheGridProps) {
     const [editingRucheId, setEditingRucheId] = useState<string | null>(null);
+    const canEdit = useCanEdit();
 
     if (ruches.length === 0) {
         return null;
@@ -136,29 +138,33 @@ export function RucheGrid({ ruches }: RucheGridProps) {
                             </div>
                         </CardContent>
                         <CardFooter className="pt-3 border-t border-gray-100 flex items-center justify-between gap-2">
-                            <AddInterventionDialog
-                                rucheId={ruche.id}
-                                rucheImmatriculation={ruche.immatriculation}
-                                trigger={
+                            {canEdit && (
+                                <AddInterventionDialog
+                                    rucheId={ruche.id}
+                                    rucheImmatriculation={ruche.immatriculation}
+                                    trigger={
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="text-green-600 border-green-200 hover:bg-green-50"
+                                        >
+                                            <ClipboardList className="h-4 w-4 mr-1" />
+                                            Intervention
+                                        </Button>
+                                    }
+                                />
+                            )}
+                            <div className="flex items-center gap-2">
+                                {canEdit && (
                                     <Button
                                         size="sm"
-                                        variant="outline"
-                                        className="text-green-600 border-green-200 hover:bg-green-50"
+                                        variant="ghost"
+                                        className="text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                                        onClick={() => setEditingRucheId(ruche.id)}
                                     >
-                                        <ClipboardList className="h-4 w-4 mr-1" />
-                                        Intervention
+                                        <Pencil className="h-4 w-4" />
                                     </Button>
-                                }
-                            />
-                            <div className="flex items-center gap-2">
-                                <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    className="text-amber-600 hover:text-amber-700 hover:bg-amber-50"
-                                    onClick={() => setEditingRucheId(ruche.id)}
-                                >
-                                    <Pencil className="h-4 w-4" />
-                                </Button>
+                                )}
                                 <Link href={`/dashboard/hives/${ruche.id}`}>
                                     <Button size="sm" variant="outline" className="text-green-700 border-green-200 hover:bg-green-50">
                                         Voir détails
@@ -170,7 +176,7 @@ export function RucheGrid({ ruches }: RucheGridProps) {
                 ))}
             </div>
 
-            {editingRucheId && (
+            {canEdit && editingRucheId && (
                 <EditRucheDialog
                     rucheId={editingRucheId}
                     open={!!editingRucheId}

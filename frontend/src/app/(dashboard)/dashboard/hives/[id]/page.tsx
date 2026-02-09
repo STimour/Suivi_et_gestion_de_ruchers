@@ -19,6 +19,7 @@ import {
 import Link from 'next/link';
 import { GET_RUCHE_BY_ID } from '@/lib/graphql/queries/ruche.queries';
 import { AddInterventionDialog } from '@/components/ruche/AddInterventionDialog';
+import { useCanEdit } from '@/hooks/useCanEdit';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
     Table,
@@ -137,6 +138,8 @@ export default function RucheDetailPage() {
     const router = useRouter();
     const rucheId = params.id as string;
 
+    const canEdit = useCanEdit();
+
     const { data, loading, error } = useQuery<RucheData>(GET_RUCHE_BY_ID, {
         variables: { id: rucheId },
         skip: !rucheId,
@@ -197,10 +200,12 @@ export default function RucheDetailPage() {
                         </p>
                     </div>
                 </div>
-                <AddInterventionDialog
-                    rucheId={ruche.id}
-                    rucheImmatriculation={ruche.immatriculation}
-                />
+                {canEdit && (
+                    <AddInterventionDialog
+                        rucheId={ruche.id}
+                        rucheImmatriculation={ruche.immatriculation}
+                    />
+                )}
             </div>
 
             {/* Informations principales */}
@@ -343,15 +348,17 @@ export default function RucheDetailPage() {
                         <div className="text-center py-12 text-gray-500">
                             <ClipboardList className="h-12 w-12 mx-auto mb-4 text-gray-300" />
                             <p>Aucune intervention enregistrée pour cette ruche.</p>
-                            <AddInterventionDialog
-                                rucheId={ruche.id}
-                                rucheImmatriculation={ruche.immatriculation}
-                                trigger={
-                                    <Button className="mt-4 bg-green-600 hover:bg-green-700">
-                                        Ajouter une intervention
-                                    </Button>
-                                }
-                            />
+                            {canEdit && (
+                                <AddInterventionDialog
+                                    rucheId={ruche.id}
+                                    rucheImmatriculation={ruche.immatriculation}
+                                    trigger={
+                                        <Button className="mt-4 bg-green-600 hover:bg-green-700">
+                                            Ajouter une intervention
+                                        </Button>
+                                    }
+                                />
+                            )}
                         </div>
                     ) : (
                         <div className="rounded-md border">

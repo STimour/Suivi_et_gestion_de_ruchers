@@ -11,6 +11,7 @@ import { GET_RUCHERS } from '@/lib/graphql/queries/rucher.queries';
 import { CreateRucherDialog } from '@/components/rucher/RucherDialog';
 import { RucherList } from '@/components/rucher/RucherList';
 import { RucherGrid } from '@/components/rucher/RucherGrid';
+import { useCanEdit } from '@/hooks/useCanEdit';
 
 type ViewMode = 'grid' | 'list';
 
@@ -18,6 +19,7 @@ export default function ApiariesPage() {
     const [viewMode, setViewMode] = useState<ViewMode>('grid');
     const [searchQuery, setSearchQuery] = useState('');
 
+    const canEdit = useCanEdit();
     const { data, loading, error } = useQuery<any>(GET_RUCHERS);
 
     const filteredRuchers = data?.ruchers?.filter((rucher: any) =>
@@ -35,14 +37,16 @@ export default function ApiariesPage() {
                         Gérez vos emplacements et suivez l'état de vos ruches
                     </p>
                 </div>
-                <CreateRucherDialog
-                    trigger={
-                        <Button className="bg-amber-600 hover:bg-amber-700 text-white gap-2 shadow-sm">
-                            <Plus className="h-4 w-4" />
-                            Nouveau rucher
-                        </Button>
-                    }
-                />
+                {canEdit && (
+                    <CreateRucherDialog
+                        trigger={
+                            <Button className="bg-amber-600 hover:bg-amber-700 text-white gap-2 shadow-sm">
+                                <Plus className="h-4 w-4" />
+                                Nouveau rucher
+                            </Button>
+                        }
+                    />
+                )}
             </div>
 
             {/* Controls Bar */}

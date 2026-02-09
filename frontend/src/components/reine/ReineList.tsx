@@ -12,6 +12,7 @@ import { Crown, MapPin, Hexagon, Pencil, Trash2, Eye } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { EditReineDialog } from './EditReineDialog';
+import { useCanEdit } from '@/hooks/useCanEdit';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -72,6 +73,7 @@ const getColorBadge = (color: string) => {
 export function ReineList({ reines, onDelete }: ReineListProps) {
     const [editingReineId, setEditingReineId] = useState<string | null>(null);
     const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+    const canEdit = useCanEdit();
 
     if (reines.length === 0) {
         return (
@@ -160,22 +162,26 @@ export function ReineList({ reines, onDelete }: ReineListProps) {
                                                 <Eye className="h-4 w-4" />
                                             </Button>
                                         </Link>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-8 w-8 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
-                                            onClick={() => setEditingReineId(reine.id)}
-                                        >
-                                            <Pencil className="h-4 w-4" />
-                                        </Button>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50"
-                                            onClick={() => setDeleteConfirmId(reine.id)}
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
+                                        {canEdit && (
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                                                onClick={() => setEditingReineId(reine.id)}
+                                            >
+                                                <Pencil className="h-4 w-4" />
+                                            </Button>
+                                        )}
+                                        {canEdit && (
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50"
+                                                onClick={() => setDeleteConfirmId(reine.id)}
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        )}
                                     </div>
                                 </TableCell>
                             </TableRow>
@@ -184,7 +190,7 @@ export function ReineList({ reines, onDelete }: ReineListProps) {
                 </Table>
             </div>
 
-            {editingReineId && (
+            {canEdit && editingReineId && (
                 <EditReineDialog
                     reineId={editingReineId}
                     open={!!editingReineId}
@@ -192,25 +198,27 @@ export function ReineList({ reines, onDelete }: ReineListProps) {
                 />
             )}
 
-            <AlertDialog open={!!deleteConfirmId} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
-                <AlertDialogContent className="bg-white">
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            Êtes-vous sûr de vouloir supprimer cette reine ? Cette action est irréversible.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>Annuler</AlertDialogCancel>
-                        <AlertDialogAction
-                            onClick={handleDeleteConfirm}
-                            className="bg-red-600 hover:bg-red-700"
-                        >
-                            Supprimer
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+            {canEdit && (
+                <AlertDialog open={!!deleteConfirmId} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
+                    <AlertDialogContent className="bg-white">
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                Êtes-vous sûr de vouloir supprimer cette reine ? Cette action est irréversible.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Annuler</AlertDialogCancel>
+                            <AlertDialogAction
+                                onClick={handleDeleteConfirm}
+                                className="bg-red-600 hover:bg-red-700"
+                            >
+                                Supprimer
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+            )}
         </>
     );
 }

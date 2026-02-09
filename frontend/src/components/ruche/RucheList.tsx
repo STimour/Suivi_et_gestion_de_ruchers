@@ -13,6 +13,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { EditRucheDialog } from './EditRucheDialog';
 import { AddInterventionDialog } from './AddInterventionDialog';
+import { useCanEdit } from '@/hooks/useCanEdit';
 
 interface RucheListProps {
     ruches: any[];
@@ -44,6 +45,7 @@ const formatDate = (dateString: string) => {
 
 export function RucheList({ ruches }: RucheListProps) {
     const [editingRucheId, setEditingRucheId] = useState<string | null>(null);
+    const canEdit = useCanEdit();
 
     if (ruches.length === 0) {
         return null;
@@ -113,27 +115,31 @@ export function RucheList({ ruches }: RucheListProps) {
                                 </TableCell>
                                 <TableCell className="text-right">
                                     <div className="flex justify-end items-center gap-2">
-                                        <AddInterventionDialog
-                                            rucheId={ruche.id}
-                                            rucheImmatriculation={ruche.immatriculation}
-                                            trigger={
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
-                                                >
-                                                    <ClipboardList className="h-4 w-4" />
-                                                </Button>
-                                            }
-                                        />
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-8 w-8 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
-                                            onClick={() => setEditingRucheId(ruche.id)}
-                                        >
-                                            <Pencil className="h-4 w-4" />
-                                        </Button>
+                                        {canEdit && (
+                                            <AddInterventionDialog
+                                                rucheId={ruche.id}
+                                                rucheImmatriculation={ruche.immatriculation}
+                                                trigger={
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
+                                                    >
+                                                        <ClipboardList className="h-4 w-4" />
+                                                    </Button>
+                                                }
+                                            />
+                                        )}
+                                        {canEdit && (
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                                                onClick={() => setEditingRucheId(ruche.id)}
+                                            >
+                                                <Pencil className="h-4 w-4" />
+                                            </Button>
+                                        )}
                                         <Link href={`/dashboard/hives/${ruche.id}`}>
                                             <Button variant="ghost" size="sm">
                                                 Voir
@@ -147,7 +153,7 @@ export function RucheList({ ruches }: RucheListProps) {
                 </Table>
             </div>
 
-            {editingRucheId && (
+            {canEdit && editingRucheId && (
                 <EditRucheDialog
                     rucheId={editingRucheId}
                     open={!!editingRucheId}
