@@ -22,4 +22,7 @@ urlpatterns = [
     path('capteurs', iot_views.list_capteurs, name='capteurs-list'),
     path('capteurs/<uuid:capteur_id>', iot_views.update_capteur, name='capteurs-update'),
     path('capteurs/<uuid:capteur_id>/delete', iot_views.delete_capteur, name='capteurs-delete'),
+    path('capteurs/<uuid:capteur_id>/gps-alert/activate', iot_views.activate_gps_alert, name='capteurs-gps-alert-activate'),
+    path('capteurs/<uuid:capteur_id>/gps-alert/check', iot_views.check_gps_alert, name='capteurs-gps-alert-check'),
+    path('capteurs/<uuid:capteur_id>/gps-alert/deactivate', iot_views.deactivate_gps_alert, name='capteurs-gps-alert-deactivate'),
 ]
