@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Bell, User, Menu, LogOut } from "lucide-react";
+import { Bell, User, Menu, LogOut, Home, MapPin, Hexagon, Crown } from "lucide-react";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { authService } from "@/lib/auth/authService";
 import {
@@ -14,6 +14,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { EntrepriseSwitcher } from "./EntrepriseSwitcher";
 
 export function Header() {
@@ -54,11 +61,11 @@ export function Header() {
     };
   }, [user?.entreprise_id]);
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+  <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-backdrop-filter:bg-white/60">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-3 items-center h-16 gap-4">
+        <div className="flex items-center justify-between h-16 gap-3">
           {/* Left - Navigation */}
-          <nav className="hidden md:flex items-center gap-6 justify-start">
+          <nav className="hidden lg:flex items-center gap-6 justify-start">
             <Link
               href="/dashboard"
               className="text-sm font-medium text-amber-900 hover:text-amber-600 transition-colors"
@@ -92,14 +99,60 @@ export function Header() {
           </nav>
 
           {/* Mobile Menu Button - Left on mobile */}
-          <div className="md:hidden">
-            <Button variant="ghost" size="icon">
-              <Menu className="h-5 w-5 text-amber-700" />
-            </Button>
+          <div className="lg:hidden">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" aria-label="Ouvrir le menu">
+                  <Menu className="h-5 w-5 text-amber-700" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="bg-white">
+                <SheetHeader>
+                  <SheetTitle className="text-amber-900">Navigation</SheetTitle>
+                </SheetHeader>
+                <nav className="flex flex-col gap-2 px-4">
+                  <Link
+                    href="/dashboard"
+                    className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-amber-900 hover:bg-amber-50"
+                  >
+                    <Home className="h-4 w-4 text-amber-600" />
+                    Dashboard
+                  </Link>
+                  <Link
+                    href="/dashboard/apiaries"
+                    className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-amber-900 hover:bg-amber-50"
+                  >
+                    <MapPin className="h-4 w-4 text-amber-600" />
+                    Ruchers
+                  </Link>
+                  <Link
+                    href="/dashboard/hives"
+                    className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-amber-900 hover:bg-amber-50"
+                  >
+                    <Hexagon className="h-4 w-4 text-green-600" />
+                    Ruches
+                  </Link>
+                  <Link
+                    href="/dashboard/reines"
+                    className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-amber-900 hover:bg-amber-50"
+                  >
+                    <Crown className="h-4 w-4 text-amber-600" />
+                    Reines
+                  </Link>
+                  <Link
+                    href="/dashboard/interventions"
+                    className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-amber-900 hover:bg-amber-50"
+                  >
+                    <Bell className="h-4 w-4 text-amber-600" />
+                    Interventions
+                  </Link>
+                </nav>
+              </SheetContent>
+            </Sheet>
           </div>
 
           {/* Center - Logo, Title & Entreprise Switcher */}
-          <div className="flex items-center gap-3 justify-center">
+          <div className="flex flex-1 items-center gap-3 justify-center min-w-0">
             <Link href="/dashboard" className="flex items-center gap-2">
               <Image
                 src="/logo_ruche_1.png"
@@ -108,7 +161,7 @@ export function Header() {
                 height={40}
                 className="object-contain"
               />
-              <span className="font-bold text-lg text-amber-900 hidden sm:inline">
+              <span className="font-bold text-lg text-amber-900 hidden md:inline truncate">
                 Gestion de Ruchers
               </span>
             </Link>
