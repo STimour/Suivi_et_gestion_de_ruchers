@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/sheet";
 import { EntrepriseSwitcher } from "./EntrepriseSwitcher";
 import { InviteMemberDialog } from "./InviteMemberDialog";
+import { NotificationPanel } from "./NotificationPanel";
 
 export function Header() {
   const { user, logout } = useAuth();
@@ -184,10 +185,7 @@ export function Header() {
           {/* Right - Notifications & Profile */}
           <div className="flex items-center gap-2 justify-end flex-1">
             {/* Notifications */}
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="h-5 w-5 text-amber-700" />
-              <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
-            </Button>
+            <NotificationPanel />
 
             {/* User Menu */}
             <DropdownMenu>

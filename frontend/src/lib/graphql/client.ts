@@ -111,6 +111,12 @@ const cache = new InMemoryCache({
             return incoming;
           },
         },
+        // Configuration du cache pour les notifications
+        notifications: {
+          merge(existing, incoming) {
+            return incoming;
+          },
+        },
       },
     },
   },

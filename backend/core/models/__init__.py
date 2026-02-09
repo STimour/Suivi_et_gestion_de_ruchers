@@ -30,6 +30,7 @@ from .suivi import Intervention, TypeIntervention
 from .transhumance import Transhumance, Alerte, TypeAlerte
 from .iot import Capteur, Mesure, TypeCapteur
 from .offre import Offre, TypeOffre, TypeOffreModel, LimitationOffre
+from .notification import Notification, TypeNotification
 
 __all__ = [
     'Utilisateur', 'RoleUtilisateur', 'Entreprise', 'EntrepriseProfile', 'TypeProfileEntreprise',
@@ -42,5 +43,6 @@ __all__ = [
     'TacheCycleElevage', 'TypeTacheElevage', 'StatutTacheElevage',
     'Intervention', 'TypeIntervention',
     'Transhumance', 'Alerte', 'TypeAlerte',
-    'Capteur', 'Mesure', 'TypeCapteur'
+    'Capteur', 'Mesure', 'TypeCapteur',
+    'Notification', 'TypeNotification',
 ]
