@@ -56,21 +56,29 @@ def generate_jwt_token(
 
 
 def is_hasura_available(endpoint: str = None) -> bool:
-    endpoint = endpoint or os.getenv("HASURA_GRAPHQL_ENDPOINT", "http://hasura.localhost:8088/v1/graphql")
+    endpoint = endpoint or os.getenv("HASURA_GRAPHQL_ENDPOINT", "http://traefik:80/v1/graphql")
     try:
         response = requests.post(
             endpoint,
             json={"query": "{ __typename }"},
-            headers={"Content-Type": "application/json"},
+            headers={
+                "Content-Type": "application/json",
+                "Host": "hasura.localhost"
+            },
             timeout=2,
         )
-        return response.status_code == 200
-    except Exception:
+        if response.status_code == 200:
+            return True
+        else:
+            print(f"Hasura non disponible - Status code: {response.status_code}")
+            return False
+    except Exception as e:
+        print(f"Hasura non disponible - Erreur: {e}")
         return False
 
 
 class GraphQLTestCase(TransactionTestCase):
-    HASURA_ENDPOINT = os.getenv("HASURA_GRAPHQL_ENDPOINT", "http://hasura.localhost:8088/v1/graphql")
+    HASURA_ENDPOINT = os.getenv("HASURA_GRAPHQL_ENDPOINT", "http://traefik:80/v1/graphql")
     HASURA_ADMIN_SECRET = os.getenv("HASURA_GRAPHQL_ADMIN_SECRET", "your_admin_secret_here")
     skip_graphql_tests = False
 
@@ -174,7 +182,10 @@ class GraphQLTestCase(TransactionTestCase):
         return False
 
     def execute_graphql(self, query, variables=None, token=None, use_admin_secret=False):
-        headers = {"Content-Type": "application/json"}
+        headers = {
+            "Content-Type": "application/json",
+            "Host": "hasura.localhost"
+        }
         if use_admin_secret:
             headers["X-Hasura-Admin-Secret"] = self.HASURA_ADMIN_SECRET
         elif token:
