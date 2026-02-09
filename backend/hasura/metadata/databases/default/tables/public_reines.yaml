@@ -11,6 +11,14 @@ object_relationships:
   - name: ruche
     using:
       foreign_key_constraint_on: ruche_id
+array_relationships:
+  - name: cycles_elevage_reines
+    using:
+      foreign_key_constraint_on:
+        column: reine_id
+        table:
+          name: cycles_elevage_reines
+          schema: public
 insert_permissions:
   - role: AdminEntreprise
     permission:
@@ -24,15 +32,19 @@ insert_permissions:
                 utilisateur_id:
                   _eq: X-Hasura-User-Id
       columns:
-        - anneeNaissance
+        - isElevage
+        - nonReproductible
         - codeCouleur
         - lignee
+        - statut
+        - anneeNaissance
         - noteDouceur
         - commentaire
-        - nonReproductible
+        - created_at
+        - updated_at
         - entreprise_id
-        - ruche_id
         - id
+        - ruche_id
     comment: Vérification des limites via trigger PostgreSQL
   - role: Apiculteur
     permission:
@@ -46,31 +58,37 @@ insert_permissions:
                 utilisateur_id:
                   _eq: X-Hasura-User-Id
       columns:
-        - anneeNaissance
+        - isElevage
+        - nonReproductible
         - codeCouleur
         - lignee
+        - statut
+        - anneeNaissance
         - noteDouceur
         - commentaire
-        - nonReproductible
+        - created_at
+        - updated_at
         - entreprise_id
-        - ruche_id
         - id
+        - ruche_id
     comment: Vérification des limites via trigger PostgreSQL
 select_permissions:
   - role: AdminEntreprise
     permission:
       columns:
-        - anneeNaissance
+        - isElevage
+        - nonReproductible
         - codeCouleur
         - lignee
+        - statut
+        - anneeNaissance
         - noteDouceur
         - commentaire
-        - nonReproductible
-        - entreprise_id
-        - ruche_id
-        - id
         - created_at
         - updated_at
+        - entreprise_id
+        - id
+        - ruche_id
       filter:
         _and:
           - entreprise:
@@ -84,17 +102,19 @@ select_permissions:
   - role: Apiculteur
     permission:
       columns:
-        - anneeNaissance
+        - isElevage
+        - nonReproductible
         - codeCouleur
         - lignee
+        - statut
+        - anneeNaissance
         - noteDouceur
         - commentaire
-        - nonReproductible
-        - entreprise_id
-        - ruche_id
-        - id
         - created_at
         - updated_at
+        - entreprise_id
+        - id
+        - ruche_id
       filter:
         _and:
           - entreprise:
@@ -108,17 +128,19 @@ select_permissions:
   - role: Lecteur
     permission:
       columns:
-        - anneeNaissance
+        - isElevage
+        - nonReproductible
         - codeCouleur
         - lignee
+        - statut
+        - anneeNaissance
         - noteDouceur
         - commentaire
-        - nonReproductible
-        - entreprise_id
-        - ruche_id
-        - id
         - created_at
         - updated_at
+        - entreprise_id
+        - id
+        - ruche_id
       filter:
         _and:
           - entreprise:
@@ -135,11 +157,13 @@ select_permissions:
         - anneeNaissance
         - codeCouleur
         - created_at
+        - entreprise_id
         - id
+        - isElevage
         - lignee
         - nonReproductible
         - noteDouceur
-        - ruche_id
+        - statut
         - updated_at
       filter: {}
     comment: ""
@@ -147,15 +171,19 @@ update_permissions:
   - role: AdminEntreprise
     permission:
       columns:
-        - anneeNaissance
+        - isElevage
+        - nonReproductible
         - codeCouleur
         - lignee
+        - statut
+        - anneeNaissance
         - noteDouceur
         - commentaire
-        - nonReproductible
+        - created_at
+        - updated_at
         - entreprise_id
-        - ruche_id
         - id
+        - ruche_id
       filter:
         _and:
           - entreprise:
@@ -170,15 +198,19 @@ update_permissions:
   - role: Apiculteur
     permission:
       columns:
-        - anneeNaissance
+        - isElevage
+        - nonReproductible
         - codeCouleur
         - lignee
+        - statut
+        - anneeNaissance
         - noteDouceur
         - commentaire
-        - nonReproductible
+        - created_at
+        - updated_at
         - entreprise_id
-        - ruche_id
         - id
+        - ruche_id
       filter:
         _and:
           - entreprise:

@@ -1,7 +1,11 @@
-from django.db import models
+from django.db import models, transaction
 import uuid
 from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
+from django.core.exceptions import ValidationError
+from django.utils import timezone
+from datetime import timedelta
 from .base import TimestampedModel
+from .utilisateur import TypeProfileEntreprise
 
 class EnumValueModel(models.Model):
     value = models.CharField(primary_key=True, max_length=50)
@@ -81,6 +85,14 @@ class CodeCouleurReine(models.TextChoices):
     ROUGE = 'Rouge', 'Rouge'
     VERT = 'Vert', 'Vert'
     BLEU = 'Bleu', 'Bleu'
+
+class ReineStatut(models.TextChoices):
+    VENDU = 'Vendu', 'Vendu'
+    PERDUE = 'Perdue', 'Perdue'
+    NON_FECONDEE = 'NonFecondee', 'NonFecondee'
+    FECONDEE = 'Fecondee', 'Fecondee'
+    DISPONIBLE_VENTE = 'DisponibleVente', 'DisponibleVente'
+    ELIMINEE = 'Eliminee', 'Eliminee'
 
 class TypeMaladie(EnumValueModel):
     AUCUNE = 'Aucune'
@@ -171,6 +183,8 @@ class Reine(TimestampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     entreprise = models.ForeignKey('Entreprise', on_delete=models.CASCADE, related_name='reines', null=True, blank=True)
     ruche = models.OneToOneField('Ruche', on_delete=models.SET_NULL, null=True, blank=True, related_name='reine')
+    isElevage = models.BooleanField(default=False)
+    statut = models.CharField(max_length=30, choices=ReineStatut.choices, default=ReineStatut.FECONDEE)
     anneeNaissance = models.IntegerField(validators=[MinValueValidator(1900), MaxValueValidator(2100)])
     codeCouleur = models.CharField(max_length=10, choices=CodeCouleurReine.choices)
     lignee = models.ForeignKey(
@@ -190,3 +204,124 @@ class Reine(TimestampedModel):
 
     def __str__(self):
         return f"Reine {self.codeCouleur} ({self.anneeNaissance})"
+
+    def _validate_elevage_profile(self):
+        if not self.isElevage:
+            return
+        if not self.entreprise_id:
+            raise ValidationError("Une reine en elevage doit etre liee a une entreprise.")
+        has_profile = self.entreprise.profils.filter(
+            typeProfile=TypeProfileEntreprise.ELEVEUR_DE_REINES
+        ).exists()
+        if not has_profile:
+            raise ValidationError(
+                "L'entreprise doit avoir le profil EleveurDeReines pour activer isElevage."
+            )
+
+    def save(self, *args, **kwargs):
+        is_new = self._state.adding
+        self._validate_elevage_profile()
+        super().save(*args, **kwargs)
+        if is_new and self.isElevage:
+            CycleElevageReine.create_for_reine(self)
+
+class StatutCycleElevage(models.TextChoices):
+    EN_COURS = 'EnCours', 'EnCours'
+    TERMINE = 'Termine', 'Termine'
+    ANNULE = 'Annule', 'Annule'
+
+class TypeTacheElevage(models.TextChoices):
+    GREFFAGE = 'Greffage', 'Greffage'
+    OPERCULATION = 'Operculation', 'Operculation'
+    NAISSANCE_REINE = 'NaissanceReine', 'NaissanceReine'
+    CONTROLE_VOL_FECONDATION = 'ControleVolFecondation', 'ControleVolFecondation'
+    VALIDATION_PONTE = 'ValidationPonte', 'ValidationPonte'
+    MARQUAGE_REINE = 'MarquageReine', 'MarquageReine'
+    MISE_EN_VENTE = 'MiseEnVente', 'MiseEnVente'
+
+class StatutTacheElevage(models.TextChoices):
+    A_FAIRE = 'AFaire', 'AFaire'
+    FAITE = 'Faite', 'Faite'
+    EN_RETARD = 'EnRetard', 'EnRetard'
+    ANNULEE = 'Annulee', 'Annulee'
+
+class CycleElevageReine(TimestampedModel):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    reine = models.ForeignKey('Reine', on_delete=models.CASCADE, related_name='cycles_elevage')
+    dateDebut = models.DateField()
+    dateFin = models.DateField(null=True, blank=True)
+    statut = models.CharField(max_length=20, choices=StatutCycleElevage.choices, default=StatutCycleElevage.EN_COURS)
+
+    class Meta:
+        db_table = 'cycles_elevage_reines'
+        verbose_name = "Cycle d'elevage de reine"
+        verbose_name_plural = "Cycles d'elevage de reine"
+
+    def __str__(self):
+        return f"Cycle {self.reine_id} ({self.dateDebut})"
+
+    @staticmethod
+    def create_for_reine(reine, date_debut=None):
+        if date_debut is None:
+            date_debut = timezone.now().date()
+        with transaction.atomic():
+            cycle = CycleElevageReine.objects.create(
+                reine=reine,
+                dateDebut=date_debut,
+                statut=StatutCycleElevage.EN_COURS,
+            )
+            TacheCycleElevage.create_default_tasks(cycle)
+        return cycle
+
+class TacheCycleElevage(TimestampedModel):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    cycle = models.ForeignKey('CycleElevageReine', on_delete=models.CASCADE, related_name='taches')
+    type = models.CharField(max_length=40, choices=TypeTacheElevage.choices)
+    jourTheorique = models.IntegerField(validators=[MinValueValidator(0)])
+    datePrevue = models.DateField()
+    dateRealisee = models.DateField(null=True, blank=True)
+    statut = models.CharField(max_length=20, choices=StatutTacheElevage.choices, default=StatutTacheElevage.A_FAIRE)
+    commentaire = models.TextField(blank=True, null=True)
+
+    class Meta:
+        db_table = 'taches_cycle_elevage'
+        verbose_name = "Tache de cycle d'elevage"
+        verbose_name_plural = "Taches de cycle d'elevage"
+
+    def __str__(self):
+        return f"{self.type} ({self.datePrevue})"
+
+    @staticmethod
+    def create_default_tasks(cycle):
+        base_date = cycle.dateDebut
+        schedule = [
+            (TypeTacheElevage.GREFFAGE, 0),
+            (TypeTacheElevage.OPERCULATION, 6),
+            (TypeTacheElevage.NAISSANCE_REINE, 12),
+            (TypeTacheElevage.CONTROLE_VOL_FECONDATION, 16),
+            (TypeTacheElevage.VALIDATION_PONTE, 21),
+            (TypeTacheElevage.MARQUAGE_REINE, 25),
+            (TypeTacheElevage.MISE_EN_VENTE, 28),
+        ]
+        tasks = [
+            TacheCycleElevage(
+                cycle=cycle,
+                type=task_type,
+                jourTheorique=offset,
+                datePrevue=base_date + timedelta(days=offset),
+                statut=StatutTacheElevage.A_FAIRE,
+            )
+            for task_type, offset in schedule
+        ]
+        TacheCycleElevage.objects.bulk_create(tasks)
+
+    def save(self, *args, **kwargs):
+        if self.statut != StatutTacheElevage.ANNULEE:
+            if self.dateRealisee is None and self.statut in (StatutTacheElevage.FAITE, StatutTacheElevage.EN_RETARD):
+                self.dateRealisee = timezone.now().date()
+            if self.dateRealisee is not None:
+                if self.dateRealisee > self.datePrevue:
+                    self.statut = StatutTacheElevage.EN_RETARD
+                else:
+                    self.statut = StatutTacheElevage.FAITE
+        super().save(*args, **kwargs)

@@ -1,0 +1,278 @@
+table:
+  name: cycles_elevage_reines
+  schema: public
+object_relationships:
+  - name: reine
+    using:
+      foreign_key_constraint_on: reine_id
+array_relationships:
+  - name: taches_cycle_elevages
+    using:
+      foreign_key_constraint_on:
+        column: cycle_id
+        table:
+          name: taches_cycle_elevage
+          schema: public
+insert_permissions:
+  - role: AdminEntreprise
+    permission:
+      check:
+        _and:
+          - reine:
+              entreprise:
+                id:
+                  _eq: X-Hasura-Entreprise-Id
+          - reine:
+              entreprise:
+                utilisateurs_entreprises:
+                  utilisateur_id:
+                    _eq: X-Hasura-User-Id
+          - reine:
+              entreprise:
+                entreprise_profiles:
+                  typeProfile:
+                    _eq: EleveurDeReines
+      columns:
+        - dateDebut
+        - dateFin
+        - statut
+        - created_at
+        - updated_at
+        - id
+        - reine_id
+    comment: ""
+  - role: Apiculteur
+    permission:
+      check:
+        _and:
+          - reine:
+              entreprise:
+                id:
+                  _eq: X-Hasura-Entreprise-Id
+          - reine:
+              entreprise:
+                utilisateurs_entreprises:
+                  utilisateur_id:
+                    _eq: X-Hasura-User-Id
+          - reine:
+              entreprise:
+                entreprise_profiles:
+                  typeProfile:
+                    _eq: EleveurDeReines
+      columns:
+        - dateDebut
+        - dateFin
+        - statut
+        - created_at
+        - updated_at
+        - id
+        - reine_id
+    comment: ""
+select_permissions:
+  - role: AdminEntreprise
+    permission:
+      columns:
+        - dateDebut
+        - dateFin
+        - statut
+        - created_at
+        - updated_at
+        - id
+        - reine_id
+      filter:
+        _and:
+          - reine:
+              entreprise:
+                id:
+                  _eq: X-Hasura-Entreprise-Id
+          - reine:
+              entreprise:
+                utilisateurs_entreprises:
+                  utilisateur_id:
+                    _eq: X-Hasura-User-Id
+          - reine:
+              entreprise:
+                entreprise_profiles:
+                  typeProfile:
+                    _eq: EleveurDeReines
+      allow_aggregations: true
+    comment: ""
+  - role: Apiculteur
+    permission:
+      columns:
+        - dateDebut
+        - dateFin
+        - statut
+        - created_at
+        - updated_at
+        - id
+        - reine_id
+      filter:
+        _and:
+          - reine:
+              entreprise:
+                id:
+                  _eq: X-Hasura-Entreprise-Id
+          - reine:
+              entreprise:
+                utilisateurs_entreprises:
+                  utilisateur_id:
+                    _eq: X-Hasura-User-Id
+          - reine:
+              entreprise:
+                entreprise_profiles:
+                  typeProfile:
+                    _eq: EleveurDeReines
+      allow_aggregations: true
+    comment: ""
+  - role: Lecteur
+    permission:
+      columns:
+        - dateDebut
+        - dateFin
+        - statut
+        - created_at
+        - updated_at
+        - id
+        - reine_id
+      filter:
+        _and:
+          - reine:
+              entreprise:
+                id:
+                  _eq: X-Hasura-Entreprise-Id
+          - reine:
+              entreprise:
+                utilisateurs_entreprises:
+                  utilisateur_id:
+                    _eq: X-Hasura-User-Id
+          - reine:
+              entreprise:
+                entreprise_profiles:
+                  typeProfile:
+                    _eq: EleveurDeReines
+      allow_aggregations: true
+    comment: ""
+  - role: anonymous
+    permission:
+      columns:
+        - dateDebut
+        - dateFin
+        - statut
+        - created_at
+        - updated_at
+        - id
+        - reine_id
+      filter:
+        _and:
+          - reine:
+              entreprise:
+                id:
+                  _eq: X-Hasura-Entreprise-Id
+          - reine:
+              entreprise:
+                utilisateurs_entreprises:
+                  utilisateur_id:
+                    _eq: X-Hasura-User-Id
+          - reine:
+              entreprise:
+                entreprise_profiles:
+                  typeProfile:
+                    _eq: EleveurDeReines
+    comment: ""
+update_permissions:
+  - role: AdminEntreprise
+    permission:
+      columns:
+        - dateDebut
+        - dateFin
+        - statut
+        - created_at
+        - updated_at
+        - id
+        - reine_id
+      filter:
+        _and:
+          - reine:
+              entreprise:
+                id:
+                  _eq: X-Hasura-Entreprise-Id
+          - reine:
+              entreprise:
+                utilisateurs_entreprises:
+                  utilisateur_id:
+                    _eq: X-Hasura-User-Id
+          - reine:
+              entreprise:
+                entreprise_profiles:
+                  typeProfile:
+                    _eq: EleveurDeReines
+      check: null
+    comment: ""
+  - role: Apiculteur
+    permission:
+      columns:
+        - dateDebut
+        - dateFin
+        - statut
+        - created_at
+        - updated_at
+        - id
+        - reine_id
+      filter:
+        _and:
+          - reine:
+              entreprise:
+                id:
+                  _eq: X-Hasura-Entreprise-Id
+          - reine:
+              entreprise:
+                utilisateurs_entreprises:
+                  utilisateur_id:
+                    _eq: X-Hasura-User-Id
+          - reine:
+              entreprise:
+                entreprise_profiles:
+                  typeProfile:
+                    _eq: EleveurDeReines
+      check: null
+    comment: ""
+delete_permissions:
+  - role: AdminEntreprise
+    permission:
+      filter:
+        _and:
+          - reine:
+              entreprise:
+                id:
+                  _eq: X-Hasura-Entreprise-Id
+          - reine:
+              entreprise:
+                utilisateurs_entreprises:
+                  utilisateur_id:
+                    _eq: X-Hasura-User-Id
+          - reine:
+              entreprise:
+                entreprise_profiles:
+                  typeProfile:
+                    _eq: EleveurDeReines
+    comment: ""
+  - role: Apiculteur
+    permission:
+      filter:
+        _and:
+          - reine:
+              entreprise:
+                id:
+                  _eq: X-Hasura-Entreprise-Id
+          - reine:
+              entreprise:
+                utilisateurs_entreprises:
+                  utilisateur_id:
+                    _eq: X-Hasura-User-Id
+          - reine:
+              entreprise:
+                entreprise_profiles:
+                  typeProfile:
+                    _eq: EleveurDeReines
+    comment: ""

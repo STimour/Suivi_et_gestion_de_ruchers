@@ -19,6 +19,12 @@ from .organisation import (
     TypeRaceAbeille,
     LigneeReine,
     CodeCouleurReine,
+    ReineStatut,
+    CycleElevageReine,
+    StatutCycleElevage,
+    TacheCycleElevage,
+    TypeTacheElevage,
+    StatutTacheElevage,
 )
 from .suivi import Intervention, TypeIntervention
 from .transhumance import Transhumance, Alerte, TypeAlerte
@@ -32,6 +38,8 @@ __all__ = [
     'Offre', 'TypeOffre', 'TypeOffreModel', 'LimitationOffre',
     'Rucher', 'Ruche', 'Reine', 'StatutRuche', 'TypeFlore', 'TypeMaladie',
     'TypeRuche', 'TypeRaceAbeille', 'LigneeReine', 'CodeCouleurReine',
+    'ReineStatut', 'CycleElevageReine', 'StatutCycleElevage',
+    'TacheCycleElevage', 'TypeTacheElevage', 'StatutTacheElevage',
     'Intervention', 'TypeIntervention',
     'Transhumance', 'Alerte', 'TypeAlerte',
     'Capteur', 'Mesure', 'TypeCapteur'
