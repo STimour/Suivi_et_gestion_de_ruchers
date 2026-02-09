@@ -160,44 +160,10 @@ export default function HivesPage() {
                         <RucheGrid ruches={filteredRuches} />
                     )}
 
-                    {!loading && filteredRuches.length === 0 && (searchQuery || statutFilter !== 'all') && (
-                        <div className="text-center py-12">
-                            <p className="text-amber-700/70">Aucune ruche ne correspond à vos critères.</p>
-                            <Button
-                                variant="link"
-                                className="text-green-600"
-                                onClick={() => {
-                                    setSearchQuery('');
-                                    setStatutFilter('all');
-                                }}
-                            >
-                                Effacer les filtres
-                            </Button>
-                        </div>
-                    )}
-
-                    {!loading && data?.ruches?.length === 0 && (
+                    {!loading && filteredRuches.length === 0 && (
                         <div className="text-center py-12 bg-white rounded-lg border border-dashed border-green-200">
                             <Hexagon className="h-12 w-12 mx-auto mb-3 text-green-200" />
-                            <p className="text-amber-700/70 mb-4">Aucune ruche pour le moment</p>
-                            <div className="flex gap-2 justify-center">
-                                <CreateRucheDialog
-                                    trigger={
-                                        <Button className="bg-green-600 hover:bg-green-700 text-white gap-2">
-                                            <Plus className="h-4 w-4" />
-                                            Ajouter une ruche
-                                        </Button>
-                                    }
-                                />
-                                <BulkCreateRuchesDialog
-                                    trigger={
-                                        <Button variant="outline" className="border-green-200 text-green-700 gap-2">
-                                            <Upload className="h-4 w-4" />
-                                            Import en masse
-                                        </Button>
-                                    }
-                                />
-                            </div>
+                            <p className="text-amber-700/70">Aucune ruche pour le moment</p>
                         </div>
                     )}
                 </>

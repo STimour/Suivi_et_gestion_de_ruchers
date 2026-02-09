@@ -19,11 +19,7 @@ interface RucherListProps {
 
 export function RucherList({ ruchers }: RucherListProps) {
     if (ruchers.length === 0) {
-        return (
-            <div className="text-center py-12 text-muted-foreground bg-white rounded-lg border border-dashed border-amber-200">
-                <p>Aucun rucher trouvé</p>
-            </div>
-        );
+        return null;
     }
 
     return (

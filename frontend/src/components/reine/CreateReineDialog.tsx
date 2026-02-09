@@ -37,6 +37,7 @@ import { CREATE_REINE } from '@/lib/graphql/mutations/reine.mutations';
 import { GET_REINES } from '@/lib/graphql/queries/reine.queries';
 import { GET_RUCHES } from '@/lib/graphql/queries/ruche.queries';
 import { Crown, Plus } from 'lucide-react';
+import { useAuth } from '@/lib/auth/AuthContext';
 
 // Options de couleur (cycle international 5 ans)
 const COLOR_OPTIONS = [
@@ -65,6 +66,10 @@ const reineSchema = z.object({
   lignee: z.string().min(1, 'La lignée est requise').max(100, 'La lignée est trop longue'),
   rucheId: z.string().uuid('Sélectionnez une ruche'),
   statut: z.string().min(1, 'Le statut est requis'),
+  noteDouceur: z.number({ message: 'La note est requise' })
+    .int('La note doit être un entier')
+    .min(1, 'Minimum 1')
+    .max(10, 'Maximum 10'),
   commentaire: z.string().max(500, 'Les notes sont trop longues').optional(),
 });
 
@@ -77,6 +82,7 @@ interface CreateReineDialogProps {
 
 export function CreateReineDialog({ trigger, defaultRucheId }: CreateReineDialogProps) {
   const [open, setOpen] = useState(false);
+  const { user } = useAuth();
 
   // Récupérer la liste des ruches pour le select
   const { data: ruchesData } = useQuery<any>(GET_RUCHES);
@@ -102,6 +108,7 @@ export function CreateReineDialog({ trigger, defaultRucheId }: CreateReineDialog
       codeCouleur: '',
       lignee: '',
       rucheId: defaultRucheId || '',
+      noteDouceur: 5,
       statut: 'ACTIVE',
       commentaire: '',
     },
@@ -117,10 +124,10 @@ export function CreateReineDialog({ trigger, defaultRucheId }: CreateReineDialog
             codeCouleur: values.codeCouleur,
             lignee: values.lignee,
             ruche_id: values.rucheId,
-            noteDouceur: 5, // Valeur par défaut
-            commentaire: values.commentaire || null,
+            noteDouceur: values.noteDouceur,
+            commentaire: values.commentaire || '',
             nonReproductible: false,
-            entreprise_id: null, // Sera géré par le contexte/permissions
+            entreprise_id: user?.entreprise_id || null,
           },
         },
       });
@@ -239,7 +246,7 @@ export function CreateReineDialog({ trigger, defaultRucheId }: CreateReineDialog
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent className="bg-white">
-                        {ruchesData?.ruches?.map((ruche: any) => (
+                        {ruchesData?.ruches?.filter((ruche: any) => !ruche.reine).map((ruche: any) => (
                           <SelectItem key={ruche.id} value={ruche.id}>
                             {ruche.immatriculation} {ruche.rucher?.nom ? `(${ruche.rucher.nom})` : ''}
                           </SelectItem>
@@ -279,6 +286,27 @@ export function CreateReineDialog({ trigger, defaultRucheId }: CreateReineDialog
                 )}
               />
             </div>
+
+            <FormField
+              control={form.control}
+              name="noteDouceur"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Note de douceur * (1-10)</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      min={1}
+                      max={10}
+                      placeholder="5"
+                      {...field}
+                      onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}

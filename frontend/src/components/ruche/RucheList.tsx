@@ -46,11 +46,7 @@ export function RucheList({ ruches }: RucheListProps) {
     const [editingRucheId, setEditingRucheId] = useState<string | null>(null);
 
     if (ruches.length === 0) {
-        return (
-            <div className="text-center py-12 text-muted-foreground bg-white rounded-lg border border-dashed border-green-200">
-                <p>Aucune ruche trouvée</p>
-            </div>
-        );
+        return null;
     }
 
     return (

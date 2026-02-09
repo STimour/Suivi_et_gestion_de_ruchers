@@ -83,6 +83,10 @@ const reineSchema = z.object({
     codeCouleur: z.string().optional(),
     lignee: z.string().max(100, 'La lignée est trop longue').optional(),
     rucheId: z.string().optional(),
+    noteDouceur: z.number({ message: 'La note est requise' })
+        .int('La note doit être un entier')
+        .min(1, 'Minimum 1')
+        .max(10, 'Maximum 10'),
     statut: z.string().min(1, 'Le statut est requis'),
     commentaire: z.string().max(500, 'Les notes sont trop longues').optional(),
 });
@@ -127,7 +131,8 @@ export function EditReineDialog({ reineId, open, onOpenChange }: EditReineDialog
             anneeNaissance: new Date().getFullYear(),
             codeCouleur: '',
             lignee: '',
-            rucheId: '',
+            rucheId: 'none',
+            noteDouceur: 5,
             statut: 'ACTIVE',
             commentaire: '',
         },
@@ -141,8 +146,9 @@ export function EditReineDialog({ reineId, open, onOpenChange }: EditReineDialog
                 anneeNaissance: reine.anneeNaissance,
                 codeCouleur: reine.codeCouleur || '',
                 lignee: reine.lignee || '',
-                rucheId: reine.ruche?.id || '',
-                statut: 'ACTIVE', // Le backend ne stocke pas le statut actuellement
+                rucheId: reine.ruche?.id || 'none',
+                noteDouceur: reine.noteDouceur ?? 5,
+                statut: 'ACTIVE',
                 commentaire: reine.commentaire || '',
             });
             setIsLoading(false);
@@ -158,8 +164,9 @@ export function EditReineDialog({ reineId, open, onOpenChange }: EditReineDialog
                         anneeNaissance: values.anneeNaissance,
                         codeCouleur: values.codeCouleur || null,
                         lignee: values.lignee || null,
-                        ruche_id: values.rucheId || null,
-                        commentaire: values.commentaire || null,
+                        ruche_id: values.rucheId === 'none' ? null : values.rucheId,
+                        noteDouceur: values.noteDouceur,
+                        commentaire: values.commentaire || '',
                     },
                 },
             });
@@ -271,8 +278,8 @@ export function EditReineDialog({ reineId, open, onOpenChange }: EditReineDialog
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent className="bg-white">
-                                                    <SelectItem value="">Aucune ruche</SelectItem>
-                                                    {ruchesData?.ruches?.map((ruche: any) => (
+                                                    <SelectItem value="none">Aucune ruche</SelectItem>
+                                                    {ruchesData?.ruches?.filter((ruche: any) => !ruche.reine || ruche.id === reineData?.reines_by_pk?.ruche?.id).map((ruche: any) => (
                                                         <SelectItem key={ruche.id} value={ruche.id}>
                                                             {ruche.immatriculation} {ruche.rucher?.nom ? `(${ruche.rucher.nom})` : ''}
                                                         </SelectItem>
@@ -312,6 +319,27 @@ export function EditReineDialog({ reineId, open, onOpenChange }: EditReineDialog
                                     )}
                                 />
                             </div>
+
+                            <FormField
+                                control={form.control}
+                                name="noteDouceur"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Note de douceur * (1-10)</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                type="number"
+                                                min={1}
+                                                max={10}
+                                                placeholder="5"
+                                                {...field}
+                                                onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
 
                             <FormField
                                 control={form.control}
