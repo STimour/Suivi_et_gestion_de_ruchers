@@ -80,21 +80,31 @@ class GraphQLTestCase(TransactionTestCase):
         cls.skip_graphql_tests = not is_hasura_available(cls.HASURA_ENDPOINT)
 
     @staticmethod
-    def _setup_enum_tables():
+    def _setup_enum_tables(using: str = None):
         """Populate enum FK tables so that ForeignKey lookups work in the test DB."""
+        def _mgr(model):
+            return model.objects.using(using) if using else model.objects
+        # TypeOffreModel is a FK target for Offre; seed it explicitly for tests.
+        from core.models import TypeOffreModel
+        for val in (TypeOffre.FREEMIUM, TypeOffre.PREMIUM):
+            _mgr(TypeOffreModel).get_or_create(
+                value=val.value,
+                defaults={"titre": val.value, "description": f"Offre {val.value}."},
+            )
+
         for val in (
             TypeFlore.ACACIA, TypeFlore.COLZA, TypeFlore.LAVANDE,
             TypeFlore.TOURNESOL, TypeFlore.CHATAIGNIER, TypeFlore.BRUYERE,
             TypeFlore.MONTAGNE, TypeFlore.TOUTES_FLEURS,
         ):
-            TypeFlore.objects.get_or_create(value=val, defaults={"label": val})
+            _mgr(TypeFlore).get_or_create(value=val, defaults={"label": val})
 
         for val in (
             TypeRuche.DADANT, TypeRuche.LANGSTROTH, TypeRuche.WARRE,
             TypeRuche.VOIRNOT, TypeRuche.KENYA_TOP_BAR, TypeRuche.RUCHETTE,
             TypeRuche.NUCLEI,
         ):
-            TypeRuche.objects.get_or_create(value=val, defaults={"label": val})
+            _mgr(TypeRuche).get_or_create(value=val, defaults={"label": val})
 
         for val in (
             TypeRaceAbeille.BUCKFAST, TypeRaceAbeille.NOIRE,
@@ -102,13 +112,13 @@ class GraphQLTestCase(TransactionTestCase):
             TypeRaceAbeille.CAUCASICA, TypeRaceAbeille.HYBRIDE_LOCALE,
             TypeRaceAbeille.INCONNUE,
         ):
-            TypeRaceAbeille.objects.get_or_create(value=val, defaults={"label": val})
+            _mgr(TypeRaceAbeille).get_or_create(value=val, defaults={"label": val})
 
         for val in (
             LigneeReine.BUCKFAST, LigneeReine.CARNICA, LigneeReine.LIGUSTICA,
             LigneeReine.CAUCASICA, LigneeReine.LOCALE, LigneeReine.INCONNUE,
         ):
-            LigneeReine.objects.get_or_create(value=val, defaults={"label": val})
+            _mgr(LigneeReine).get_or_create(value=val, defaults={"label": val})
 
         for val in (
             TypeMaladie.AUCUNE, TypeMaladie.VARROOSE, TypeMaladie.NOSEMOSE,
@@ -117,30 +127,31 @@ class GraphQLTestCase(TransactionTestCase):
             TypeMaladie.TROPILAEPS, TypeMaladie.VIRUS_AILES_DEFORMEES,
             TypeMaladie.PARALYSIE_CHRONIQUE, TypeMaladie.INTOXICATION_PESTICIDES,
         ):
-            TypeMaladie.objects.get_or_create(value=val, defaults={"label": val})
+            _mgr(TypeMaladie).get_or_create(value=val, defaults={"label": val})
 
     def setUp(self):
         super().setUp()
-        self._setup_enum_tables()
-        self.entreprise = Entreprise.objects.create(
+        db = Offre.objects.db
+        self._setup_enum_tables(using=db)
+        self.entreprise = Entreprise.objects.using(db).create(
             nom="Entreprise Test",
             adresse="123 Rue du Test, 75000 Paris",
         )
-        self.admin_user = Utilisateur.objects.create(
+        self.admin_user = Utilisateur.objects.using(db).create(
             nom="Admin",
             prenom="Test",
             email="admin@test.com",
             motDePasseHash="hashedpassword123",
             actif=True,
         )
-        self.user_entreprise = UtilisateurEntreprise.objects.create(
+        self.user_entreprise = UtilisateurEntreprise.objects.using(db).create(
             utilisateur=self.admin_user,
             entreprise=self.entreprise,
             role=RoleUtilisateur.ADMIN_ENTREPRISE.value,
         )
-        self.offre = Offre.objects.create(
+        self.offre = Offre.objects.using(db).create(
             entreprise=self.entreprise,
-            type=TypeOffre.FREEMIUM.value,
+            type_id=TypeOffre.FREEMIUM.value,
             dateDebut=datetime.now(timezone.utc),
             active=True,
             nbRuchersMax=5,
