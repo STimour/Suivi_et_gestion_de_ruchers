@@ -51,6 +51,14 @@
       "value": ""
     },
     {
+      "key": "cycleElevageId",
+      "value": ""
+    },
+    {
+      "key": "tacheCycleId",
+      "value": ""
+    },
+    {
       "key": "traitementId",
       "value": ""
     },
@@ -1070,7 +1078,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\"query\":\"query { reines { id created_at updated_at anneeNaissance codeCouleur lignee noteDouceur commentaire nonReproductible entreprise { id nom adresse } ruche { id immatriculation } } }\"}"
+                  "raw": "{\"query\":\"query { reines { id created_at updated_at anneeNaissance codeCouleur lignee noteDouceur commentaire nonReproductible isElevage statut entreprise { id nom adresse } ruche { id immatriculation } cycles_elevage_reines { id dateDebut dateFin statut taches_cycle_elevages { id type jourTheorique datePrevue dateRealisee statut commentaire } } } }\"}"
                 },
                 "url": {
                   "raw": "{{hasuraBaseUrl}}/v1/graphql",
@@ -1101,7 +1109,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\"query\":\"query($id: uuid!) { reines_by_pk(id: $id) { id created_at updated_at anneeNaissance codeCouleur lignee noteDouceur commentaire nonReproductible entreprise { id nom adresse } ruche { id immatriculation } } }\",\"variables\":{\"id\":\"{{reineId}}\"}}"
+                  "raw": "{\"query\":\"query($id: uuid!) { reines_by_pk(id: $id) { id created_at updated_at anneeNaissance codeCouleur lignee noteDouceur commentaire nonReproductible isElevage statut entreprise { id nom adresse } ruche { id immatriculation } cycles_elevage_reines { id dateDebut dateFin statut taches_cycle_elevages { id type jourTheorique datePrevue dateRealisee statut commentaire } } } }\",\"variables\":{\"id\":\"{{reineId}}\"}}"
                 },
                 "url": {
                   "raw": "{{hasuraBaseUrl}}/v1/graphql",
@@ -1132,7 +1140,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\"query\":\"mutation($object: reines_insert_input!) { insert_reines_one(object: $object) { id created_at updated_at } }\",\"variables\":{\"object\":{\"entreprise_id\":\"{{entrepriseId}}\",\"ruche_id\":null,\"anneeNaissance\":2022,\"codeCouleur\":\"Jaune\",\"lignee\":\"Buckfast\",\"noteDouceur\":8,\"commentaire\":\"Créée depuis Postman\",\"nonReproductible\":false}}}"
+                  "raw": "{\"query\":\"mutation($object: reines_insert_input!) { insert_reines_one(object: $object) { id created_at updated_at } }\",\"variables\":{\"object\":{\"entreprise_id\":\"{{entrepriseId}}\",\"ruche_id\":null,\"anneeNaissance\":2022,\"codeCouleur\":\"Jaune\",\"lignee\":\"Buckfast\",\"noteDouceur\":8,\"commentaire\":\"Créée depuis Postman\",\"nonReproductible\":false,\"isElevage\":true,\"statut\":\"Fecondee\"}}}"
                 },
                 "url": {
                   "raw": "{{hasuraBaseUrl}}/v1/graphql",
@@ -1180,7 +1188,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\"query\":\"mutation($id: uuid!, $changes: reines_set_input!) { update_reines_by_pk(pk_columns: {id: $id}, _set: $changes) { id created_at updated_at codeCouleur lignee noteDouceur entreprise { id nom } ruche { id immatriculation } } }\",\"variables\":{\"id\":\"{{reineId}}\",\"changes\":{\"codeCouleur\":\"Rouge\",\"lignee\":\"Carnica\",\"noteDouceur\":9}}}"
+                  "raw": "{\"query\":\"mutation($id: uuid!, $changes: reines_set_input!) { update_reines_by_pk(pk_columns: {id: $id}, _set: $changes) { id created_at updated_at codeCouleur lignee noteDouceur isElevage statut entreprise { id nom } ruche { id immatriculation } } }\",\"variables\":{\"id\":\"{{reineId}}\",\"changes\":{\"codeCouleur\":\"Rouge\",\"lignee\":\"Carnica\",\"noteDouceur\":9,\"statut\":\"DisponibleVente\"}}}"
                 },
                 "url": {
                   "raw": "{{hasuraBaseUrl}}/v1/graphql",
@@ -1212,6 +1220,360 @@
                 "body": {
                   "mode": "raw",
                   "raw": "{\"query\":\"mutation($id: uuid!) { delete_reines_by_pk(id: $id) { id created_at updated_at } }\",\"variables\":{\"id\":\"{{reineId}}\"}}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "CRUD - Cycles Elevage Reines",
+          "item": [
+            {
+              "name": "Cycles Elevage - List",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"query\":\"query { cycles_elevage_reines { id created_at updated_at dateDebut dateFin statut reine { id } } }\"}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Cycles Elevage - Get by id",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"query\":\"query($id: uuid!) { cycles_elevage_reines_by_pk(id: $id) { id created_at updated_at dateDebut dateFin statut reine { id } taches_cycle_elevages { id type jourTheorique datePrevue dateRealisee statut commentaire } } }\",\"variables\":{\"id\":\"{{cycleElevageId}}\"}}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Cycles Elevage - Create",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"query\":\"mutation($object: cycles_elevage_reines_insert_input!) { insert_cycles_elevage_reines_one(object: $object) { id created_at updated_at } }\",\"variables\":{\"object\":{\"reine_id\":\"{{reineId}}\",\"dateDebut\":\"2026-02-09\",\"statut\":\"EnCours\"}}}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "try {",
+                      "  const json = pm.response.json();",
+                      "  const id = json?.data?.insert_cycles_elevage_reines_one?.id;",
+                      "  if (id) {",
+                      "    pm.collectionVariables.set('cycleElevageId', id);",
+                      "  }",
+                      "} catch (e) {}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Cycles Elevage - Update",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"query\":\"mutation($id: uuid!, $changes: cycles_elevage_reines_set_input!) { update_cycles_elevage_reines_by_pk(pk_columns: {id: $id}, _set: $changes) { id created_at updated_at dateDebut dateFin statut } }\",\"variables\":{\"id\":\"{{cycleElevageId}}\",\"changes\":{\"statut\":\"Termine\",\"dateFin\":\"2026-03-01\"}}}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Cycles Elevage - Delete",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"query\":\"mutation($id: uuid!) { delete_cycles_elevage_reines_by_pk(id: $id) { id created_at updated_at } }\",\"variables\":{\"id\":\"{{cycleElevageId}}\"}}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "CRUD - Taches Cycle Elevage",
+          "item": [
+            {
+              "name": "Taches Cycle - List",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"query\":\"query { taches_cycle_elevage { id created_at updated_at cycle_id type jourTheorique datePrevue dateRealisee statut commentaire } }\"}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Taches Cycle - Get by id",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"query\":\"query($id: uuid!) { taches_cycle_elevage_by_pk(id: $id) { id created_at updated_at cycle_id type jourTheorique datePrevue dateRealisee statut commentaire } }\",\"variables\":{\"id\":\"{{tacheCycleId}}\"}}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Taches Cycle - Create",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"query\":\"mutation($object: taches_cycle_elevage_insert_input!) { insert_taches_cycle_elevage_one(object: $object) { id created_at updated_at } }\",\"variables\":{\"object\":{\"cycle_id\":\"{{cycleElevageId}}\",\"type\":\"Greffage\",\"jourTheorique\":0,\"datePrevue\":\"2026-02-09\",\"statut\":\"AFaire\"}}}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "try {",
+                      "  const json = pm.response.json();",
+                      "  const id = json?.data?.insert_taches_cycle_elevage_one?.id;",
+                      "  if (id) {",
+                      "    pm.collectionVariables.set('tacheCycleId', id);",
+                      "  }",
+                      "} catch (e) {}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Taches Cycle - Update",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"query\":\"mutation($id: uuid!, $changes: taches_cycle_elevage_set_input!) { update_taches_cycle_elevage_by_pk(pk_columns: {id: $id}, _set: $changes) { id created_at updated_at cycle_id type jourTheorique datePrevue dateRealisee statut commentaire } }\",\"variables\":{\"id\":\"{{tacheCycleId}}\",\"changes\":{\"statut\":\"Faite\",\"dateRealisee\":\"2026-02-10\"}}}"
+                },
+                "url": {
+                  "raw": "{{hasuraBaseUrl}}/v1/graphql",
+                  "host": [
+                    "{{hasuraBaseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "graphql"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Taches Cycle - Delete",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"query\":\"mutation($id: uuid!) { delete_taches_cycle_elevage_by_pk(id: $id) { id created_at updated_at } }\",\"variables\":{\"id\":\"{{tacheCycleId}}\"}}"
                 },
                 "url": {
                   "raw": "{{hasuraBaseUrl}}/v1/graphql",
