@@ -38,7 +38,7 @@ class TypeAlerte(models.TextChoices):
 class Alerte(TimestampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     type = models.CharField(max_length=30, choices=TypeAlerte.choices)
-    date = models.DateTimeField(default=timezone.now)
+    date = models.DateTimeField(auto_now_add=True)
     message = models.TextField()
     acquittee = models.BooleanField(default=False)
     capteur = models.ForeignKey('Capteur', on_delete=models.CASCADE, related_name='alertes')

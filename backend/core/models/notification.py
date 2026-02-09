@@ -10,6 +10,7 @@ class TypeNotification(models.TextChoices):
     EQUIPE = 'Equipe', 'Equipe'
     SAISONNIER = 'Saisonnier', 'Saisonnier'
     ALERTE_SANITAIRE = 'AlerteSanitaire', 'AlerteSanitaire'
+    ALERTE_GPS = 'AlerteGPS', 'AlerteGPS'
 
 
 class Notification(TimestampedModel):

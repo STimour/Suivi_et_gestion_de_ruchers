@@ -127,3 +127,35 @@ def delete_device(unique_id, timeout=5):
     if response.status_code == 404:
         return False
     raise TraccarError(f"traccar_delete_failed:{response.status_code}")
+
+
+def get_latest_position(unique_id, timeout=5):
+    _ensure_configured()
+    device = get_device_by_unique_id(unique_id, timeout=timeout)
+    if not device:
+        return None
+    device_id = device.get("id")
+    if not device_id:
+        return None
+    url = f"{_base_url()}/api/positions"
+    response = requests.get(
+        url,
+        params={"deviceId": device_id, "limit": 1},
+        auth=_auth() if not settings.TRACCAR_TOKEN else None,
+        headers=_headers(),
+        timeout=timeout,
+    )
+    if response.status_code != 200:
+        raise TraccarError(f"traccar_positions_failed:{response.status_code}")
+    data = response.json() or []
+    if not data:
+        return None
+    position = data[0]
+    return {
+        "deviceId": device_id,
+        "deviceName": device.get("name"),
+        "positionId": position.get("id"),
+        "latitude": position.get("latitude"),
+        "longitude": position.get("longitude"),
+        "fixTime": position.get("fixTime"),
+    }

@@ -149,6 +149,22 @@ TRACCAR_TOKEN=le_jeton_ici
 
 Redemarrer le service Django apres mise a jour de `.env`.
 
+## Cron - Alertes GPS
+
+Un job doit verifier regulierement les capteurs GPS et declencher les alertes.
+
+Commande :
+
+```bash
+docker compose exec django python manage.py check_gps_alerts
+```
+
+Exemple cron (toutes les 5 minutes) :
+
+```
+*/5 * * * * cd /path/to/Suivi_et_gestion_de_ruchers/backend && docker compose exec -T django python manage.py check_gps_alerts
+```
+
 ## Dépannage
 
 ### Hasura : "password authentication failed for user \"postgres\""

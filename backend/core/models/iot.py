@@ -19,6 +19,12 @@ class Capteur(TimestampedModel):
     actif = models.BooleanField(default=True)
     batteriePct = models.FloatField(null=True, blank=True)
     derniereCommunication = models.DateTimeField(null=True, blank=True)
+    gpsAlertActive = models.BooleanField(default=False)
+    gpsReferenceLat = models.FloatField(null=True, blank=True)
+    gpsReferenceLng = models.FloatField(null=True, blank=True)
+    gpsThresholdMeters = models.FloatField(default=100.0)
+    gpsLastCheckedAt = models.DateTimeField(null=True, blank=True)
+    gpsLastAlertAt = models.DateTimeField(null=True, blank=True)
     ruche = models.ForeignKey('Ruche', on_delete=models.CASCADE, related_name='capteurs')
 
     class Meta:
