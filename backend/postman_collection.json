@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "0f8bf8c5-3d9f-4f51-8c7a-b9b2f5a8c1d6",
     "name": "Suivi et Gestion de Ruchers - Auth (Django + Hasura)",
-    "description": "Register: email, password, nom, prenom. Login: JWT Hasura. POST /api/entreprise (créer entreprise, user connecté = AdminEntreprise). POST /api/auth/accept-invitation (token) pour rejoindre une entreprise. Hasura pour invitations/ruchers.",
+    "description": "Register: email, password, nom, prenom (envoi email de validation). Login: JWT Hasura. POST /api/auth/verify-account (token) pour activer le compte. POST /api/entreprise (créer entreprise, user connecté = AdminEntreprise). POST /api/auth/accept-invitation (token) pour rejoindre une entreprise. Hasura pour invitations/ruchers.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -44,6 +44,14 @@
     },
     {
       "key": "invitationToken",
+      "value": ""
+    },
+    {
+      "key": "verificationToken",
+      "value": ""
+    },
+    {
+      "key": "passwordResetToken",
       "value": ""
     },
     {
@@ -129,6 +137,166 @@
                   "    pm.collectionVariables.set('userId', userId);",
                   "  }",
                   "} catch (e) {}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Verify Account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{verificationToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{djangoBaseUrl}}/api/auth/verify-account",
+              "host": [
+                "{{djangoBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "verify-account"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Resend Verification Email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test2@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{djangoBaseUrl}}/api/auth/resend-verification",
+              "host": [
+                "{{djangoBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "resend-verification"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Request Password Reset",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test2@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{djangoBaseUrl}}/api/auth/request-password-reset",
+              "host": [
+                "{{djangoBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "request-password-reset"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{passwordResetToken}}\",\n  \"password\": \"newpass1234\"\n}"
+            },
+            "url": {
+              "raw": "{{djangoBaseUrl}}/api/auth/reset-password",
+              "host": [
+                "{{djangoBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "reset-password"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});"
                 ]
               }
             }

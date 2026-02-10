@@ -5,6 +5,8 @@ from .models import (
     EntrepriseProfile,
     UtilisateurEntreprise,
     Invitation,
+    AccountVerificationToken,
+    PasswordResetToken,
     Offre,
     TypeOffreModel,
     LimitationOffre,
@@ -51,6 +53,18 @@ class InvitationAdmin(admin.ModelAdmin):
     list_display = ('id', 'entreprise', 'rolePropose', 'created_at', 'acceptee')
     list_filter = ('rolePropose', 'acceptee', 'created_at')
     raw_id_fields = ('entreprise', 'envoyeePar')
+
+@admin.register(AccountVerificationToken)
+class AccountVerificationTokenAdmin(admin.ModelAdmin):
+    list_display = ('id', 'utilisateur', 'dateExpiration', 'utilise', 'created_at')
+    list_filter = ('utilise', 'dateExpiration', 'created_at')
+    raw_id_fields = ('utilisateur',)
+
+@admin.register(PasswordResetToken)
+class PasswordResetTokenAdmin(admin.ModelAdmin):
+    list_display = ('id', 'utilisateur', 'dateExpiration', 'utilise', 'created_at')
+    list_filter = ('utilise', 'dateExpiration', 'created_at')
+    raw_id_fields = ('utilisateur',)
 
 @admin.register(Rucher)
 class RucherAdmin(admin.ModelAdmin):

@@ -1,7 +1,7 @@
 'use client';
 
-import { Suspense, useEffect, useMemo, useState } from 'react';
-import { useSearchParams, useRouter } from "next/navigation";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { authService, OffreItem, ProfileType } from "@/lib/auth/authService";
@@ -10,17 +10,38 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle, ArrowLeft, ArrowRight, Building2, CheckCircle2, CreditCard, Loader2, Sparkles, Users } from "lucide-react";
+import { AlertTriangle, ArrowLeft, ArrowRight, Building2, CheckCircle2, CreditCard, Loader2, MailCheck, RefreshCw, Sparkles, Users } from "lucide-react";
 
 function RegisterPageInner() {
   const searchParams = useSearchParams();
-  const router = useRouter();
-  const [step, setStep] = useState(1);
+
+  const STEP_ACCOUNT = 1;
+  const STEP_EMAIL = 2;
+  const STEP_CHOICE = 3;
+  const STEP_ENTREPRISE = 4;
+  const STEP_OFFRE = 5;
+  const STEP_PAIEMENT = 6;
+  const STEP_PROFILES = 7;
+  const STEP_INVITATION = 8;
+
+  const [step, setStep] = useState(STEP_ACCOUNT);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [authToken, setAuthToken] = useState<string | null>(null);
   const [entrepriseId, setEntrepriseId] = useState<string | null>(null);
   const [invitationToken, setInvitationToken] = useState('');
+  const [verificationStatus, setVerificationStatus] = useState<'idle' | 'pending' | 'verified' | 'error'>('idle');
+  const [verificationMessage, setVerificationMessage] = useState('');
+  const [verificationEmail, setVerificationEmail] = useState('');
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [wsStatus, setWsStatus] = useState<'idle' | 'connecting' | 'connected' | 'error' | 'disconnected'>('idle');
+  const verificationHandledRef = useRef(false);
+
+  const djangoApiUrl = process.env.NEXT_PUBLIC_DJANGO_API_URL || 'http://api.localhost:8088';
+  const emailVerificationWsBase =
+    process.env.NEXT_PUBLIC_EMAIL_VERIFICATION_WS_URL ||
+    `${djangoApiUrl.replace(/^http/, 'ws')}/ws/email-verification`;
 
   const [userData, setUserData] = useState({
     prenom: '',
@@ -48,12 +69,13 @@ function RegisterPageInner() {
   };
 
   const steps = [
-    { id: 1, label: "Compte" },
-    { id: 2, label: "Choix" },
-    { id: 3, label: "Entreprise" },
-    { id: 4, label: "Offre" },
-    { id: 5, label: "Paiement" },
-    { id: 6, label: "Profils" },
+    { id: STEP_ACCOUNT, label: "Compte" },
+    { id: STEP_EMAIL, label: "Email" },
+    { id: STEP_CHOICE, label: "Choix" },
+    { id: STEP_ENTREPRISE, label: "Entreprise" },
+    { id: STEP_OFFRE, label: "Offre" },
+    { id: STEP_PAIEMENT, label: "Paiement" },
+    { id: STEP_PROFILES, label: "Profils" },
   ];
 
   const isFreemium = useMemo(() => {
@@ -65,13 +87,13 @@ function RegisterPageInner() {
     return !!selectedOffer?.stripeProductId;
   }, [selectedOffer]);
 
-  // Si l'utilisateur est déjà connecté (compte créé mais pas d'entreprise), sauter au step 2
+  // Si l'utilisateur est déjà connecté (compte créé mais pas d'entreprise), sauter au step Choix
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const existingToken = authService.getToken();
-    if (existingToken && step === 1) {
+    if (existingToken && step === STEP_ACCOUNT) {
       setAuthToken(existingToken);
-      setStep(2);
+      setStep(STEP_CHOICE);
     }
   }, []);
 
@@ -83,7 +105,7 @@ function RegisterPageInner() {
 
   useEffect(() => {
     const loadOffres = async () => {
-      if (step !== 4) return;
+      if (step !== STEP_OFFRE) return;
       setLoading(true);
       setError('');
       try {
@@ -100,7 +122,7 @@ function RegisterPageInner() {
 
   useEffect(() => {
     const loadProfiles = async () => {
-      if (step !== 6) return;
+      if (step !== STEP_PROFILES) return;
       setLoading(true);
       setError('');
       try {
@@ -133,13 +155,13 @@ function RegisterPageInner() {
     const paymentParam = searchParams?.get('payment');
     if (paymentParam === 'success') {
       setPaymentStatus('paid');
-      setStep(6);
+      setStep(STEP_PROFILES);
       localStorage.setItem(storageKeys.paymentStatus, 'paid');
     } else if (paymentStatus === 'idle') {
       const savedStatus = localStorage.getItem(storageKeys.paymentStatus);
       if (savedStatus === 'pending') {
         setPaymentStatus('pending');
-        setStep(5);
+        setStep(STEP_PAIEMENT);
       }
     }
 
@@ -151,7 +173,7 @@ function RegisterPageInner() {
   }, [authToken, entrepriseId, paymentStatus, searchParams]);
 
   useEffect(() => {
-    if (step !== 5 || paymentStatus !== 'pending') return;
+    if (step !== STEP_PAIEMENT || paymentStatus !== 'pending') return;
     if (!entrepriseId || !authToken) return;
 
     const interval = setInterval(async () => {
@@ -159,7 +181,7 @@ function RegisterPageInner() {
         const status = await authService.getEntrepriseOffreStatus(entrepriseId, authToken);
         if (status?.paid || (status?.type?.toLowerCase() === 'premium' && status?.stripeCustomerId)) {
           setPaymentStatus('paid');
-          setStep(6);
+          setStep(STEP_PROFILES);
         }
       } catch (err) {
         setPaymentStatus('error');
@@ -170,13 +192,13 @@ function RegisterPageInner() {
   }, [step, paymentStatus, entrepriseId, authToken]);
 
   useEffect(() => {
-    if (step !== 5 || paymentStatus !== 'pending') return;
+    if (step !== STEP_PAIEMENT || paymentStatus !== 'pending') return;
 
     const handleMessage = (event: MessageEvent) => {
       if (event.origin !== window.location.origin) return;
       if (event.data?.type === 'stripe_checkout_success') {
         setPaymentStatus('paid');
-        setStep(6);
+        setStep(STEP_PROFILES);
       }
     };
 
@@ -195,21 +217,155 @@ function RegisterPageInner() {
     }
 
     try {
-      const authData = await authService.registerUser({
+      const registerData = await authService.registerUser({
         email: userData.email,
         password: userData.password,
         nom: userData.nom,
         prenom: userData.prenom,
       });
-      authService.setToken(authData.access_token);
-      setAuthToken(authData.access_token);
-      setStep(2);
+      setVerificationEmail(registerData.user?.email || userData.email);
+      setVerificationStatus('pending');
+      if (!registerData.email_sent) {
+        setVerificationMessage(registerData.email_error || 'Email de vérification non envoyé.');
+      } else {
+        setVerificationMessage('Un email de vérification vient d\'être envoyé.');
+      }
+      setStep(STEP_EMAIL);
     } catch (err: any) {
       setError(err.message || 'Une erreur est survenue lors de l\'inscription');
     } finally {
       setLoading(false);
     }
   };
+
+  const handleVerificationSuccess = useCallback(async () => {
+    if (!userData.email || !userData.password) {
+      setError('Veuillez vous reconnecter pour continuer.');
+      return;
+    }
+
+    setError('');
+    setLoading(true);
+    try {
+      const authData = await authService.login({
+        email: userData.email,
+        password: userData.password,
+      });
+      setAuthToken(authData.access_token);
+      setVerificationStatus('verified');
+      setStep(STEP_CHOICE);
+    } catch (err: any) {
+      setVerificationStatus('error');
+      setError(err.message || 'Impossible de vérifier le compte pour le moment.');
+    } finally {
+      setLoading(false);
+    }
+  }, [userData.email, userData.password]);
+
+  const handleResendVerificationEmail = async () => {
+    if (!verificationEmail) {
+      setError('Email manquant pour renvoyer la validation.');
+      return;
+    }
+
+    setError('');
+    setVerificationMessage('');
+    setResendLoading(true);
+
+    try {
+      const resendData = await authService.resendVerificationEmail(verificationEmail);
+      if (resendData.email_sent === false) {
+        setVerificationMessage('Email non envoyé. Vérifiez vos paramètres.');
+      } else {
+        setVerificationMessage('Email de vérification renvoyé.');
+      }
+    } catch (err: any) {
+      if (typeof err.retryAfterSeconds === 'number') {
+        setResendCooldown(err.retryAfterSeconds);
+        setVerificationMessage(`Veuillez patienter ${err.retryAfterSeconds}s avant de renvoyer.`);
+      } else {
+        setVerificationMessage(err.message || 'Erreur lors du renvoi de l\'email.');
+      }
+    } finally {
+      setResendLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = window.setInterval(() => {
+      setResendCooldown((prev) => Math.max(prev - 1, 0));
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [resendCooldown]);
+
+  useEffect(() => {
+    if (step !== STEP_EMAIL || !verificationEmail) return;
+
+    verificationHandledRef.current = false;
+    let ws: WebSocket | null = null;
+    let reconnectTimer: number | null = null;
+    let closed = false;
+
+    const connect = () => {
+      if (closed) return;
+      setWsStatus('connecting');
+      const separator = emailVerificationWsBase.includes('?') ? '&' : '?';
+      const wsUrl = `${emailVerificationWsBase}${separator}email=${encodeURIComponent(verificationEmail)}`;
+      try {
+        ws = new WebSocket(wsUrl);
+      } catch (err) {
+        setWsStatus('error');
+        return;
+      }
+
+      ws.onopen = () => {
+        setWsStatus('connected');
+      };
+
+      ws.onerror = () => {
+        setWsStatus('error');
+      };
+
+      ws.onclose = () => {
+        if (closed) return;
+        setWsStatus('disconnected');
+        reconnectTimer = window.setTimeout(connect, 2000);
+      };
+
+      ws.onmessage = (event) => {
+        if (verificationHandledRef.current) return;
+        let payload: any = null;
+        try {
+          payload = JSON.parse(event.data);
+        } catch (error) {
+          payload = event.data;
+        }
+
+        const type = typeof payload === 'string' ? payload : payload?.type || payload?.event;
+        const email = payload?.email || payload?.user?.email;
+        const isVerifiedEvent = ['email_verified', 'account_verified', 'verification_success'].includes(type);
+        const matchesEmail = !email || email.toLowerCase() === verificationEmail.toLowerCase();
+
+        if (isVerifiedEvent && matchesEmail) {
+          verificationHandledRef.current = true;
+          handleVerificationSuccess();
+        }
+      };
+    };
+
+    connect();
+
+    return () => {
+      closed = true;
+      if (reconnectTimer) {
+        window.clearTimeout(reconnectTimer);
+      }
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.close();
+      }
+    };
+  }, [STEP_EMAIL, emailVerificationWsBase, handleVerificationSuccess, step, verificationEmail]);
 
   const handleCreateEntreprise = async () => {
     if (!authToken) {
@@ -233,7 +389,7 @@ function RegisterPageInner() {
         setAuthToken(entreprise.access_token);
       }
       setEntrepriseId(entreprise.id);
-      setStep(4);
+      setStep(STEP_OFFRE);
     } catch (err: any) {
       setError(err.message || 'Erreur lors de la création de l\'entreprise');
     } finally {
@@ -259,7 +415,7 @@ function RegisterPageInner() {
         const checkout = await authService.createPremiumCheckout(entrepriseId);
         setCheckoutUrl(checkout.url);
         setPaymentStatus('pending');
-        setStep(5);
+        setStep(STEP_PAIEMENT);
         if (typeof window !== 'undefined') {
           localStorage.setItem(storageKeys.authToken, authToken || '');
           localStorage.setItem(storageKeys.entrepriseId, entrepriseId);
@@ -270,7 +426,7 @@ function RegisterPageInner() {
       }
 
       await authService.updateEntrepriseOffre(entrepriseId, selectedOffer.value);
-      setStep(6);
+      setStep(STEP_PROFILES);
     } catch (err: any) {
       setError(err.message || 'Erreur lors de la sélection de l\'offre');
     } finally {
@@ -341,7 +497,7 @@ function RegisterPageInner() {
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#fef3c7,_#ecfccb,_#dcfce7)] flex items-center justify-center p-4">
       <Card className="w-full max-w-4xl shadow-2xl border border-amber-100/60 bg-white/90 backdrop-blur">
-        <CardHeader className="space-y-6 text-center">
+      <CardHeader className="space-y-6 text-center">
           <div className="flex justify-center">
             <Image
               src="/logo_ruche_1.png"
@@ -362,7 +518,7 @@ function RegisterPageInner() {
           </div>
           <div className="flex flex-wrap items-center justify-center gap-3">
             {steps.map((s) => {
-              const displayStep = step === 7 ? 2 : step;
+              const displayStep = step === STEP_INVITATION ? STEP_CHOICE : step;
               const isActive = displayStep === s.id;
               const isDone = displayStep > s.id;
               return (
@@ -393,7 +549,7 @@ function RegisterPageInner() {
             </Alert>
           )}
 
-          {step === 1 && (
+          {step === STEP_ACCOUNT && (
             <div className="space-y-6">
               <div className="flex items-center gap-2 text-sm font-semibold text-amber-900">
                 <Sparkles className="h-4 w-4" />
@@ -489,7 +645,78 @@ function RegisterPageInner() {
             </div>
           )}
 
-          {step === 2 && (
+          {step === STEP_EMAIL && (
+            <div className="space-y-6">
+              <div className="flex items-center gap-2 text-sm font-semibold text-amber-900">
+                <MailCheck className="h-4 w-4" />
+                Vérifiez votre email
+              </div>
+              <div className="rounded-2xl border border-amber-100 bg-white p-6">
+                <p className="text-sm text-amber-900">
+                  Un email de validation a été envoyé à <span className="font-semibold">{verificationEmail || userData.email}</span>.
+                </p>
+                <p className="mt-2 text-xs text-amber-800/70">
+                  Cliquez sur le lien dans l&apos;email pour activer votre compte. La page se mettra à jour automatiquement.
+                </p>
+                {verificationMessage && (
+                  <p className="mt-3 text-xs text-amber-800">{verificationMessage}</p>
+                )}
+                {verificationStatus === 'verified' && (
+                  <p className="mt-3 text-xs font-semibold text-green-700">Compte validé. Redirection en cours...</p>
+                )}
+                {verificationStatus === 'error' && (
+                  <p className="mt-3 text-xs font-semibold text-red-600">La validation n&apos;a pas encore abouti.</p>
+                )}
+              </div>
+              <div className="flex flex-col gap-3 md:flex-row">
+                <Button
+                  type="button"
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                  size="lg"
+                  onClick={handleVerificationSuccess}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Vérification...
+                    </>
+                  ) : (
+                    'J\'ai validé mon email'
+                  )}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="border-amber-200 text-amber-800"
+                  onClick={handleResendVerificationEmail}
+                  disabled={resendLoading || resendCooldown > 0}
+                >
+                  {resendLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Envoi...
+                    </>
+                  ) : (
+                    <>
+                      <RefreshCw className="mr-2 h-4 w-4" />
+                      {resendCooldown > 0 ? `Renvoyer dans ${resendCooldown}s` : 'Renvoyer l\'email'}
+                    </>
+                  )}
+                </Button>
+              </div>
+              <div className="flex items-center justify-end gap-3">
+                <Link
+                  href="/login"
+                  className="text-sm font-semibold text-amber-600 hover:text-amber-700 hover:underline"
+                >
+                  Se connecter
+                </Link>
+              </div>
+            </div>
+          )}
+
+          {step === STEP_CHOICE && (
             <div className="space-y-6">
               <div className="flex items-center gap-2 text-sm font-semibold text-amber-900">
                 <CheckCircle2 className="h-4 w-4" />
@@ -498,7 +725,7 @@ function RegisterPageInner() {
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <button
                   type="button"
-                  onClick={() => setStep(3)}
+                  onClick={() => setStep(STEP_ENTREPRISE)}
                   className="rounded-2xl border border-amber-100 bg-white p-6 text-left transition hover:border-amber-300 hover:shadow-lg"
                 >
                   <Building2 className="mb-3 h-8 w-8 text-amber-600" />
@@ -509,7 +736,7 @@ function RegisterPageInner() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => invitationToken ? handleAcceptInvitation() : setStep(7)}
+                  onClick={() => invitationToken ? handleAcceptInvitation() : setStep(STEP_INVITATION)}
                   className="rounded-2xl border border-amber-100 bg-white p-6 text-left transition hover:border-green-300 hover:shadow-lg"
                 >
                   <Users className="mb-3 h-8 w-8 text-green-600" />
@@ -519,21 +746,10 @@ function RegisterPageInner() {
                   </p>
                 </button>
               </div>
-              <div className="flex items-center justify-start">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="text-amber-700"
-                  onClick={() => setStep(1)}
-                >
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Précédent
-                </Button>
-              </div>
             </div>
           )}
 
-          {step === 7 && (
+          {step === STEP_INVITATION && (
             <div className="space-y-6">
               <div className="flex items-center gap-2 text-sm font-semibold text-amber-900">
                 <Users className="h-4 w-4" />
@@ -559,7 +775,7 @@ function RegisterPageInner() {
                   type="button"
                   variant="ghost"
                   className="text-amber-700"
-                  onClick={() => setStep(2)}
+                  onClick={() => setStep(STEP_CHOICE)}
                 >
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Précédent
@@ -584,7 +800,7 @@ function RegisterPageInner() {
             </div>
           )}
 
-          {step === 3 && (
+          {step === STEP_ENTREPRISE && (
             <div className="space-y-6">
               <div className="flex items-center gap-2 text-sm font-semibold text-amber-900">
                 <CheckCircle2 className="h-4 w-4" />
@@ -619,7 +835,7 @@ function RegisterPageInner() {
                   type="button"
                   variant="ghost"
                   className="text-amber-700"
-                  onClick={() => setStep(2)}
+                  onClick={() => setStep(STEP_CHOICE)}
                 >
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Précédent
@@ -647,7 +863,7 @@ function RegisterPageInner() {
             </div>
           )}
 
-          {step === 4 && (
+          {step === STEP_OFFRE && (
             <div className="space-y-6">
               <div className="flex items-center gap-2 text-sm font-semibold text-amber-900">
                 <Sparkles className="h-4 w-4" />
@@ -714,7 +930,7 @@ function RegisterPageInner() {
                   type="button"
                   variant="ghost"
                   className="text-amber-700"
-                  onClick={() => setStep(3)}
+                  onClick={() => setStep(STEP_ENTREPRISE)}
                 >
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Précédent
@@ -742,7 +958,7 @@ function RegisterPageInner() {
             </div>
           )}
 
-          {step === 5 && (
+          {step === STEP_PAIEMENT && (
             <div className="space-y-6 text-center">
               <div className="flex items-center justify-center gap-2 text-sm font-semibold text-amber-900">
                 <CreditCard className="h-4 w-4" />
@@ -781,7 +997,7 @@ function RegisterPageInner() {
                   className="text-amber-700"
                   onClick={() => {
                     setPaymentStatus('idle');
-                    setStep(4);
+                    setStep(STEP_OFFRE);
                   }}
                 >
                   <ArrowLeft className="mr-2 h-4 w-4" />
@@ -807,7 +1023,7 @@ function RegisterPageInner() {
             </div>
           )}
 
-          {step === 6 && (
+          {step === STEP_PROFILES && (
             <div className="space-y-6">
               <div className="flex items-center gap-2 text-sm font-semibold text-amber-900">
                 <CheckCircle2 className="h-4 w-4" />
@@ -860,7 +1076,7 @@ function RegisterPageInner() {
                   type="button"
                   variant="ghost"
                   className="text-amber-700"
-                  onClick={() => setStep(stripeRequired ? 5 : 4)}
+                  onClick={() => setStep(stripeRequired ? STEP_PAIEMENT : STEP_OFFRE)}
                 >
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Précédent

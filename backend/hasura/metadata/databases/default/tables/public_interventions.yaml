@@ -5,6 +5,14 @@ object_relationships:
   - name: ruch
     using:
       foreign_key_constraint_on: ruche_id
+array_relationships:
+  - name: notifications
+    using:
+      foreign_key_constraint_on:
+        column: intervention_id
+        table:
+          name: notifications
+          schema: public
 insert_permissions:
   - role: AdminEntreprise
     permission:
@@ -235,18 +243,3 @@ delete_permissions:
                     utilisateur_id:
                       _eq: X-Hasura-User-Id
     comment: ""
-event_triggers:
-  - name: intervention_created
-    definition:
-      enable_manual: false
-      insert:
-        columns: "*"
-    retry_conf:
-      interval_sec: 30
-      num_retries: 3
-      timeout_sec: 60
-    webhook_from_env: DJANGO_WEBHOOK_URL
-    webhook: "{{DJANGO_WEBHOOK_URL}}/api/webhooks/intervention-created"
-    headers:
-      - name: X-Hasura-Webhook-Secret
-        value_from_env: HASURA_WEBHOOK_SECRET

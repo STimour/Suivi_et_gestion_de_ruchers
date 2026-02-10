@@ -107,3 +107,37 @@ class Invitation(TimestampedModel):
 
     def __str__(self):
         return f"Invitation {self.id} - {self.entreprise}"
+
+
+class AccountVerificationToken(TimestampedModel):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    token = models.TextField(unique=True)
+    dateExpiration = models.DateTimeField()
+    utilise = models.BooleanField(default=False)
+    used_at = models.DateTimeField(null=True, blank=True)
+    utilisateur = models.ForeignKey(Utilisateur, on_delete=models.CASCADE, related_name='verification_tokens')
+
+    class Meta:
+        db_table = 'account_verification_tokens'
+        verbose_name = 'AccountVerificationToken'
+        verbose_name_plural = 'AccountVerificationTokens'
+
+    def __str__(self):
+        return f"AccountVerificationToken {self.id} - {self.utilisateur}"
+
+
+class PasswordResetToken(TimestampedModel):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    token = models.TextField(unique=True)
+    dateExpiration = models.DateTimeField()
+    utilise = models.BooleanField(default=False)
+    used_at = models.DateTimeField(null=True, blank=True)
+    utilisateur = models.ForeignKey(Utilisateur, on_delete=models.CASCADE, related_name='password_reset_tokens')
+
+    class Meta:
+        db_table = 'password_reset_tokens'
+        verbose_name = 'PasswordResetToken'
+        verbose_name_plural = 'PasswordResetTokens'
+
+    def __str__(self):
+        return f"PasswordResetToken {self.id} - {self.utilisateur}"

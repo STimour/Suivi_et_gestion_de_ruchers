@@ -19,6 +19,19 @@ export interface RegisterUserData {
   prenom: string;
 }
 
+export interface RegisterResponse {
+  message: string;
+  email_sent: boolean;
+  email_error?: string | null;
+  user: {
+    id: string;
+    email: string;
+    nom: string;
+    prenom: string;
+    actif: boolean;
+  };
+}
+
 export interface EntrepriseCreateData {
   nom: string;
   adresse: string;
@@ -124,8 +137,20 @@ class AuthService {
     });
 
     if (!registerResponse.ok) {
-      const error = await registerResponse.json();
-      throw new Error(error.message || 'Erreur lors de l\'inscription');
+      let error: any = {};
+      try {
+        error = await registerResponse.json();
+      } catch (err) {
+        error = {};
+      }
+      if (
+        registerResponse.status === 409 ||
+        error?.error === 'email_already_exists' ||
+        error?.message === 'email_already_exists'
+      ) {
+        throw new Error('Un compte existe déjà avec cet email.');
+      }
+      throw new Error(error.message || error.detail || error.error || 'Erreur lors de l\'inscription');
     }
 
     const authData: AuthResponse = await registerResponse.json();
@@ -166,7 +191,7 @@ class AuthService {
     return authData;
   }
 
-  async registerUser(data: RegisterUserData): Promise<AuthResponse> {
+  async registerUser(data: RegisterUserData): Promise<RegisterResponse> {
     const registerResponse = await fetch(`${DJANGO_API_URL}/api/auth/register`, {
       method: 'POST',
       headers: {
@@ -181,18 +206,24 @@ class AuthService {
     });
 
     if (!registerResponse.ok) {
-      const error = await registerResponse.json();
-      throw new Error(error.message || 'Erreur lors de l\'inscription');
+      let error: any = {};
+      try {
+        error = await registerResponse.json();
+      } catch (err) {
+        error = {};
+      }
+      if (
+        registerResponse.status === 409 ||
+        error?.error === 'email_already_exists' ||
+        error?.message === 'email_already_exists'
+      ) {
+        throw new Error('Un compte existe déjà avec cet email.');
+      }
+      throw new Error(error.message || error.detail || error.error || 'Erreur lors de l\'inscription');
     }
 
-    const authData: AuthResponse = await registerResponse.json();
-
-    this.setToken(authData.access_token);
-    if (authData.refresh_token) {
-      this.setRefreshToken(authData.refresh_token);
-    }
-
-    return authData;
+    const registerData: RegisterResponse = await registerResponse.json();
+    return registerData;
   }
 
   async login(data: LoginData): Promise<AuthResponse> {
@@ -206,7 +237,10 @@ class AuthService {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || 'Email ou mot de passe incorrect');
+      if (error?.error === 'user_inactive') {
+        throw new Error('Votre compte n\'est pas encore validé. Vérifiez vos emails.');
+      }
+      throw new Error(error.message || error.detail || error.error || 'Email ou mot de passe incorrect');
     }
 
     const authData: AuthResponse = await response.json();
@@ -605,6 +639,113 @@ class AuthService {
 
     const data = await response.json();
     return data.profiles || [];
+  }
+
+  async verifyAccount(token: string): Promise<{ message: string }> {
+    const response = await fetch(
+      `${DJANGO_API_URL}/api/auth/verify-account?token=${encodeURIComponent(token)}`,
+      {
+        method: 'GET',
+      }
+    );
+
+    let data: any = {};
+    try {
+      data = await response.json();
+    } catch (error) {
+      data = {};
+    }
+
+    if (!response.ok) {
+      throw new Error(data.message || data.detail || data.error || 'Erreur lors de la vérification');
+    }
+
+    return data;
+  }
+
+  async resendVerificationEmail(email: string): Promise<{ message: string; email_sent?: boolean; retry_after_seconds?: number }> {
+    const response = await fetch(`${DJANGO_API_URL}/api/auth/resend-verification`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
+    });
+
+    let data: any = {};
+    try {
+      data = await response.json();
+    } catch (error) {
+      data = {};
+    }
+
+    if (!response.ok) {
+      const err: any = new Error(data.message || data.detail || data.error || 'Erreur lors du renvoi');
+      if (typeof data.retry_after_seconds === 'number') {
+        err.retryAfterSeconds = data.retry_after_seconds;
+      }
+      throw err;
+    }
+
+    return data;
+  }
+
+  async requestPasswordReset(email: string): Promise<{ message: string; email_sent?: boolean }> {
+    const response = await fetch(`${DJANGO_API_URL}/api/auth/request-password-reset`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
+    });
+
+    let data: any = {};
+    try {
+      data = await response.json();
+    } catch (error) {
+      data = {};
+    }
+
+    if (!response.ok) {
+      if (response.status === 404 && data?.error === 'user_not_found') {
+        throw new Error('Aucun compte trouvé avec cet email.');
+      }
+      throw new Error(data.message || data.detail || data.error || 'Erreur lors de la demande de reset');
+    }
+
+    return data;
+  }
+
+  async resetPassword(token: string, password: string): Promise<{ message: string }> {
+    const response = await fetch(`${DJANGO_API_URL}/api/auth/reset-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ token, password }),
+    });
+
+    let data: any = {};
+    try {
+      data = await response.json();
+    } catch (error) {
+      data = {};
+    }
+
+    if (!response.ok) {
+      if (response.status === 401 && data?.error === 'invalid_token') {
+        throw new Error('Lien de réinitialisation invalide.');
+      }
+      if (response.status === 409 && data?.error === 'token_already_used') {
+        throw new Error('Ce lien a déjà été utilisé.');
+      }
+      if (response.status === 410 && data?.error === 'token_expired') {
+        throw new Error('Ce lien a expiré. Veuillez recommencer.');
+      }
+      throw new Error(data.message || data.detail || data.error || 'Erreur lors de la réinitialisation');
+    }
+
+    return data;
   }
 
   async getEntrepriseOffreStatus(entrepriseId: string, token: string): Promise<any> {

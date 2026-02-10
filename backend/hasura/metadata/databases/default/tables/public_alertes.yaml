@@ -23,9 +23,12 @@ insert_permissions:
                       utilisateur_id:
                         _eq: X-Hasura-User-Id
       columns:
+        - acquittee
         - type
         - message
-        - acquittee
+        - created_at
+        - date
+        - updated_at
         - capteur_id
         - id
     comment: Vérification des limites via trigger PostgreSQL
@@ -46,9 +49,12 @@ insert_permissions:
                       utilisateur_id:
                         _eq: X-Hasura-User-Id
       columns:
+        - acquittee
         - type
         - message
-        - acquittee
+        - created_at
+        - date
+        - updated_at
         - capteur_id
         - id
     comment: Vérification des limites via trigger PostgreSQL
@@ -56,13 +62,14 @@ select_permissions:
   - role: AdminEntreprise
     permission:
       columns:
-        - type
-        - created_at
-        - message
         - acquittee
+        - type
+        - message
+        - created_at
+        - date
+        - updated_at
         - capteur_id
         - id
-        - updated_at
       filter:
         _and:
           - capteur:
@@ -81,13 +88,14 @@ select_permissions:
   - role: Apiculteur
     permission:
       columns:
-        - type
-        - created_at
-        - message
         - acquittee
+        - type
+        - message
+        - created_at
+        - date
+        - updated_at
         - capteur_id
         - id
-        - updated_at
       filter:
         _and:
           - capteur:
@@ -106,13 +114,14 @@ select_permissions:
   - role: Lecteur
     permission:
       columns:
-        - type
-        - created_at
-        - message
         - acquittee
+        - type
+        - message
+        - created_at
+        - date
+        - updated_at
         - capteur_id
         - id
-        - updated_at
       filter:
         _and:
           - capteur:
@@ -132,9 +141,12 @@ update_permissions:
   - role: AdminEntreprise
     permission:
       columns:
+        - acquittee
         - type
         - message
-        - acquittee
+        - created_at
+        - date
+        - updated_at
         - capteur_id
         - id
       filter:
@@ -156,9 +168,12 @@ update_permissions:
   - role: Apiculteur
     permission:
       columns:
+        - acquittee
         - type
         - message
-        - acquittee
+        - created_at
+        - date
+        - updated_at
         - capteur_id
         - id
       filter:

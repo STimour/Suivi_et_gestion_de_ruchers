@@ -4,7 +4,7 @@ import jwt
 from django.conf import settings
 from django.http import JsonResponse
 
-from core.models import Offre, TypeOffre
+from core.models import Offre, TypeOffre, Utilisateur
 
 
 class FreemiumProfileLimitMiddleware:
@@ -171,3 +171,78 @@ class PremiumPaymentRequiredMiddleware:
             return None
         claims = payload.get("https://hasura.io/jwt/claims") or {}
         return claims.get("x-hasura-entreprise-id")
+
+
+class AccountVerificationRequiredMiddleware:
+    """
+    Block access for inactive users (actif = False) when a Bearer token is provided.
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self._check_request(request)
+        if response is not None:
+            return response
+        return self.get_response(request)
+
+    def _check_request(self, request):
+        path = request.path or ""
+        if not path.startswith("/api/"):
+            return None
+
+        # Allow registration + validation endpoints
+        if path.startswith("/api/auth/register"):
+            return None
+        if path.startswith("/api/auth/verify-account"):
+            return None
+        if path.startswith("/api/auth/request-password-reset"):
+            return None
+        if path.startswith("/api/auth/reset-password"):
+            return None
+
+        token = self._bearer_token(request)
+        if not token:
+            return None
+
+        try:
+            payload = jwt.decode(
+                token,
+                getattr(settings, "JWT_SECRET", None) or settings.SECRET_KEY,
+                algorithms=["HS256"],
+            )
+        except jwt.InvalidTokenError:
+            return None
+
+        user_id = payload.get("sub")
+        if not user_id:
+            return None
+
+        try:
+            user = Utilisateur.objects.get(id=user_id)
+        except Utilisateur.DoesNotExist:
+            return None
+
+        if not user.actif:
+            return JsonResponse(
+                {
+                    "error": "account_not_verified",
+                    "message": "Veuillez valider votre compte pour continuer.",
+                },
+                status=403,
+            )
+
+        return None
+
+    def _bearer_token(self, request):
+        auth = request.headers.get("Authorization") or request.META.get("HTTP_AUTHORIZATION")
+        if not auth:
+            return None
+        parts = auth.split(" ", 1)
+        if len(parts) != 2:
+            return None
+        scheme, token = parts
+        if scheme.lower() != "bearer" or not token:
+            return None
+        return token
