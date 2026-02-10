@@ -41,8 +41,10 @@ services:
       HASURA_GRAPHQL_UNAUTHORIZED_ROLE: ${HASURA_GRAPHQL_UNAUTHORIZED_ROLE}
       HASURA_WEBHOOK_SECRET: ${HASURA_WEBHOOK_SECRET}
       DJANGO_WEBHOOK_URL: http://django:8000/api
+      HASURA_GRAPHQL_METADATA_DIR: /hasura-metadata
     volumes:
       - ./backend/hasura/migrations:/hasura-migrations
+      - ./backend/hasura/metadata:/hasura-metadata
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.hasura.rule=PathPrefix(`/v1`)"
