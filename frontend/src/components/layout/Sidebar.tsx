@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import Image from "next/image";
 import { Home, MapPin, Hexagon, Crown, ClipboardList } from "lucide-react";
 import { useProfileMode } from "@/lib/context/ProfileModeContext";
+import { ProfileModeSwitcher } from "./ProfileModeSwitcher";
 import { cn } from "@/lib/utils";
 
 type NavItem = { href: string; label: string; icon: typeof Home };
@@ -38,18 +38,9 @@ export function Sidebar() {
 
   return (
     <aside className="hidden lg:flex flex-col w-60 border-r border-amber-100 bg-white min-h-[calc(100vh-4rem)]">
-      {/* Logo + brand */}
-      <div className="flex items-center gap-3 px-5 py-5 border-b border-amber-100">
-        <Image
-          src="/logo_ruche_1.png"
-          alt="Logo"
-          width={36}
-          height={36}
-          className="object-contain"
-        />
-        <span className="font-semibold text-sm text-amber-900 leading-tight">
-          {isEleveur ? 'Élevage de Reines' : 'Gestion de Ruchers'}
-        </span>
+      {/* Mode switcher */}
+      <div className="px-3 pt-4 pb-2 border-b border-amber-100">
+        <ProfileModeSwitcher />
       </div>
 
       {/* Navigation */}
@@ -98,7 +89,13 @@ export function SidebarMobile({ onNavigate }: { onNavigate?: () => void }) {
   };
 
   return (
-    <nav className="flex flex-col gap-1 px-2 py-3">
+    <div className="flex flex-col">
+      {/* Mode switcher */}
+      <div className="px-3 pt-3 pb-2 border-b border-amber-100">
+        <ProfileModeSwitcher />
+      </div>
+
+      <nav className="flex flex-col gap-1 px-2 py-3">
       {navItems.map((item) => {
         const Icon = item.icon;
         const active = isActive(item.href);
@@ -120,5 +117,6 @@ export function SidebarMobile({ onNavigate }: { onNavigate?: () => void }) {
         );
       })}
     </nav>
+    </div>
   );
 }

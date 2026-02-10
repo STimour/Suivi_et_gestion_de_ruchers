@@ -23,7 +23,6 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { EntrepriseSwitcher } from "./EntrepriseSwitcher";
-import { ProfileModeSwitcher } from "./ProfileModeSwitcher";
 import { InviteMemberDialog } from "./InviteMemberDialog";
 import { NotificationPanel } from "./NotificationPanel";
 import { SidebarMobile } from "./Sidebar";
@@ -75,7 +74,7 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-backdrop-filter:bg-white/60">
       <div className="px-4">
         <div className="flex items-center justify-between h-16 gap-3">
-          {/* Left — Mobile burger + Logo + Title (centered on desktop) */}
+          {/* Left — Mobile burger + Logo */}
           <div className="flex items-center gap-3 flex-1 min-w-0">
             {/* Mobile burger */}
             <div className="lg:hidden">
@@ -87,15 +86,15 @@ export function Header() {
                 </SheetTrigger>
                 <SheetContent side="left" className="bg-white w-64">
                   <SheetHeader>
-                    <SheetTitle className="text-amber-900">Navigation</SheetTitle>
+                    <SheetTitle className="sr-only">Menu</SheetTitle>
                   </SheetHeader>
                   <SidebarMobile onNavigate={() => setMobileOpen(false)} />
                 </SheetContent>
               </Sheet>
             </div>
 
-            {/* Logo + Title */}
-            <Link href={isEleveur ? '/dashboard/elevage' : '/dashboard'} className="flex items-center gap-2 min-w-0">
+            {/* Logo (visible on all sizes) */}
+            <Link href={isEleveur ? '/dashboard/elevage' : '/dashboard'} className="flex items-center">
               <Image
                 src="/logo_ruche_1.png"
                 alt="Logo"
@@ -103,16 +102,16 @@ export function Header() {
                 height={36}
                 className="object-contain shrink-0"
               />
-              <span className="font-bold text-lg text-amber-900 hidden sm:inline truncate">
-                {title}
-              </span>
             </Link>
+
+            <EntrepriseSwitcher />
           </div>
 
-          {/* Center — Switchers */}
-          <div className="flex items-center gap-2">
-            <EntrepriseSwitcher />
-            <ProfileModeSwitcher />
+          {/* Center — Title */}
+          <div className="flex items-center justify-center">
+            <span className="font-bold text-lg text-amber-900 whitespace-nowrap">
+              {title}
+            </span>
           </div>
 
           {/* Right — Badge + Notifications + Profile */}
