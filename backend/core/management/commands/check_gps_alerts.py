@@ -76,6 +76,15 @@ class Command(BaseCommand):
                 )
                 continue
 
+            now = timezone.now()
+            if capteur.gpsLastAlertAt and capteur.gpsLastAlertAt.date() == now.date():
+                self.stdout.write(
+                    self.style.NOTICE(
+                        f"{capteur.identifiant}: alert skipped (already sent today)"
+                    )
+                )
+                continue
+
             message = (
                 f"Deplacement GPS detecte pour le capteur {capteur.identifiant}. "
                 f"Distance: {distance:.1f}m (seuil {capteur.gpsThresholdMeters:.1f}m)."
@@ -123,7 +132,7 @@ class Command(BaseCommand):
                 if notifications:
                     Notification.objects.bulk_create(notifications)
 
-            capteur.gpsLastAlertAt = timezone.now()
+            capteur.gpsLastAlertAt = now
             capteur.save(update_fields=["gpsLastAlertAt"])
 
             self.stdout.write(
