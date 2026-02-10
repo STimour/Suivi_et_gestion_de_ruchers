@@ -20,6 +20,7 @@ interface User {
   entreprise_typeOffre?: string;
   entreprise_nbRuchersMax?: number;
   entreprise_nbReinesMax?: number;
+  entreprise_typeProfiles?: string[];
 }
 
 interface AuthContextType {

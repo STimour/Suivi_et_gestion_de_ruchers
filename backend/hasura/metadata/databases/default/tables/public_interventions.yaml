@@ -243,3 +243,17 @@ delete_permissions:
                     utilisateur_id:
                       _eq: X-Hasura-User-Id
     comment: ""
+event_triggers:
+  - name: intervention_created
+    definition:
+      enable_manual: false
+      insert:
+        columns: "*"
+    retry_conf:
+      interval_sec: 30
+      num_retries: 3
+      timeout_sec: 60
+    webhook: "{{DJANGO_WEBHOOK_URL}}/webhooks/intervention-created"
+    headers:
+      - name: X-Hasura-Webhook-Secret
+        value_from_env: HASURA_WEBHOOK_SECRET

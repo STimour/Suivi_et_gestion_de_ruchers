@@ -3,6 +3,7 @@ import { Poppins, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { ApolloWrapper } from "@/lib/graphql/apollo-provider";
 import { AuthProvider } from "@/lib/auth/AuthContext";
+import { ProfileModeProvider } from "@/lib/context/ProfileModeContext";
 import { Toaster } from "@/components/ui/sonner";
 
 const poppins = Poppins({
@@ -34,7 +35,9 @@ export default function RootLayout({
         className={`${poppins.variable} ${jetbrainsMono.variable} font-sans antialiased`}
       >
         <AuthProvider>
-          <ApolloWrapper>{children}</ApolloWrapper>
+          <ProfileModeProvider>
+            <ApolloWrapper>{children}</ApolloWrapper>
+          </ProfileModeProvider>
           <Toaster />
         </AuthProvider>
       </body>

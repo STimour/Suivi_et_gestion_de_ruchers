@@ -38,6 +38,8 @@ import { GET_REINES } from '@/lib/graphql/queries/reine.queries';
 import { GET_RUCHES } from '@/lib/graphql/queries/ruche.queries';
 import { Crown, Plus } from 'lucide-react';
 import { useAuth } from '@/lib/auth/AuthContext';
+import { useProfileMode } from '@/lib/context/ProfileModeContext';
+import { GET_REINES_ELEVAGE } from '@/lib/graphql/queries/reine.queries';
 
 // Options de couleur (cycle international 5 ans)
 const COLOR_OPTIONS = [
@@ -69,14 +71,16 @@ const LIGNEE_OPTIONS = [
 ];
 
 // Schéma de validation
-const reineSchema = z.object({
+const createReineSchema = (isEleveur: boolean) => z.object({
   anneeNaissance: z.number({ message: 'L\'année est requise' })
     .int('L\'année doit être un entier')
     .min(2000, 'Minimum 2000')
     .max(new Date().getFullYear(), 'Année invalide'),
   codeCouleur: z.string().min(1, 'La couleur est requise'),
   lignee: z.string().min(1, 'La lignée est requise').max(100, 'La lignée est trop longue'),
-  rucheId: z.string().uuid('Sélectionnez une ruche'),
+  rucheId: isEleveur
+    ? z.string().optional()
+    : z.string().uuid('Sélectionnez une ruche'),
   statut: z.string().min(1, 'Le statut est requis'),
   noteDouceur: z.number({ message: 'La note est requise' })
     .int('La note doit être un entier')
@@ -85,7 +89,7 @@ const reineSchema = z.object({
   commentaire: z.string().max(500, 'Les notes sont trop longues').optional(),
 });
 
-type ReineFormValues = z.infer<typeof reineSchema>;
+type ReineFormValues = z.infer<ReturnType<typeof createReineSchema>>;
 
 interface CreateReineDialogProps {
   trigger?: React.ReactNode;
@@ -95,12 +99,18 @@ interface CreateReineDialogProps {
 export function CreateReineDialog({ trigger, defaultRucheId }: CreateReineDialogProps) {
   const [open, setOpen] = useState(false);
   const { user } = useAuth();
+  const { isEleveur } = useProfileMode();
 
   // Récupérer la liste des ruches pour le select
   const { data: ruchesData } = useQuery<any>(GET_RUCHES);
 
+  const refetchQueries: any[] = [{ query: GET_REINES }];
+  if (isEleveur) {
+    refetchQueries.push({ query: GET_REINES_ELEVAGE });
+  }
+
   const [createReine, { loading }] = useMutation(CREATE_REINE, {
-    refetchQueries: [{ query: GET_REINES }],
+    refetchQueries,
     onCompleted: () => {
       toast.success('Reine créée avec succès !');
       setOpen(false);
@@ -114,7 +124,7 @@ export function CreateReineDialog({ trigger, defaultRucheId }: CreateReineDialog
   });
 
   const form = useForm<ReineFormValues>({
-    resolver: zodResolver(reineSchema),
+    resolver: zodResolver(createReineSchema(isEleveur)),
     defaultValues: {
       anneeNaissance: new Date().getFullYear(),
       codeCouleur: '',
@@ -135,12 +145,12 @@ export function CreateReineDialog({ trigger, defaultRucheId }: CreateReineDialog
             anneeNaissance: values.anneeNaissance,
             codeCouleur: values.codeCouleur,
             lignee: values.lignee,
-            ruche_id: values.rucheId,
+            ruche_id: values.rucheId || null,
             noteDouceur: values.noteDouceur,
             statut: values.statut,
             commentaire: values.commentaire || '',
             nonReproductible: false,
-            isElevage: false,
+            isElevage: isEleveur,
             entreprise_id: user?.entreprise_id || null,
           },
         },
@@ -260,7 +270,7 @@ export function CreateReineDialog({ trigger, defaultRucheId }: CreateReineDialog
                 name="rucheId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Ruche associée *</FormLabel>
+                    <FormLabel>Ruche associée {isEleveur ? '(optionnel)' : '*'}</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       value={field.value}
