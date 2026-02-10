@@ -3,6 +3,7 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 
 from core.email_utils import send_email
+from core.email_templates import generate_gps_alert_email_content
 from core.models import (
     Capteur,
     TypeCapteur,
@@ -42,6 +43,8 @@ class Command(BaseCommand):
             )
         )
 
+        self.stdout.write(self.style.NOTICE(f"GPS alert cron: {capteurs.count()} capteur(s) to check"))
+
         for capteur in capteurs:
             try:
                 pos = get_latest_position(capteur.identifiant)
@@ -50,6 +53,9 @@ class Command(BaseCommand):
                 continue
 
             if not pos or pos.get("latitude") is None or pos.get("longitude") is None:
+                self.stdout.write(
+                    self.style.WARNING(f"{capteur.identifiant}: position_unavailable")
+                )
                 continue
 
             distance = _distance_meters(
@@ -63,6 +69,11 @@ class Command(BaseCommand):
             capteur.save(update_fields=["gpsLastCheckedAt"])
 
             if distance <= capteur.gpsThresholdMeters:
+                self.stdout.write(
+                    self.style.NOTICE(
+                        f"{capteur.identifiant}: ok distance {distance:.1f}m <= threshold {capteur.gpsThresholdMeters:.1f}m"
+                    )
+                )
                 continue
 
             message = (
@@ -96,11 +107,18 @@ class Command(BaseCommand):
                             ruche=capteur.ruche,
                         )
                     )
+                    html_content = generate_gps_alert_email_content(
+                        recipient_name=f"{user.prenom} {user.nom}".strip() or user.email,
+                        capteur_identifiant=capteur.identifiant,
+                        distance_meters=distance,
+                        threshold_meters=capteur.gpsThresholdMeters,
+                        ruche_immatriculation=getattr(capteur.ruche, "immatriculation", ""),
+                    )
                     send_email(
                         to_email=user.email,
                         to_name=f"{user.prenom} {user.nom}".strip(),
                         subject="Alerte deplacement GPS",
-                        html_content=f"<p>{message}</p>",
+                        html_content=html_content,
                     )
                 if notifications:
                     Notification.objects.bulk_create(notifications)

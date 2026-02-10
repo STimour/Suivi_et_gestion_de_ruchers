@@ -97,3 +97,37 @@ def generate_password_reset_email_content(
     }
 
     return render_to_string('email/password_reset.html', context)
+
+
+def generate_gps_alert_email_content(
+    recipient_name: str,
+    capteur_identifiant: str,
+    distance_meters: float,
+    threshold_meters: float,
+    ruche_immatriculation: str = ""
+) -> str:
+    """
+    Génère le contenu HTML pour l'email d'alerte GPS.
+
+    Args:
+        recipient_name: Nom du destinataire
+        capteur_identifiant: Identifiant du capteur
+        distance_meters: Distance mesurée
+        threshold_meters: Seuil configuré
+        ruche_immatriculation: Immatriculation de la ruche (optionnel)
+
+    Returns:
+        Contenu HTML de l'email
+    """
+    context = {
+        'recipient_name': recipient_name,
+        'capteur_identifiant': capteur_identifiant,
+        'distance_meters': distance_meters,
+        'threshold_meters': threshold_meters,
+        'ruche_immatriculation': ruche_immatriculation,
+        'subject': 'Alerte deplacement GPS',
+        'header_subtitle': 'Alerte GPS',
+        'header_badge': 'Alerte',
+    }
+
+    return render_to_string('email/gps_alert.html', context)

@@ -79,6 +79,10 @@
       "value": ""
     },
     {
+      "key": "gpsThresholdMeters",
+      "value": "100"
+    },
+    {
       "key": "traitementId",
       "value": ""
     },
@@ -968,7 +972,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"thresholdMeters\": 100\n}"
+              "raw": "{}"
             },
             "url": {
               "raw": "{{djangoBaseUrl}}/api/capteurs/{{capteurId}}/gps-alert/check",

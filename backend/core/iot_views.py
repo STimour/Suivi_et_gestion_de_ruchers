@@ -18,6 +18,7 @@ from core.models import (
 )
 from core.traccar_client import TraccarError, create_device, update_device, delete_device, get_latest_position
 from core.email_utils import send_email
+from core.email_templates import generate_gps_alert_email_content
 
 
 def _entreprise_id_from_request(request):
@@ -476,7 +477,13 @@ def check_gps_alert(request, capteur_id):
         to_email=user.email,
         to_name=f"{user.prenom} {user.nom}".strip(),
         subject="Alerte deplacement GPS",
-        html_content=f"<p>{message}</p>",
+        html_content=generate_gps_alert_email_content(
+            recipient_name=f"{user.prenom} {user.nom}".strip() or user.email,
+            capteur_identifiant=capteur.identifiant,
+            distance_meters=distance,
+            threshold_meters=capteur.gpsThresholdMeters,
+            ruche_immatriculation=getattr(capteur.ruche, "immatriculation", ""),
+        ),
     )
 
     capteur.gpsLastAlertAt = timezone.now()
