@@ -4,6 +4,7 @@ from unittest.mock import patch
 from django.test import TestCase, Client
 from django.contrib.auth.hashers import make_password
 from django.utils import timezone
+from core.traccar_client import TraccarError
 
 from core.models import (
     Utilisateur,
@@ -178,6 +179,7 @@ class IotViewsTest(TestCase):
             **self._auth_header(),
         )
         self.assertEqual(resp.status_code, 400)
+        self.assertEqual(resp.json()["error"], "invalid_type")
 
     @patch("core.iot_views.delete_device", return_value=True)
     def test_delete_capteur(self, mock_delete):
@@ -190,6 +192,18 @@ class IotViewsTest(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
         self.assertFalse(Capteur.objects.filter(id=capteur.id).exists())
+
+    @patch("core.iot_views.delete_device", side_effect=TraccarError("traccar_device_not_found"))
+    def test_delete_capteur_traccar_not_found(self, mock_delete):
+        capteur = Capteur.objects.create(
+            type=TypeCapteur.GPS, identifiant="DELNF01",
+            ruche=self.ruche, actif=True,
+        )
+        resp = self.client.delete(
+            f"/api/capteurs/{capteur.id}/delete", **self._auth_header()
+        )
+        self.assertEqual(resp.status_code, 502)
+        self.assertTrue(Capteur.objects.filter(id=capteur.id).exists())
 
     def test_delete_capteur_not_found(self):
         import uuid

@@ -111,7 +111,7 @@ def delete_device(unique_id, timeout=5):
     _ensure_configured()
     existing = get_device_by_unique_id(unique_id, timeout=timeout)
     if not existing:
-        return False
+        raise TraccarError("traccar_device_not_found")
     device_id = existing.get("id")
     if not device_id:
         raise TraccarError("traccar_device_invalid")
@@ -125,7 +125,7 @@ def delete_device(unique_id, timeout=5):
     if response.status_code in (200, 204):
         return True
     if response.status_code == 404:
-        return False
+        raise TraccarError("traccar_device_not_found")
     raise TraccarError(f"traccar_delete_failed:{response.status_code}")
 
 
