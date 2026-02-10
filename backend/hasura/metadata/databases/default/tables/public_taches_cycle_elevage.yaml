@@ -11,18 +11,18 @@ insert_permissions:
       check:
         _and:
           - cycles_elevage_reine:
-              reine:
+              racle:
                 entreprise:
                   id:
                     _eq: X-Hasura-Entreprise-Id
           - cycles_elevage_reine:
-              reine:
+              racle:
                 entreprise:
                   utilisateurs_entreprises:
                     utilisateur_id:
                       _eq: X-Hasura-User-Id
           - cycles_elevage_reine:
-              reine:
+              racle:
                 entreprise:
                   entreprise_profiles:
                     typeProfile:
@@ -44,18 +44,18 @@ insert_permissions:
       check:
         _and:
           - cycles_elevage_reine:
-              reine:
+              racle:
                 entreprise:
                   id:
                     _eq: X-Hasura-Entreprise-Id
           - cycles_elevage_reine:
-              reine:
+              racle:
                 entreprise:
                   utilisateurs_entreprises:
                     utilisateur_id:
                       _eq: X-Hasura-User-Id
           - cycles_elevage_reine:
-              reine:
+              racle:
                 entreprise:
                   entreprise_profiles:
                     typeProfile:
@@ -89,18 +89,18 @@ select_permissions:
       filter:
         _and:
           - cycles_elevage_reine:
-              reine:
+              racle:
                 entreprise:
                   id:
                     _eq: X-Hasura-Entreprise-Id
           - cycles_elevage_reine:
-              reine:
+              racle:
                 entreprise:
                   utilisateurs_entreprises:
                     utilisateur_id:
                       _eq: X-Hasura-User-Id
           - cycles_elevage_reine:
-              reine:
+              racle:
                 entreprise:
                   entreprise_profiles:
                     typeProfile:
@@ -123,18 +123,18 @@ select_permissions:
       filter:
         _and:
           - cycles_elevage_reine:
-              reine:
+              racle:
                 entreprise:
                   id:
                     _eq: X-Hasura-Entreprise-Id
           - cycles_elevage_reine:
-              reine:
+              racle:
                 entreprise:
                   utilisateurs_entreprises:
                     utilisateur_id:
                       _eq: X-Hasura-User-Id
           - cycles_elevage_reine:
-              reine:
+              racle:
                 entreprise:
                   entreprise_profiles:
                     typeProfile:
@@ -157,18 +157,18 @@ select_permissions:
       filter:
         _and:
           - cycles_elevage_reine:
-              reine:
+              racle:
                 entreprise:
                   id:
                     _eq: X-Hasura-Entreprise-Id
           - cycles_elevage_reine:
-              reine:
+              racle:
                 entreprise:
                   utilisateurs_entreprises:
                     utilisateur_id:
                       _eq: X-Hasura-User-Id
           - cycles_elevage_reine:
-              reine:
+              racle:
                 entreprise:
                   entreprise_profiles:
                     typeProfile:
@@ -191,18 +191,18 @@ select_permissions:
       filter:
         _and:
           - cycles_elevage_reine:
-              reine:
+              racle:
                 entreprise:
                   id:
                     _eq: X-Hasura-Entreprise-Id
           - cycles_elevage_reine:
-              reine:
+              racle:
                 entreprise:
                   utilisateurs_entreprises:
                     utilisateur_id:
                       _eq: X-Hasura-User-Id
           - cycles_elevage_reine:
-              reine:
+              racle:
                 entreprise:
                   entreprise_profiles:
                     typeProfile:
@@ -225,18 +225,18 @@ update_permissions:
       filter:
         _and:
           - cycles_elevage_reine:
-              reine:
+              racle:
                 entreprise:
                   id:
                     _eq: X-Hasura-Entreprise-Id
           - cycles_elevage_reine:
-              reine:
+              racle:
                 entreprise:
                   utilisateurs_entreprises:
                     utilisateur_id:
                       _eq: X-Hasura-User-Id
           - cycles_elevage_reine:
-              reine:
+              racle:
                 entreprise:
                   entreprise_profiles:
                     typeProfile:
@@ -259,18 +259,18 @@ update_permissions:
       filter:
         _and:
           - cycles_elevage_reine:
-              reine:
+              racle:
                 entreprise:
                   id:
                     _eq: X-Hasura-Entreprise-Id
           - cycles_elevage_reine:
-              reine:
+              racle:
                 entreprise:
                   utilisateurs_entreprises:
                     utilisateur_id:
                       _eq: X-Hasura-User-Id
           - cycles_elevage_reine:
-              reine:
+              racle:
                 entreprise:
                   entreprise_profiles:
                     typeProfile:
@@ -283,18 +283,18 @@ delete_permissions:
       filter:
         _and:
           - cycles_elevage_reine:
-              reine:
+              racle:
                 entreprise:
                   id:
                     _eq: X-Hasura-Entreprise-Id
           - cycles_elevage_reine:
-              reine:
+              racle:
                 entreprise:
                   utilisateurs_entreprises:
                     utilisateur_id:
                       _eq: X-Hasura-User-Id
           - cycles_elevage_reine:
-              reine:
+              racle:
                 entreprise:
                   entreprise_profiles:
                     typeProfile:
@@ -305,18 +305,18 @@ delete_permissions:
       filter:
         _and:
           - cycles_elevage_reine:
-              reine:
+              racle:
                 entreprise:
                   id:
                     _eq: X-Hasura-Entreprise-Id
           - cycles_elevage_reine:
-              reine:
+              racle:
                 entreprise:
                   utilisateurs_entreprises:
                     utilisateur_id:
                       _eq: X-Hasura-User-Id
           - cycles_elevage_reine:
-              reine:
+              racle:
                 entreprise:
                   entreprise_profiles:
                     typeProfile:

@@ -1,0 +1,3 @@
+ALTER TABLE racles_elevage ALTER COLUMN id DROP DEFAULT;
+ALTER TABLE cycles_elevage_reines ALTER COLUMN id DROP DEFAULT;
+ALTER TABLE taches_cycle_elevage ALTER COLUMN id DROP DEFAULT;

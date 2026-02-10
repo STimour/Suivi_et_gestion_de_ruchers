@@ -183,6 +183,7 @@ class Reine(TimestampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     entreprise = models.ForeignKey('Entreprise', on_delete=models.CASCADE, related_name='reines', null=True, blank=True)
     ruche = models.OneToOneField('Ruche', on_delete=models.SET_NULL, null=True, blank=True, related_name='reine')
+    racle = models.ForeignKey('RacleElevage', on_delete=models.SET_NULL, null=True, blank=True, related_name='reines')
     isElevage = models.BooleanField(default=False)
     statut = models.CharField(max_length=30, choices=ReineStatut.choices, default=ReineStatut.FECONDEE)
     anneeNaissance = models.IntegerField(validators=[MinValueValidator(1900), MaxValueValidator(2100)])
@@ -210,6 +211,8 @@ class Reine(TimestampedModel):
             return
         if not self.entreprise_id:
             raise ValidationError("Une reine en elevage doit etre liee a une entreprise.")
+        if not self.racle_id:
+            raise ValidationError("Une reine en elevage doit etre liee a une racle d'elevage.")
         has_profile = self.entreprise.profils.filter(
             typeProfile=TypeProfileEntreprise.ELEVEUR_DE_REINES
         ).exists()
@@ -219,11 +222,24 @@ class Reine(TimestampedModel):
             )
 
     def save(self, *args, **kwargs):
-        is_new = self._state.adding
         self._validate_elevage_profile()
         super().save(*args, **kwargs)
-        if is_new and self.isElevage:
-            CycleElevageReine.create_for_reine(self)
+
+class RacleElevage(TimestampedModel):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    entreprise = models.ForeignKey('Entreprise', on_delete=models.CASCADE, related_name='racles_elevage')
+    reference = models.CharField(max_length=100)
+    dateCreation = models.DateField()
+    nbCupules = models.IntegerField(validators=[MinValueValidator(0)])
+    commentaire = models.TextField(blank=True, null=True)
+
+    class Meta:
+        db_table = 'racles_elevage'
+        verbose_name = "Racle d'elevage"
+        verbose_name_plural = "Racles d'elevage"
+
+    def __str__(self):
+        return f"{self.reference} ({self.dateCreation})"
 
 class StatutCycleElevage(models.TextChoices):
     EN_COURS = 'EnCours', 'EnCours'
@@ -247,7 +263,7 @@ class StatutTacheElevage(models.TextChoices):
 
 class CycleElevageReine(TimestampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    reine = models.ForeignKey('Reine', on_delete=models.CASCADE, related_name='cycles_elevage')
+    racle = models.ForeignKey('RacleElevage', on_delete=models.CASCADE, related_name='cycles_elevage')
     dateDebut = models.DateField()
     dateFin = models.DateField(null=True, blank=True)
     statut = models.CharField(max_length=20, choices=StatutCycleElevage.choices, default=StatutCycleElevage.EN_COURS)
@@ -258,15 +274,15 @@ class CycleElevageReine(TimestampedModel):
         verbose_name_plural = "Cycles d'elevage de reine"
 
     def __str__(self):
-        return f"Cycle {self.reine_id} ({self.dateDebut})"
+        return f"Cycle {self.racle_id} ({self.dateDebut})"
 
     @staticmethod
-    def create_for_reine(reine, date_debut=None):
+    def create_for_racle(racle, date_debut=None):
         if date_debut is None:
             date_debut = timezone.now().date()
         with transaction.atomic():
             cycle = CycleElevageReine.objects.create(
-                reine=reine,
+                racle=racle,
                 dateDebut=date_debut,
                 statut=StatutCycleElevage.EN_COURS,
             )

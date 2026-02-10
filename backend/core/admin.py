@@ -13,6 +13,7 @@ from .models import (
     Rucher,
     Ruche,
     Reine,
+    RacleElevage,
     TypeFlore,
     TypeMaladie,
     TypeRuche,
@@ -84,7 +85,14 @@ class RucheAdmin(admin.ModelAdmin):
 class ReineAdmin(admin.ModelAdmin):
     list_display = ('codeCouleur', 'anneeNaissance', 'lignee', 'noteDouceur')
     list_filter = ('anneeNaissance',)
-    raw_id_fields = ('entreprise', 'ruche')
+    raw_id_fields = ('entreprise', 'ruche', 'racle')
+
+@admin.register(RacleElevage)
+class RacleElevageAdmin(admin.ModelAdmin):
+    list_display = ('reference', 'dateCreation', 'nbCupules', 'entreprise')
+    list_filter = ('dateCreation',)
+    search_fields = ('reference',)
+    raw_id_fields = ('entreprise',)
 
 @admin.register(Offre)
 class OffreAdmin(admin.ModelAdmin):

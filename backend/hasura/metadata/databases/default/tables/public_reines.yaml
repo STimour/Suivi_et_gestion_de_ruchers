@@ -8,17 +8,12 @@ object_relationships:
   - name: lignee_reine
     using:
       foreign_key_constraint_on: lignee
+  - name: racle
+    using:
+      foreign_key_constraint_on: racle_id
   - name: ruche
     using:
       foreign_key_constraint_on: ruche_id
-array_relationships:
-  - name: cycles_elevage_reines
-    using:
-      foreign_key_constraint_on:
-        column: reine_id
-        table:
-          name: cycles_elevage_reines
-          schema: public
 insert_permissions:
   - role: AdminEntreprise
     permission:
@@ -44,6 +39,7 @@ insert_permissions:
         - updated_at
         - entreprise_id
         - id
+        - racle_id
         - ruche_id
     comment: Vérification des limites via trigger PostgreSQL
   - role: Apiculteur
@@ -70,6 +66,7 @@ insert_permissions:
         - updated_at
         - entreprise_id
         - id
+        - racle_id
         - ruche_id
     comment: Vérification des limites via trigger PostgreSQL
 select_permissions:
@@ -88,6 +85,7 @@ select_permissions:
         - updated_at
         - entreprise_id
         - id
+        - racle_id
         - ruche_id
       filter:
         _and:
@@ -163,6 +161,7 @@ select_permissions:
         - lignee
         - nonReproductible
         - noteDouceur
+        - racle_id
         - statut
         - updated_at
       filter: {}
@@ -183,6 +182,7 @@ update_permissions:
         - updated_at
         - entreprise_id
         - id
+        - racle_id
         - ruche_id
       filter:
         _and:
@@ -210,6 +210,7 @@ update_permissions:
         - updated_at
         - entreprise_id
         - id
+        - racle_id
         - ruche_id
       filter:
         _and:
