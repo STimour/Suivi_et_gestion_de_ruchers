@@ -214,3 +214,8 @@
     font-weight: 400;
   }
 }
+
+::selection {
+  background-color: #d97706 !important;
+  color: #fff !important;
+}

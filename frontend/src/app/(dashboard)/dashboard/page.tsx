@@ -6,13 +6,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Hexagon, MapPin, Plus, TrendingUp, AlertTriangle, Upload } from "lucide-react";
+import { Hexagon, MapPin, Plus, TrendingUp, AlertTriangle, Upload, Crown } from "lucide-react";
 import { GET_RUCHERS } from '@/lib/graphql/queries/rucher.queries';
 import { GET_RUCHES } from '@/lib/graphql/queries/ruche.queries';
+import { GET_REINES } from '@/lib/graphql/queries/reine.queries';
 import { CreateRucherDialog } from '@/components/rucher/RucherDialog';
 import { CreateRucheDialog } from '@/components/ruche/CreateRucheDialog';
 import { BulkCreateRuchesDialog } from '@/components/ruche/BulkCreateRuchesDialog';
+import { CreateReineDialog } from '@/components/reine/CreateReineDialog';
 import Link from "next/link";
+import { useCanEdit } from '@/hooks/useCanEdit';
+import { useQuota } from '@/hooks/useQuota';
 
 // Charger la carte uniquement côté client pour éviter les erreurs SSR
 const RuchersMap = dynamic(
@@ -38,9 +42,14 @@ const RuchersMap = dynamic(
 export default function DashboardPage() {
   const { data: ruchersData, loading: ruchersLoading, error: ruchersError } = useQuery<any>(GET_RUCHERS);
   const { data: ruchesData, loading: ruchesLoading, error: ruchesError } = useQuery<any>(GET_RUCHES);
+  const { data: reinesData, loading: reinesLoading, error: reinesError } = useQuery<any>(GET_REINES);
+
+  const canEdit = useCanEdit();
+  const { canCreateRucher, canCreateReine } = useQuota();
 
   const totalRuchers = ruchersData?.ruchers?.length || 0;
   const totalRuches = ruchesData?.ruches?.length || 0;
+  const totalReines = reinesData?.reines?.length || 0;
   const ruchesActives = ruchesData?.ruches?.filter((r: any) => r.statut === 'Active')?.length || 0;
   const ruchesMalades = ruchesData?.ruches?.filter((r: any) => r.statut === 'Malade')?.length || 0;
 
@@ -54,14 +63,16 @@ export default function DashboardPage() {
             Vue d'ensemble de vos ruchers et ruches
           </p>
         </div>
-        <Button className="bg-green-600 hover:bg-green-700 text-white gap-2">
-          <Plus className="h-4 w-4" />
-          Nouvelle intervention
-        </Button>
+        {canEdit && (
+          <Button className="bg-green-600 hover:bg-green-700 text-white gap-2">
+            <Plus className="h-4 w-4" />
+            Nouvelle intervention
+          </Button>
+        )}
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         <Card className="border-amber-200">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-amber-900">
@@ -90,6 +101,22 @@ export default function DashboardPage() {
               <Skeleton className="h-8 w-20" />
             ) : (
               <div className="text-2xl font-bold text-amber-900">{totalRuches}</div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="border-amber-200">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-amber-900">
+              Total Reines
+            </CardTitle>
+            <Crown className="h-4 w-4 text-amber-600" />
+          </CardHeader>
+          <CardContent>
+            {reinesLoading ? (
+              <Skeleton className="h-8 w-20" />
+            ) : (
+              <div className="text-2xl font-bold text-amber-900">{totalReines}</div>
             )}
           </CardContent>
         </Card>
@@ -128,7 +155,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Erreur */}
-      {(ruchersError || ruchesError) && (
+      {(ruchersError || ruchesError || reinesError) && (
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
@@ -153,14 +180,22 @@ export default function DashboardPage() {
                 </CardDescription>
               </div>
               <div className="flex gap-2">
-                <CreateRucherDialog
-                  trigger={
-                    <Button variant="outline" size="sm" className="border-amber-200">
-                      <Plus className="h-4 w-4 mr-1" />
-                      Nouveau
-                    </Button>
-                  }
-                />
+                {canEdit && canCreateRucher && (
+                  <CreateRucherDialog
+                    trigger={
+                      <Button variant="outline" size="sm" className="border-amber-200">
+                        <Plus className="h-4 w-4 mr-1" />
+                        Nouveau
+                      </Button>
+                    }
+                  />
+                )}
+                {canEdit && !canCreateRucher && (
+                  <Button variant="outline" size="sm" className="border-amber-200" disabled>
+                    <Plus className="h-4 w-4 mr-1" />
+                    Nouveau (limite Freemium atteinte)
+                  </Button>
+                )}
                 <Link href="/dashboard/apiaries">
                   <Button variant="outline" size="sm" className="border-amber-200">
                     Voir tout
@@ -194,9 +229,11 @@ export default function DashboardPage() {
                         </p>
                       </div>
                     </div>
-                    <Button variant="ghost" size="sm">
-                      Voir
-                    </Button>
+                    <Link href={`/dashboard/apiaries/${rucher.id}`}>
+                      <Button variant="ghost" size="sm">
+                        Voir
+                      </Button>
+                    </Link>
                   </div>
                 ))}
               </div>
@@ -204,14 +241,22 @@ export default function DashboardPage() {
               <div className="text-center py-8 text-amber-700/70">
                 <MapPin className="h-12 w-12 mx-auto mb-3 opacity-30" />
                 <p>Aucun rucher pour le moment</p>
-                <CreateRucherDialog
-                  trigger={
-                    <Button variant="outline" size="sm" className="mt-3 border-amber-200">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Créer un rucher
-                    </Button>
-                  }
-                />
+                {canEdit && canCreateRucher && (
+                  <CreateRucherDialog
+                    trigger={
+                      <Button variant="outline" size="sm" className="mt-3 border-amber-200">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Créer un rucher
+                      </Button>
+                    }
+                  />
+                )}
+                {canEdit && !canCreateRucher && (
+                  <Button variant="outline" size="sm" className="mt-3 border-amber-200" disabled>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Créer un rucher (limite Freemium atteinte)
+                  </Button>
+                )}
               </div>
             )}
           </CardContent>
@@ -228,22 +273,26 @@ export default function DashboardPage() {
                 </CardDescription>
               </div>
               <div className="flex gap-2">
-                <CreateRucheDialog
-                  trigger={
-                    <Button variant="outline" size="sm" className="border-green-200">
-                      <Plus className="h-4 w-4 mr-1" />
-                      Nouvelle
-                    </Button>
-                  }
-                />
-                <BulkCreateRuchesDialog
-                  trigger={
-                    <Button variant="outline" size="sm" className="border-green-200 text-green-700">
-                      <Upload className="h-4 w-4 mr-1" />
-                      Import masse
-                    </Button>
-                  }
-                />
+                {canEdit && (
+                  <CreateRucheDialog
+                    trigger={
+                      <Button variant="outline" size="sm" className="border-green-200">
+                        <Plus className="h-4 w-4 mr-1" />
+                        Nouvelle
+                      </Button>
+                    }
+                  />
+                )}
+                {canEdit && (
+                  <BulkCreateRuchesDialog
+                    trigger={
+                      <Button variant="outline" size="sm" className="border-green-200 text-green-700">
+                        <Upload className="h-4 w-4 mr-1" />
+                        Import masse
+                      </Button>
+                    }
+                  />
+                )}
                 <Link href="/dashboard/hives">
                   <Button variant="outline" size="sm" className="border-green-200">
                     Voir tout
@@ -287,29 +336,124 @@ export default function DashboardPage() {
               <div className="text-center py-8 text-amber-700/70">
                 <Hexagon className="h-12 w-12 mx-auto mb-3 opacity-30" />
                 <p className="mb-4">Aucune ruche pour le moment</p>
-                <div className="flex gap-2 justify-center">
-                  <CreateRucheDialog
-                    trigger={
-                      <Button variant="outline" size="sm" className="border-green-200">
-                        <Plus className="h-4 w-4 mr-2" />
-                        Ajouter une ruche
-                      </Button>
-                    }
-                  />
-                  <BulkCreateRuchesDialog
-                    trigger={
-                      <Button variant="outline" size="sm" className="border-green-200 text-green-700">
-                        <Upload className="h-4 w-4 mr-2" />
-                        Import en masse
-                      </Button>
-                    }
-                  />
-                </div>
+                {canEdit && (
+                  <div className="flex gap-2 justify-center">
+                    <CreateRucheDialog
+                      trigger={
+                        <Button variant="outline" size="sm" className="border-green-200">
+                          <Plus className="h-4 w-4 mr-2" />
+                          Ajouter une ruche
+                        </Button>
+                      }
+                    />
+                    <BulkCreateRuchesDialog
+                      trigger={
+                        <Button variant="outline" size="sm" className="border-green-200 text-green-700">
+                          <Upload className="h-4 w-4 mr-2" />
+                          Import en masse
+                        </Button>
+                      }
+                    />
+                  </div>
+                )}
               </div>
             )}
           </CardContent>
         </Card>
       </div>
+
+      {/* Section Reines récentes */}
+      <Card className="border-amber-200">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-amber-900">Reines récentes</CardTitle>
+              <CardDescription className="text-amber-700/70">
+                Dernières reines ajoutées
+              </CardDescription>
+            </div>
+            <div className="flex gap-2">
+              {canEdit && canCreateReine && (
+                <CreateReineDialog
+                  trigger={
+                    <Button variant="outline" size="sm" className="border-amber-200">
+                      <Plus className="h-4 w-4 mr-1" />
+                      Nouvelle
+                    </Button>
+                  }
+                />
+              )}
+              {canEdit && !canCreateReine && (
+                <Button variant="outline" size="sm" className="border-amber-200" disabled>
+                  <Plus className="h-4 w-4 mr-1" />
+                  Nouvelle (limite Freemium atteinte)
+                </Button>
+              )}
+              <Link href="/dashboard/reines">
+                <Button variant="outline" size="sm" className="border-amber-200">
+                  Voir tout
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {reinesLoading ? (
+            <div className="space-y-3">
+              {[1, 2, 3].map((i) => (
+                <Skeleton key={i} className="h-16 w-full" />
+              ))}
+            </div>
+          ) : reinesData?.reines?.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {reinesData.reines.slice(0, 6).map((reine: any) => (
+                <div
+                  key={reine.id}
+                  className="flex items-center justify-between p-3 rounded-lg border border-amber-100 hover:bg-amber-50/50 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="bg-amber-100 p-2 rounded-lg">
+                      <Crown className="h-4 w-4 text-amber-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-amber-900">{reine.anneeNaissance} - {reine.codeCouleur || 'N/A'}</p>
+                      <p className="text-sm text-amber-700/70">
+                        {reine.lignee || 'Lignée non renseignée'} • {reine.ruche?.immatriculation || 'Sans ruche'}
+                      </p>
+                    </div>
+                  </div>
+                  <Link href="/dashboard/reines">
+                    <Button variant="ghost" size="sm">
+                      Voir
+                    </Button>
+                  </Link>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-amber-700/70">
+              <Crown className="h-12 w-12 mx-auto mb-3 opacity-30" />
+              <p className="mb-4">Aucune reine pour le moment</p>
+              {canEdit && canCreateReine && (
+                <CreateReineDialog
+                  trigger={
+                    <Button variant="outline" size="sm" className="border-amber-200">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Ajouter une reine
+                    </Button>
+                  }
+                />
+              )}
+              {canEdit && !canCreateReine && (
+                <Button variant="outline" size="sm" className="border-amber-200" disabled>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Ajouter une reine (limite Freemium atteinte)
+                </Button>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Carte des ruchers */}
       <RuchersMap ruchers={ruchersData?.ruchers || []} loading={ruchersLoading} />

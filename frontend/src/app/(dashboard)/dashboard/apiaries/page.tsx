@@ -5,12 +5,14 @@ import { useQuery } from '@apollo/client/react';
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { LayoutGrid, List, Plus, AlertTriangle, Search } from "lucide-react";
+import { LayoutGrid, List, Plus, AlertTriangle, Search, MapPin } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { GET_RUCHERS } from '@/lib/graphql/queries/rucher.queries';
 import { CreateRucherDialog } from '@/components/rucher/RucherDialog';
 import { RucherList } from '@/components/rucher/RucherList';
 import { RucherGrid } from '@/components/rucher/RucherGrid';
+import { useCanEdit } from '@/hooks/useCanEdit';
+import { useQuota } from '@/hooks/useQuota';
 
 type ViewMode = 'grid' | 'list';
 
@@ -18,6 +20,8 @@ export default function ApiariesPage() {
     const [viewMode, setViewMode] = useState<ViewMode>('grid');
     const [searchQuery, setSearchQuery] = useState('');
 
+    const canEdit = useCanEdit();
+    const { canCreateRucher } = useQuota();
     const { data, loading, error } = useQuery<any>(GET_RUCHERS);
 
     const filteredRuchers = data?.ruchers?.filter((rucher: any) =>
@@ -35,14 +39,22 @@ export default function ApiariesPage() {
                         Gérez vos emplacements et suivez l'état de vos ruches
                     </p>
                 </div>
-                <CreateRucherDialog
-                    trigger={
-                        <Button className="bg-amber-600 hover:bg-amber-700 text-white gap-2 shadow-sm">
-                            <Plus className="h-4 w-4" />
-                            Nouveau rucher
-                        </Button>
-                    }
-                />
+                {canEdit && canCreateRucher && (
+                    <CreateRucherDialog
+                        trigger={
+                            <Button className="bg-amber-600 hover:bg-amber-700 text-white gap-2 shadow-sm">
+                                <Plus className="h-4 w-4" />
+                                Nouveau rucher
+                            </Button>
+                        }
+                    />
+                )}
+                {canEdit && !canCreateRucher && (
+                    <Button className="bg-amber-600 text-white gap-2 shadow-sm" disabled>
+                        <Plus className="h-4 w-4" />
+                        Nouveau rucher (limite Freemium atteinte)
+                    </Button>
+                )}
             </div>
 
             {/* Controls Bar */}
@@ -112,16 +124,10 @@ export default function ApiariesPage() {
                         <RucherGrid ruchers={filteredRuchers} />
                     )}
 
-                    {!loading && filteredRuchers.length === 0 && searchQuery && (
-                        <div className="text-center py-12">
-                            <p className="text-amber-700/70">Aucun rucher ne correspond à votre recherche.</p>
-                            <Button
-                                variant="link"
-                                className="text-amber-600"
-                                onClick={() => setSearchQuery('')}
-                            >
-                                Effacer la recherche
-                            </Button>
+                    {!loading && filteredRuchers.length === 0 && (
+                        <div className="text-center py-12 bg-white rounded-lg border border-dashed border-amber-200">
+                            <MapPin className="h-12 w-12 mx-auto mb-3 text-amber-200" />
+                            <p className="text-amber-700/70">Aucun rucher pour le moment</p>
                         </div>
                     )}
                 </>

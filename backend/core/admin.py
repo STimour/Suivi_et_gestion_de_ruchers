@@ -1,9 +1,28 @@
 from django.contrib import admin
 from .models import (
-    Utilisateur, RoleUtilisateur, Entreprise, UtilisateurEntreprise, Invitation,
-    Rucher, Ruche, Reine,
-    Intervention, Transhumance,
-    Capteur, Mesure, Alerte
+    Utilisateur,
+    Entreprise,
+    EntrepriseProfile,
+    UtilisateurEntreprise,
+    Invitation,
+    AccountVerificationToken,
+    PasswordResetToken,
+    Offre,
+    TypeOffreModel,
+    LimitationOffre,
+    Rucher,
+    Ruche,
+    Reine,
+    TypeFlore,
+    TypeMaladie,
+    TypeRuche,
+    TypeRaceAbeille,
+    LigneeReine,
+    Intervention,
+    Transhumance,
+    Alerte,
+    Capteur,
+    Mesure,
 )
 
 @admin.register(Utilisateur)
@@ -14,20 +33,38 @@ class UtilisateurAdmin(admin.ModelAdmin):
 
 @admin.register(Entreprise)
 class EntrepriseAdmin(admin.ModelAdmin):
-    list_display = ('nom', 'dateCreation')
+    list_display = ('nom', 'created_at')
     search_fields = ('nom',)
+
+@admin.register(EntrepriseProfile)
+class EntrepriseProfileAdmin(admin.ModelAdmin):
+    list_display = ('entreprise', 'typeProfile', 'created_at')
+    list_filter = ('typeProfile', 'created_at')
+    raw_id_fields = ('entreprise',)
 
 @admin.register(UtilisateurEntreprise)
 class UtilisateurEntrepriseAdmin(admin.ModelAdmin):
-    list_display = ('utilisateur', 'entreprise', 'role', 'dateAjout')
-    list_filter = ('role', 'dateAjout')
+    list_display = ('utilisateur', 'entreprise', 'role', 'created_at')
+    list_filter = ('role', 'created_at')
     raw_id_fields = ('utilisateur', 'entreprise')
 
 @admin.register(Invitation)
 class InvitationAdmin(admin.ModelAdmin):
-    list_display = ('email', 'entreprise', 'rolePropose', 'dateEnvoi', 'acceptee')
-    list_filter = ('rolePropose', 'acceptee', 'dateEnvoi')
+    list_display = ('id', 'entreprise', 'rolePropose', 'created_at', 'acceptee')
+    list_filter = ('rolePropose', 'acceptee', 'created_at')
     raw_id_fields = ('entreprise', 'envoyeePar')
+
+@admin.register(AccountVerificationToken)
+class AccountVerificationTokenAdmin(admin.ModelAdmin):
+    list_display = ('id', 'utilisateur', 'dateExpiration', 'utilise', 'created_at')
+    list_filter = ('utilise', 'dateExpiration', 'created_at')
+    raw_id_fields = ('utilisateur',)
+
+@admin.register(PasswordResetToken)
+class PasswordResetTokenAdmin(admin.ModelAdmin):
+    list_display = ('id', 'utilisateur', 'dateExpiration', 'utilise', 'created_at')
+    list_filter = ('utilise', 'dateExpiration', 'created_at')
+    raw_id_fields = ('utilisateur',)
 
 @admin.register(Rucher)
 class RucherAdmin(admin.ModelAdmin):
@@ -38,15 +75,43 @@ class RucherAdmin(admin.ModelAdmin):
 
 @admin.register(Ruche)
 class RucheAdmin(admin.ModelAdmin):
-    list_display = ('immatriculation', 'type', 'race', 'statut', 'securisee', 'rucher')
-    list_filter = ('statut', 'securisee')
+    list_display = ('immatriculation', 'type', 'race', 'statut', 'maladie', 'securisee', 'rucher')
+    list_filter = ('statut', 'maladie', 'securisee')
     search_fields = ('immatriculation',)
-    raw_id_fields = ('rucher', 'reine')  
+    raw_id_fields = ('rucher',)
 
 @admin.register(Reine)
 class ReineAdmin(admin.ModelAdmin):
     list_display = ('codeCouleur', 'anneeNaissance', 'lignee', 'noteDouceur')
     list_filter = ('anneeNaissance',)
+    raw_id_fields = ('entreprise', 'ruche')
+
+@admin.register(Offre)
+class OffreAdmin(admin.ModelAdmin):
+    list_display = (
+        'entreprise',
+        'type',
+        'active',
+        'dateDebut',
+        'dateFin',
+        'nbRuchersMax',
+        'nbCapteursMax',
+        'nbReinesMax',
+        'limitationOffre',
+    )
+    list_filter = ('type', 'active')
+    search_fields = ('entreprise__nom',)
+    raw_id_fields = ('entreprise', 'limitationOffre')
+
+@admin.register(LimitationOffre)
+class LimitationOffreAdmin(admin.ModelAdmin):
+    list_display = ('typeOffre', 'nbRuchersMax', 'nbCapteursMax', 'nbReinesMax')
+    list_filter = ('typeOffre',)
+
+@admin.register(TypeOffreModel)
+class TypeOffreModelAdmin(admin.ModelAdmin):
+    list_display = ('value', 'titre', 'description', 'prixHT', 'prixTTC', 'stripeProductId')
+    search_fields = ('value', 'titre', 'description', 'stripeProductId')
 
 @admin.register(Intervention)
 class InterventionAdmin(admin.ModelAdmin):
@@ -69,12 +134,42 @@ class CapteurAdmin(admin.ModelAdmin):
 
 @admin.register(Mesure)
 class MesureAdmin(admin.ModelAdmin):
-    list_display = ('capteur', 'date', 'valeur')
-    list_filter = ('date',)
+    list_display = ('capteur', 'created_at', 'valeur')
+    list_filter = ('created_at',)
     raw_id_fields = ('capteur',)  
 
 @admin.register(Alerte)
 class AlerteAdmin(admin.ModelAdmin):
-    list_display = ('type', 'date', 'acquittee', 'capteur')
+    list_display = ('type', 'created_at', 'acquittee', 'capteur')
     list_filter = ('type', 'acquittee')
     raw_id_fields = ('capteur',)  
+
+
+@admin.register(TypeFlore)
+class TypeFloreAdmin(admin.ModelAdmin):
+    list_display = ('value', 'label')
+    search_fields = ('value', 'label')
+
+
+@admin.register(TypeRuche)
+class TypeRucheAdmin(admin.ModelAdmin):
+    list_display = ('value', 'label')
+    search_fields = ('value', 'label')
+
+
+@admin.register(TypeRaceAbeille)
+class TypeRaceAbeilleAdmin(admin.ModelAdmin):
+    list_display = ('value', 'label')
+    search_fields = ('value', 'label')
+
+
+@admin.register(LigneeReine)
+class LigneeReineAdmin(admin.ModelAdmin):
+    list_display = ('value', 'label')
+    search_fields = ('value', 'label')
+
+
+@admin.register(TypeMaladie)
+class TypeMaladieAdmin(admin.ModelAdmin):
+    list_display = ('value', 'label')
+    search_fields = ('value', 'label')

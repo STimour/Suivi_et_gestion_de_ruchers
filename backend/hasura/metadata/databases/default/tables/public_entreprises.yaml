@@ -12,6 +12,13 @@ object_relationships:
           name: offres
           schema: public
 array_relationships:
+  - name: entreprise_profiles
+    using:
+      foreign_key_constraint_on:
+        column: entreprise_id
+        table:
+          name: entreprise_profiles
+          schema: public
   - name: invitations
     using:
       foreign_key_constraint_on:
@@ -19,12 +26,26 @@ array_relationships:
         table:
           name: invitations
           schema: public
+  - name: notifications
+    using:
+      foreign_key_constraint_on:
+        column: entreprise_id
+        table:
+          name: notifications
+          schema: public
   - name: offres
     using:
       foreign_key_constraint_on:
         column: entreprise_id
         table:
           name: offres
+          schema: public
+  - name: reines
+    using:
+      foreign_key_constraint_on:
+        column: entreprise_id
+        table:
+          name: reines
           schema: public
   - name: ruchers
     using:
@@ -53,7 +74,6 @@ insert_permissions:
       columns:
         - nom
         - adresse
-        - dateCreation
         - id
     comment: Vérification des limites via trigger PostgreSQL
   - role: Apiculteur
@@ -68,7 +88,6 @@ insert_permissions:
       columns:
         - nom
         - adresse
-        - dateCreation
         - id
     comment: Vérification des limites via trigger PostgreSQL
 select_permissions:
@@ -77,8 +96,9 @@ select_permissions:
       columns:
         - nom
         - adresse
-        - dateCreation
+        - created_at
         - id
+        - updated_at
       filter:
         _and:
           - id:
@@ -92,8 +112,9 @@ select_permissions:
       columns:
         - nom
         - adresse
-        - dateCreation
+        - created_at
         - id
+        - updated_at
       filter:
         _and:
           - id:
@@ -107,8 +128,9 @@ select_permissions:
       columns:
         - nom
         - adresse
-        - dateCreation
+        - created_at
         - id
+        - updated_at
       filter:
         _and:
           - id:
@@ -123,7 +145,6 @@ update_permissions:
       columns:
         - nom
         - adresse
-        - dateCreation
         - id
       filter:
         _and:
@@ -139,7 +160,6 @@ update_permissions:
       columns:
         - nom
         - adresse
-        - dateCreation
         - id
       filter:
         _and:

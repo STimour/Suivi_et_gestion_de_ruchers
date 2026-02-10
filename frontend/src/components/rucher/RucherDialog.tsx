@@ -34,21 +34,10 @@ import {
 } from '@/components/ui/select';
 import { CREATE_RUCHER } from '@/lib/graphql/mutations/rucher.mutations';
 import { GET_RUCHERS } from '@/lib/graphql/queries/rucher.queries';
+import { useEnums } from '@/hooks/useEnums';
 import { MapPin, Plus } from 'lucide-react';
 import { LocationPickerWrapper } from './LocationPickerWrapper';
 import { useAuth } from '@/lib/auth/AuthContext';
-
-// Types de flore disponibles
-const FLORE_OPTIONS = [
-  { value: 'Acacia', label: 'Acacia' },
-  { value: 'Colza', label: 'Colza' },
-  { value: 'Lavande', label: 'Lavande' },
-  { value: 'Tournesol', label: 'Tournesol' },
-  { value: 'Chataignier', label: 'Châtaignier' },
-  { value: 'Bruyere', label: 'Bruyère' },
-  { value: 'Montagne', label: 'Montagne' },
-  { value: 'ToutesFleurs', label: 'Toutes fleurs' },
-];
 
 // Schéma de validation
 const rucherSchema = z.object({
@@ -76,6 +65,7 @@ interface CreateRucherDialogProps {
 export function CreateRucherDialog({ trigger }: CreateRucherDialogProps) {
   const [open, setOpen] = useState(false);
   const { user } = useAuth();
+  const { enums } = useEnums();
 
   const [createRucher, { loading }] = useMutation(CREATE_RUCHER, {
     refetchQueries: [{ query: GET_RUCHERS }],
@@ -189,7 +179,7 @@ export function CreateRucherDialog({ trigger }: CreateRucherDialogProps) {
                     <FormLabel>Type de flore *</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      value={field.value}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -197,7 +187,7 @@ export function CreateRucherDialog({ trigger }: CreateRucherDialogProps) {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent className="bg-white">
-                        {FLORE_OPTIONS.map((option) => (
+                        {enums.flore.map((option) => (
                           <SelectItem key={option.value} value={option.value}>
                             {option.label}
                           </SelectItem>

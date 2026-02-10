@@ -1,19 +1,19 @@
 from django.db import models
 import uuid
 from django.core.validators import MinValueValidator, MaxValueValidator
+from .base import TimestampedModel
 
 class RoleUtilisateur(models.TextChoices):
     ADMIN_ENTREPRISE = 'AdminEntreprise', 'AdminEntreprise'
     APICULTEUR = 'Apiculteur', 'Apiculteur'
     LECTEUR = 'Lecteur', 'Lecteur'
 
-class Utilisateur(models.Model):
+class Utilisateur(TimestampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     nom = models.CharField(max_length=100)
     prenom = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
     motDePasseHash = models.CharField(max_length=255)
-    dateCreation = models.DateTimeField(auto_now_add=True)
     actif = models.BooleanField(default=True)
 
     class Meta:
@@ -24,11 +24,10 @@ class Utilisateur(models.Model):
     def __str__(self):
         return f"{self.prenom} {self.nom}"
 
-class Entreprise(models.Model):
+class Entreprise(TimestampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     nom = models.CharField(max_length=200)
     adresse = models.TextField()
-    dateCreation = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'entreprises'
@@ -38,12 +37,50 @@ class Entreprise(models.Model):
     def __str__(self):
         return self.nom
 
-class UtilisateurEntreprise(models.Model):
+
+class TypeProfileEntreprise(models.TextChoices):
+    APICULTEUR_PRODUCTEUR = 'ApiculteurProducteur', 'ApiculteurProducteur'
+    ELEVEUR_DE_REINES = 'EleveurDeReines', 'EleveurDeReines'
+    POLLINISATEUR = 'Pollinisateur', 'Pollinisateur'
+
+
+class TypeProfileEntrepriseModel(models.Model):
+    value = models.CharField(primary_key=True, max_length=40)
+    titre = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+
+    class Meta:
+        db_table = 'type_profile_entreprise'
+        verbose_name = 'Type de profil entreprise'
+        verbose_name_plural = 'Types de profil entreprise'
+
+    def __str__(self):
+        return self.titre
+
+
+class EntrepriseProfile(TimestampedModel):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    entreprise = models.ForeignKey(Entreprise, on_delete=models.CASCADE, related_name='profils')
+    typeProfile = models.ForeignKey(
+        TypeProfileEntrepriseModel,
+        to_field="value",
+        db_column="typeProfile",
+        on_delete=models.PROTECT,
+    )
+
+    class Meta:
+        db_table = 'entreprise_profiles'
+        verbose_name = 'EntrepriseProfile'
+        verbose_name_plural = 'EntrepriseProfiles'
+
+    def __str__(self):
+        return f"{self.entreprise} - {self.typeProfile}"
+
+class UtilisateurEntreprise(TimestampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     utilisateur = models.ForeignKey(Utilisateur, on_delete=models.CASCADE, related_name='appartenances')
     entreprise = models.ForeignKey(Entreprise, on_delete=models.CASCADE, related_name='membres')
     role = models.CharField(max_length=20, choices=RoleUtilisateur.choices)
-    dateAjout = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'utilisateurs_entreprises'
@@ -54,13 +91,11 @@ class UtilisateurEntreprise(models.Model):
     def __str__(self):
         return f"{self.utilisateur} - {self.entreprise} ({self.role})"
 
-class Invitation(models.Model):
+class Invitation(TimestampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    email = models.EmailField()
-    token = models.CharField(max_length=255, unique=True)
+    token = models.TextField(unique=True)
     rolePropose = models.CharField(max_length=20, choices=RoleUtilisateur.choices)
     dateExpiration = models.DateTimeField()
-    dateEnvoi = models.DateTimeField(auto_now_add=True)
     acceptee = models.BooleanField(default=False)
     entreprise = models.ForeignKey(Entreprise, on_delete=models.CASCADE, related_name='invitations')
     envoyeePar = models.ForeignKey(Utilisateur, on_delete=models.CASCADE, related_name='invitations_envoyees')
@@ -71,4 +106,38 @@ class Invitation(models.Model):
         verbose_name_plural = 'Invitations'
 
     def __str__(self):
-        return f"Invitation {self.email} - {self.entreprise}"
+        return f"Invitation {self.id} - {self.entreprise}"
+
+
+class AccountVerificationToken(TimestampedModel):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    token = models.TextField(unique=True)
+    dateExpiration = models.DateTimeField()
+    utilise = models.BooleanField(default=False)
+    used_at = models.DateTimeField(null=True, blank=True)
+    utilisateur = models.ForeignKey(Utilisateur, on_delete=models.CASCADE, related_name='verification_tokens')
+
+    class Meta:
+        db_table = 'account_verification_tokens'
+        verbose_name = 'AccountVerificationToken'
+        verbose_name_plural = 'AccountVerificationTokens'
+
+    def __str__(self):
+        return f"AccountVerificationToken {self.id} - {self.utilisateur}"
+
+
+class PasswordResetToken(TimestampedModel):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    token = models.TextField(unique=True)
+    dateExpiration = models.DateTimeField()
+    utilise = models.BooleanField(default=False)
+    used_at = models.DateTimeField(null=True, blank=True)
+    utilisateur = models.ForeignKey(Utilisateur, on_delete=models.CASCADE, related_name='password_reset_tokens')
+
+    class Meta:
+        db_table = 'password_reset_tokens'
+        verbose_name = 'PasswordResetToken'
+        verbose_name_plural = 'PasswordResetTokens'
+
+    def __str__(self):
+        return f"PasswordResetToken {self.id} - {self.utilisateur}"

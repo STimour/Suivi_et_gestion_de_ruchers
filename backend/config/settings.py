@@ -3,13 +3,13 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-dev-key-change-in-production'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-dev-key-change-in-production')
 
 JWT_SECRET = os.getenv('JWT_SECRET', SECRET_KEY)
 
-DEBUG = True
+DEBUG = os.getenv('DJANGO_DEBUG', 'True').lower() in ('true', '1', 'yes')
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '*').split(',')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -18,6 +18,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'channels',
     'corsheaders',
     'core',
 ]
@@ -31,6 +32,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'core.middleware.AccountVerificationRequiredMiddleware',
+    'core.middleware.FreemiumProfileLimitMiddleware',
+    'core.middleware.PremiumPaymentRequiredMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -52,6 +56,13 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'config.wsgi.application'
+ASGI_APPLICATION = 'config.asgi.application'
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    }
+}
 
 DATABASES = {
     'default': {
@@ -77,9 +88,33 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
-]
+CORS_ALLOWED_ORIGINS = os.getenv(
+    'CORS_ALLOWED_ORIGINS', 'http://localhost:3000'
+).split(',')
+
+CSRF_TRUSTED_ORIGINS = os.getenv(
+    'CSRF_TRUSTED_ORIGINS', 'http://localhost:3000'
+).split(',')
+
+# Frontend URL for email links and redirects
+FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:3000')
+
+# Stripe
+STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY', '')
+STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET', '')
+STRIPE_PREMIUM_PRICE_ID = os.getenv('STRIPE_PREMIUM_PRICE_ID', '')
+STRIPE_SUCCESS_URL = os.getenv('STRIPE_SUCCESS_URL', f"{FRONTEND_URL}/checkout/success")
+STRIPE_CANCEL_URL = os.getenv('STRIPE_CANCEL_URL', f"{FRONTEND_URL}/checkout/cancel")
+
+# Hasura Webhook
+HASURA_WEBHOOK_SECRET = os.getenv('HASURA_WEBHOOK_SECRET', '')
+
+# Traccar
+TRACCAR_BASE_URL = os.getenv('TRACCAR_BASE_URL', 'http://traccar:8082')
+TRACCAR_USER = os.getenv('TRACCAR_USER', '')
+TRACCAR_PASSWORD = os.getenv('TRACCAR_PASSWORD', '')
+TRACCAR_TOKEN = os.getenv('TRACCAR_TOKEN', '')

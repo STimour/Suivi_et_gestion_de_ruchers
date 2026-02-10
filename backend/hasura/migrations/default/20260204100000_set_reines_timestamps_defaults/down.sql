@@ -1,0 +1,51 @@
+ALTER TABLE utilisateurs
+  ALTER COLUMN created_at DROP DEFAULT,
+  ALTER COLUMN updated_at DROP DEFAULT;
+
+ALTER TABLE entreprises
+  ALTER COLUMN created_at DROP DEFAULT,
+  ALTER COLUMN updated_at DROP DEFAULT;
+
+ALTER TABLE utilisateurs_entreprises
+  ALTER COLUMN created_at DROP DEFAULT,
+  ALTER COLUMN updated_at DROP DEFAULT;
+
+ALTER TABLE invitations
+  ALTER COLUMN created_at DROP DEFAULT,
+  ALTER COLUMN updated_at DROP DEFAULT;
+
+ALTER TABLE offres
+  ALTER COLUMN created_at DROP DEFAULT,
+  ALTER COLUMN updated_at DROP DEFAULT;
+
+ALTER TABLE ruchers
+  ALTER COLUMN created_at DROP DEFAULT,
+  ALTER COLUMN updated_at DROP DEFAULT;
+
+ALTER TABLE ruches
+  ALTER COLUMN created_at DROP DEFAULT,
+  ALTER COLUMN updated_at DROP DEFAULT;
+
+ALTER TABLE reines
+  ALTER COLUMN created_at DROP DEFAULT,
+  ALTER COLUMN updated_at DROP DEFAULT;
+
+ALTER TABLE capteurs
+  ALTER COLUMN created_at DROP DEFAULT,
+  ALTER COLUMN updated_at DROP DEFAULT;
+
+ALTER TABLE mesures
+  ALTER COLUMN created_at DROP DEFAULT,
+  ALTER COLUMN updated_at DROP DEFAULT;
+
+ALTER TABLE interventions
+  ALTER COLUMN created_at DROP DEFAULT,
+  ALTER COLUMN updated_at DROP DEFAULT;
+
+ALTER TABLE transhumances
+  ALTER COLUMN created_at DROP DEFAULT,
+  ALTER COLUMN updated_at DROP DEFAULT;
+
+ALTER TABLE alertes
+  ALTER COLUMN created_at DROP DEFAULT,
+  ALTER COLUMN updated_at DROP DEFAULT;

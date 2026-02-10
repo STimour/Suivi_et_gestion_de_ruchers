@@ -2,177 +2,224 @@ table:
   name: reines
   schema: public
 object_relationships:
-  - name: ruch
+  - name: entreprise
+    using:
+      foreign_key_constraint_on: entreprise_id
+  - name: lignee_reine
+    using:
+      foreign_key_constraint_on: lignee
+  - name: ruche
+    using:
+      foreign_key_constraint_on: ruche_id
+array_relationships:
+  - name: cycles_elevage_reines
     using:
       foreign_key_constraint_on:
         column: reine_id
         table:
-          name: ruches
+          name: cycles_elevage_reines
           schema: public
 insert_permissions:
   - role: AdminEntreprise
     permission:
       check:
         _and:
-          - ruch:
-              rucher:
-                entreprise_id:
-                  _eq: X-Hasura-Entreprise-Id
-          - ruch:
-              rucher:
-                entreprise:
-                  utilisateurs_entreprises:
-                    utilisateur_id:
-                      _eq: X-Hasura-User-Id
+          - entreprise:
+              id:
+                _eq: X-Hasura-Entreprise-Id
+          - entreprise:
+              utilisateurs_entreprises:
+                utilisateur_id:
+                  _eq: X-Hasura-User-Id
       columns:
-        - anneeNaissance
+        - isElevage
+        - nonReproductible
         - codeCouleur
         - lignee
+        - statut
+        - anneeNaissance
         - noteDouceur
         - commentaire
-        - nonReproductible
+        - created_at
+        - updated_at
+        - entreprise_id
         - id
+        - ruche_id
     comment: Vérification des limites via trigger PostgreSQL
   - role: Apiculteur
     permission:
       check:
         _and:
-          - ruch:
-              rucher:
-                entreprise_id:
-                  _eq: X-Hasura-Entreprise-Id
-          - ruch:
-              rucher:
-                entreprise:
-                  utilisateurs_entreprises:
-                    utilisateur_id:
-                      _eq: X-Hasura-User-Id
+          - entreprise:
+              id:
+                _eq: X-Hasura-Entreprise-Id
+          - entreprise:
+              utilisateurs_entreprises:
+                utilisateur_id:
+                  _eq: X-Hasura-User-Id
       columns:
-        - anneeNaissance
+        - isElevage
+        - nonReproductible
         - codeCouleur
         - lignee
+        - statut
+        - anneeNaissance
         - noteDouceur
         - commentaire
-        - nonReproductible
+        - created_at
+        - updated_at
+        - entreprise_id
         - id
+        - ruche_id
     comment: Vérification des limites via trigger PostgreSQL
 select_permissions:
   - role: AdminEntreprise
     permission:
       columns:
-        - anneeNaissance
+        - isElevage
+        - nonReproductible
         - codeCouleur
         - lignee
+        - statut
+        - anneeNaissance
         - noteDouceur
         - commentaire
-        - nonReproductible
+        - created_at
+        - updated_at
+        - entreprise_id
         - id
+        - ruche_id
       filter:
         _and:
-          - ruch:
-              rucher:
-                entreprise_id:
-                  _eq: X-Hasura-Entreprise-Id
-          - ruch:
-              rucher:
-                entreprise:
-                  utilisateurs_entreprises:
-                    utilisateur_id:
-                      _eq: X-Hasura-User-Id
+          - entreprise:
+              id:
+                _eq: X-Hasura-Entreprise-Id
+          - entreprise:
+              utilisateurs_entreprises:
+                utilisateur_id:
+                  _eq: X-Hasura-User-Id
     comment: ""
   - role: Apiculteur
     permission:
       columns:
-        - anneeNaissance
+        - isElevage
+        - nonReproductible
         - codeCouleur
         - lignee
+        - statut
+        - anneeNaissance
         - noteDouceur
         - commentaire
-        - nonReproductible
+        - created_at
+        - updated_at
+        - entreprise_id
         - id
+        - ruche_id
       filter:
         _and:
-          - ruch:
-              rucher:
-                entreprise_id:
-                  _eq: X-Hasura-Entreprise-Id
-          - ruch:
-              rucher:
-                entreprise:
-                  utilisateurs_entreprises:
-                    utilisateur_id:
-                      _eq: X-Hasura-User-Id
+          - entreprise:
+              id:
+                _eq: X-Hasura-Entreprise-Id
+          - entreprise:
+              utilisateurs_entreprises:
+                utilisateur_id:
+                  _eq: X-Hasura-User-Id
     comment: ""
   - role: Lecteur
     permission:
       columns:
-        - anneeNaissance
+        - isElevage
+        - nonReproductible
         - codeCouleur
         - lignee
+        - statut
+        - anneeNaissance
         - noteDouceur
         - commentaire
-        - nonReproductible
+        - created_at
+        - updated_at
+        - entreprise_id
         - id
+        - ruche_id
       filter:
         _and:
-          - ruch:
-              rucher:
-                entreprise_id:
-                  _eq: X-Hasura-Entreprise-Id
-          - ruch:
-              rucher:
-                entreprise:
-                  utilisateurs_entreprises:
-                    utilisateur_id:
-                      _eq: X-Hasura-User-Id
+          - entreprise:
+              id:
+                _eq: X-Hasura-Entreprise-Id
+          - entreprise:
+              utilisateurs_entreprises:
+                utilisateur_id:
+                  _eq: X-Hasura-User-Id
+    comment: ""
+  - role: anonymous
+    permission:
+      columns:
+        - anneeNaissance
+        - codeCouleur
+        - created_at
+        - entreprise_id
+        - id
+        - isElevage
+        - lignee
+        - nonReproductible
+        - noteDouceur
+        - statut
+        - updated_at
+      filter: {}
     comment: ""
 update_permissions:
   - role: AdminEntreprise
     permission:
       columns:
-        - anneeNaissance
+        - isElevage
+        - nonReproductible
         - codeCouleur
         - lignee
+        - statut
+        - anneeNaissance
         - noteDouceur
         - commentaire
-        - nonReproductible
+        - created_at
+        - updated_at
+        - entreprise_id
         - id
+        - ruche_id
       filter:
         _and:
-          - ruch:
-              rucher:
-                entreprise_id:
-                  _eq: X-Hasura-Entreprise-Id
-          - ruch:
-              rucher:
-                entreprise:
-                  utilisateurs_entreprises:
-                    utilisateur_id:
-                      _eq: X-Hasura-User-Id
+          - entreprise:
+              id:
+                _eq: X-Hasura-Entreprise-Id
+          - entreprise:
+              utilisateurs_entreprises:
+                utilisateur_id:
+                  _eq: X-Hasura-User-Id
       check: null
     comment: ""
   - role: Apiculteur
     permission:
       columns:
-        - anneeNaissance
+        - isElevage
+        - nonReproductible
         - codeCouleur
         - lignee
+        - statut
+        - anneeNaissance
         - noteDouceur
         - commentaire
-        - nonReproductible
+        - created_at
+        - updated_at
+        - entreprise_id
         - id
+        - ruche_id
       filter:
         _and:
-          - ruch:
-              rucher:
-                entreprise_id:
-                  _eq: X-Hasura-Entreprise-Id
-          - ruch:
-              rucher:
-                entreprise:
-                  utilisateurs_entreprises:
-                    utilisateur_id:
-                      _eq: X-Hasura-User-Id
+          - entreprise:
+              id:
+                _eq: X-Hasura-Entreprise-Id
+          - entreprise:
+              utilisateurs_entreprises:
+                utilisateur_id:
+                  _eq: X-Hasura-User-Id
       check: null
     comment: ""
 delete_permissions:
@@ -180,29 +227,23 @@ delete_permissions:
     permission:
       filter:
         _and:
-          - ruch:
-              rucher:
-                entreprise_id:
-                  _eq: X-Hasura-Entreprise-Id
-          - ruch:
-              rucher:
-                entreprise:
-                  utilisateurs_entreprises:
-                    utilisateur_id:
-                      _eq: X-Hasura-User-Id
+          - entreprise:
+              id:
+                _eq: X-Hasura-Entreprise-Id
+          - entreprise:
+              utilisateurs_entreprises:
+                utilisateur_id:
+                  _eq: X-Hasura-User-Id
     comment: ""
   - role: Apiculteur
     permission:
       filter:
         _and:
-          - ruch:
-              rucher:
-                entreprise_id:
-                  _eq: X-Hasura-Entreprise-Id
-          - ruch:
-              rucher:
-                entreprise:
-                  utilisateurs_entreprises:
-                    utilisateur_id:
-                      _eq: X-Hasura-User-Id
+          - entreprise:
+              id:
+                _eq: X-Hasura-Entreprise-Id
+          - entreprise:
+              utilisateurs_entreprises:
+                utilisateur_id:
+                  _eq: X-Hasura-User-Id
     comment: ""

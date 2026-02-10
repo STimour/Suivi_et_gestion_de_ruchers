@@ -6,11 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0004_maladie_ruche'),
+        ('core', '0004_ruche_maladie'),
     ]
 
-    operations = [
-        migrations.DeleteModel(
-            name='__tmp__TypeMaladie',
-        ),
-    ]
+    operations = []

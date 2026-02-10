@@ -1,7 +1,7 @@
 import { toast } from 'sonner';
 
-const DJANGO_API_URL = process.env.NEXT_PUBLIC_DJANGO_API_URL || 'http://localhost:8000';
-const GRAPHQL_URL = process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT || 'http://localhost:8081/v1/graphql';
+const DJANGO_API_URL = process.env.NEXT_PUBLIC_DJANGO_API_URL || 'http://api.localhost:8088';
+const GRAPHQL_URL = process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT || 'http://hasura.localhost:8088/v1/graphql';
 
 export interface RegisterData {
   email: string;
@@ -10,6 +10,31 @@ export interface RegisterData {
   prenom: string;
   entreprise_nom: string;
   entreprise_adresse: string;
+}
+
+export interface RegisterUserData {
+  email: string;
+  password: string;
+  nom: string;
+  prenom: string;
+}
+
+export interface RegisterResponse {
+  message: string;
+  email_sent: boolean;
+  email_error?: string | null;
+  user: {
+    id: string;
+    email: string;
+    nom: string;
+    prenom: string;
+    actif: boolean;
+  };
+}
+
+export interface EntrepriseCreateData {
+  nom: string;
+  adresse: string;
 }
 
 export interface LoginData {
@@ -40,6 +65,29 @@ export interface EntrepriseResponse {
   id: string;
   nom: string;
   adresse: string;
+  access_token?: string;
+}
+
+export interface OffreLimitation {
+  nbRuchersMax: number;
+  nbCapteursMax: number;
+  nbReinesMax: number;
+}
+
+export interface OffreItem {
+  value: string;
+  titre: string;
+  description?: string;
+  prixHT?: number | null;
+  prixTTC?: number | null;
+  stripeProductId?: string | null;
+  limitations_offres?: OffreLimitation[];
+}
+
+export interface ProfileType {
+  value: string;
+  titre: string;
+  description?: string;
 }
 
 class AuthService {
@@ -89,8 +137,20 @@ class AuthService {
     });
 
     if (!registerResponse.ok) {
-      const error = await registerResponse.json();
-      throw new Error(error.message || 'Erreur lors de l\'inscription');
+      let error: any = {};
+      try {
+        error = await registerResponse.json();
+      } catch (err) {
+        error = {};
+      }
+      if (
+        registerResponse.status === 409 ||
+        error?.error === 'email_already_exists' ||
+        error?.message === 'email_already_exists'
+      ) {
+        throw new Error('Un compte existe déjà avec cet email.');
+      }
+      throw new Error(error.message || error.detail || error.error || 'Erreur lors de l\'inscription');
     }
 
     const authData: AuthResponse = await registerResponse.json();
@@ -103,16 +163,67 @@ class AuthService {
 
     // 2. Create entreprise
     try {
-      await this.createEntreprise({
+      const entrepriseData = await this.createEntreprise({
         nom: data.entreprise_nom,
         adresse: data.entreprise_adresse,
       }, authData.access_token);
+
+      // Mettre à jour le token avec celui qui contient l'entreprise_id
+      if (entrepriseData.access_token) {
+        this.setToken(entrepriseData.access_token);
+        authData.access_token = entrepriseData.access_token;
+
+        // Ajouter les infos d'entreprise à l'objet user
+        authData.user.entreprises = [{
+          id: entrepriseData.id,
+          nom: entrepriseData.nom,
+          role: 'AdminEntreprise',
+        }];
+        authData.user.entreprise_id = entrepriseData.id;
+        authData.user.entreprise_nom = entrepriseData.nom;
+        authData.user.entreprise_role = 'AdminEntreprise';
+      }
     } catch (error) {
       console.error('Erreur lors de la création de l\'entreprise:', error);
       // On ne bloque pas l'inscription si la création d'entreprise échoue
     }
 
     return authData;
+  }
+
+  async registerUser(data: RegisterUserData): Promise<RegisterResponse> {
+    const registerResponse = await fetch(`${DJANGO_API_URL}/api/auth/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: data.email,
+        password: data.password,
+        nom: data.nom,
+        prenom: data.prenom,
+      }),
+    });
+
+    if (!registerResponse.ok) {
+      let error: any = {};
+      try {
+        error = await registerResponse.json();
+      } catch (err) {
+        error = {};
+      }
+      if (
+        registerResponse.status === 409 ||
+        error?.error === 'email_already_exists' ||
+        error?.message === 'email_already_exists'
+      ) {
+        throw new Error('Un compte existe déjà avec cet email.');
+      }
+      throw new Error(error.message || error.detail || error.error || 'Erreur lors de l\'inscription');
+    }
+
+    const registerData: RegisterResponse = await registerResponse.json();
+    return registerData;
   }
 
   async login(data: LoginData): Promise<AuthResponse> {
@@ -126,7 +237,10 @@ class AuthService {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || 'Email ou mot de passe incorrect');
+      if (error?.error === 'user_inactive') {
+        throw new Error('Votre compte n\'est pas encore validé. Vérifiez vos emails.');
+      }
+      throw new Error(error.message || error.detail || error.error || 'Email ou mot de passe incorrect');
     }
 
     const authData: AuthResponse = await response.json();
@@ -171,6 +285,60 @@ class AuthService {
 
     // Update token
     this.setToken(data.access_token);
+
+    return data;
+  }
+
+  async sendInvitation(email: string, rolePropose: string, entrepriseId: string): Promise<any> {
+    const token = this.getToken();
+
+    if (!token) {
+      throw new Error('Non authentifié');
+    }
+
+    const response = await this.fetchWithErrorHandling(`${DJANGO_API_URL}/api/entreprise/invitation`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ email, rolePropose, entreprise_id: entrepriseId }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Erreur lors de l\'envoi de l\'invitation');
+    }
+
+    return response.json();
+  }
+
+  async acceptInvitation(invitationToken: string): Promise<any> {
+    const token = this.getToken();
+
+    if (!token) {
+      throw new Error('Non authentifié');
+    }
+
+    const response = await this.fetchWithErrorHandling(`${DJANGO_API_URL}/api/auth/accept-invitation`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ token: invitationToken }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Erreur lors de l\'acceptation de l\'invitation');
+    }
+
+    const data = await response.json();
+
+    if (data.access_token) {
+      this.setToken(data.access_token);
+    }
 
     return data;
   }
@@ -248,6 +416,9 @@ class AuthService {
       userData.entreprise_id = activeEntreprise.id;
       userData.entreprise_nom = activeEntreprise.nom;
       userData.entreprise_role = activeEntreprise.role;
+      userData.entreprise_typeOffre = activeEntreprise.typeOffre;
+      userData.entreprise_nbRuchersMax = activeEntreprise.offre?.nbRuchersMax ?? activeEntreprise.offre?.limitationOffre?.nbRuchersMax;
+      userData.entreprise_nbReinesMax = activeEntreprise.offre?.nbReinesMax ?? activeEntreprise.offre?.limitationOffre?.nbReinesMax;
     }
 
     return userData;
@@ -298,6 +469,299 @@ class AuthService {
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.message || 'Erreur lors de la création de l\'entreprise');
+    }
+
+    return response.json();
+  }
+
+  async createEntrepriseForOnboarding(data: EntrepriseCreateData, token: string): Promise<EntrepriseResponse> {
+    return this.createEntreprise(data, token);
+  }
+
+  async updateEntrepriseOffre(entrepriseId: string, typeOffre: string): Promise<any> {
+    const token = this.getToken();
+    if (!token) {
+      throw new Error('Non authentifié');
+    }
+
+    const response = await this.fetchWithErrorHandling(`${DJANGO_API_URL}/api/entreprises/${entrepriseId}/offre`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ typeOffre }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Erreur lors de la mise à jour de l\'offre');
+    }
+
+    return response.json();
+  }
+
+  async updateEntrepriseProfiles(entrepriseId: string, typeProfiles: string[]): Promise<any> {
+    const token = this.getToken();
+    if (!token) {
+      throw new Error('Non authentifié');
+    }
+
+    const response = await this.fetchWithErrorHandling(`${DJANGO_API_URL}/api/entreprises/${entrepriseId}/profiles`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ typeProfiles }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Erreur lors de la mise à jour des profils');
+    }
+
+    return response.json();
+  }
+
+  async createPremiumCheckout(entrepriseId: string): Promise<{ url: string }> {
+    const token = this.getToken();
+    if (!token) {
+      throw new Error('Non authentifié');
+    }
+
+    const response = await this.fetchWithErrorHandling(
+      `${DJANGO_API_URL}/api/entreprises/${entrepriseId}/checkout/premium`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || error.message || 'Erreur lors de la création du paiement');
+    }
+
+    return response.json();
+  }
+
+  private async graphqlRequest<T>(
+    query: string,
+    variables?: Record<string, any>,
+    token?: string
+  ): Promise<T> {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(GRAPHQL_URL, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ query, variables }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Erreur GraphQL');
+    }
+
+    const result = await response.json();
+    if (result.errors?.length) {
+      throw new Error(result.errors[0]?.message || 'Erreur GraphQL');
+    }
+
+    return result.data as T;
+  }
+
+  async listOffres(): Promise<OffreItem[]> {
+    const query = `
+      query {
+        type_offre {
+          value
+          titre
+          description
+          prixHT
+          prixTTC
+          stripeProductId
+          limitations_offres {
+            nbRuchersMax
+            nbCapteursMax
+            nbReinesMax
+          }
+        }
+      }
+    `;
+
+    try {
+      const data = await this.graphqlRequest<{ type_offre: OffreItem[] }>(query);
+      return data.type_offre || [];
+    } catch (error) {
+      const fallbackQuery = `
+        query {
+          type_offre {
+            value
+            titre
+            description
+            limitations_offres {
+              nbRuchersMax
+              nbCapteursMax
+              nbReinesMax
+            }
+          }
+        }
+      `;
+      const data = await this.graphqlRequest<{ type_offre: OffreItem[] }>(fallbackQuery);
+      return data.type_offre || [];
+    }
+  }
+
+  async listProfiles(): Promise<ProfileType[]> {
+    const token = this.getToken();
+    const headers: Record<string, string> = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${DJANGO_API_URL}/api/profiles`, {
+      method: 'GET',
+      headers,
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || error.message || 'Erreur lors du chargement des profils');
+    }
+
+    const data = await response.json();
+    return data.profiles || [];
+  }
+
+  async verifyAccount(token: string): Promise<{ message: string }> {
+    const response = await fetch(
+      `${DJANGO_API_URL}/api/auth/verify-account?token=${encodeURIComponent(token)}`,
+      {
+        method: 'GET',
+      }
+    );
+
+    let data: any = {};
+    try {
+      data = await response.json();
+    } catch (error) {
+      data = {};
+    }
+
+    if (!response.ok) {
+      throw new Error(data.message || data.detail || data.error || 'Erreur lors de la vérification');
+    }
+
+    return data;
+  }
+
+  async resendVerificationEmail(email: string): Promise<{ message: string; email_sent?: boolean; retry_after_seconds?: number }> {
+    const response = await fetch(`${DJANGO_API_URL}/api/auth/resend-verification`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
+    });
+
+    let data: any = {};
+    try {
+      data = await response.json();
+    } catch (error) {
+      data = {};
+    }
+
+    if (!response.ok) {
+      const err: any = new Error(data.message || data.detail || data.error || 'Erreur lors du renvoi');
+      if (typeof data.retry_after_seconds === 'number') {
+        err.retryAfterSeconds = data.retry_after_seconds;
+      }
+      throw err;
+    }
+
+    return data;
+  }
+
+  async requestPasswordReset(email: string): Promise<{ message: string; email_sent?: boolean }> {
+    const response = await fetch(`${DJANGO_API_URL}/api/auth/request-password-reset`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
+    });
+
+    let data: any = {};
+    try {
+      data = await response.json();
+    } catch (error) {
+      data = {};
+    }
+
+    if (!response.ok) {
+      if (response.status === 404 && data?.error === 'user_not_found') {
+        throw new Error('Aucun compte trouvé avec cet email.');
+      }
+      throw new Error(data.message || data.detail || data.error || 'Erreur lors de la demande de reset');
+    }
+
+    return data;
+  }
+
+  async resetPassword(token: string, password: string): Promise<{ message: string }> {
+    const response = await fetch(`${DJANGO_API_URL}/api/auth/reset-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ token, password }),
+    });
+
+    let data: any = {};
+    try {
+      data = await response.json();
+    } catch (error) {
+      data = {};
+    }
+
+    if (!response.ok) {
+      if (response.status === 401 && data?.error === 'invalid_token') {
+        throw new Error('Lien de réinitialisation invalide.');
+      }
+      if (response.status === 409 && data?.error === 'token_already_used') {
+        throw new Error('Ce lien a déjà été utilisé.');
+      }
+      if (response.status === 410 && data?.error === 'token_expired') {
+        throw new Error('Ce lien a expiré. Veuillez recommencer.');
+      }
+      throw new Error(data.message || data.detail || data.error || 'Erreur lors de la réinitialisation');
+    }
+
+    return data;
+  }
+
+  async getEntrepriseOffreStatus(entrepriseId: string, token: string): Promise<any> {
+    const response = await this.fetchWithErrorHandling(
+      `${DJANGO_API_URL}/api/entreprises/${entrepriseId}/offre/status`,
+      {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || error.message || 'Erreur lors du chargement du statut');
     }
 
     return response.json();

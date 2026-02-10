@@ -1,15 +1,22 @@
 from django.db import models
+from django.utils import timezone
 import uuid
 from .organisation import TypeFlore
+from .base import TimestampedModel
 
-class Transhumance(models.Model):
+class Transhumance(TimestampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     date = models.DateField()
     origineLat = models.FloatField()
     origineLng = models.FloatField()
     destinationLat = models.FloatField()
     destinationLng = models.FloatField()
-    floreCible = models.CharField(max_length=20, choices=TypeFlore.choices)
+    floreCible = models.ForeignKey(
+        TypeFlore,
+        to_field='value',
+        db_column='floreCible',
+        on_delete=models.PROTECT,
+    )
     rucher = models.ForeignKey('Rucher', on_delete=models.CASCADE, related_name='transhumances')
 
     class Meta:
@@ -28,7 +35,7 @@ class TypeAlerte(models.TextChoices):
     DEPLACEMENT_GPS = 'DeplacementGPS', 'DeplacementGPS'
     HORS_LIGNE = 'HorsLigne', 'HorsLigne'
 
-class Alerte(models.Model):
+class Alerte(TimestampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     type = models.CharField(max_length=30, choices=TypeAlerte.choices)
     date = models.DateTimeField(auto_now_add=True)
@@ -42,4 +49,4 @@ class Alerte(models.Model):
         verbose_name_plural = 'Alertes'
 
     def __str__(self):
-        return f"Alerte {self.type} - {self.date}"
+        return f"Alerte {self.type} - {self.created_at}"

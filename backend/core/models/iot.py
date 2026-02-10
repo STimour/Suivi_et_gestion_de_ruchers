@@ -1,5 +1,7 @@
 from django.db import models
+from django.utils import timezone
 import uuid
+from .base import TimestampedModel
 
 class TypeCapteur(models.TextChoices):
     POIDS = 'Poids', 'Poids'
@@ -10,13 +12,19 @@ class TypeCapteur(models.TextChoices):
     SON = 'Son', 'Son'
     BATTERIE = 'Batterie', 'Batterie'
 
-class Capteur(models.Model):
+class Capteur(TimestampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     type = models.CharField(max_length=20, choices=TypeCapteur.choices)
     identifiant = models.CharField(max_length=100, unique=True)
     actif = models.BooleanField(default=True)
     batteriePct = models.FloatField(null=True, blank=True)
     derniereCommunication = models.DateTimeField(null=True, blank=True)
+    gpsAlertActive = models.BooleanField(default=False)
+    gpsReferenceLat = models.FloatField(null=True, blank=True)
+    gpsReferenceLng = models.FloatField(null=True, blank=True)
+    gpsThresholdMeters = models.FloatField(default=100.0)
+    gpsLastCheckedAt = models.DateTimeField(null=True, blank=True)
+    gpsLastAlertAt = models.DateTimeField(null=True, blank=True)
     ruche = models.ForeignKey('Ruche', on_delete=models.CASCADE, related_name='capteurs')
 
     class Meta:
@@ -27,9 +35,9 @@ class Capteur(models.Model):
     def __str__(self):
         return f"{self.type} - {self.identifiant}"
 
-class Mesure(models.Model):
+class Mesure(TimestampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    date = models.DateTimeField(auto_now_add=True)
+    date = models.DateTimeField(default=timezone.now)
     valeur = models.FloatField()
     capteur = models.ForeignKey(Capteur, on_delete=models.CASCADE, related_name='mesures')
 
@@ -39,4 +47,4 @@ class Mesure(models.Model):
         verbose_name_plural = 'Mesures'
 
     def __str__(self):
-        return f"{self.capteur.type}: {self.valeur} ({self.date})"
+        return f"{self.capteur.type}: {self.valeur} ({self.created_at})"

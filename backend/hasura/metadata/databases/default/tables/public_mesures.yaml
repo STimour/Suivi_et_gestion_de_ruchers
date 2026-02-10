@@ -23,7 +23,6 @@ insert_permissions:
                       utilisateur_id:
                         _eq: X-Hasura-User-Id
       columns:
-        - date
         - valeur
         - capteur_id
         - id
@@ -45,7 +44,6 @@ insert_permissions:
                       utilisateur_id:
                         _eq: X-Hasura-User-Id
       columns:
-        - date
         - valeur
         - capteur_id
         - id
@@ -54,10 +52,11 @@ select_permissions:
   - role: AdminEntreprise
     permission:
       columns:
-        - date
+        - created_at
         - valeur
         - capteur_id
         - id
+        - updated_at
       filter:
         _and:
           - capteur:
@@ -76,10 +75,11 @@ select_permissions:
   - role: Apiculteur
     permission:
       columns:
-        - date
+        - created_at
         - valeur
         - capteur_id
         - id
+        - updated_at
       filter:
         _and:
           - capteur:
@@ -98,10 +98,11 @@ select_permissions:
   - role: Lecteur
     permission:
       columns:
-        - date
+        - created_at
         - valeur
         - capteur_id
         - id
+        - updated_at
       filter:
         _and:
           - capteur:
@@ -121,7 +122,6 @@ update_permissions:
   - role: AdminEntreprise
     permission:
       columns:
-        - date
         - valeur
         - capteur_id
         - id
@@ -144,7 +144,6 @@ update_permissions:
   - role: Apiculteur
     permission:
       columns:
-        - date
         - valeur
         - capteur_id
         - id

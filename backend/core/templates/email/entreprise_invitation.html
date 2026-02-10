@@ -1,0 +1,38 @@
+{% extends "email/base.html" %}
+
+{% block content %}
+    <h2>Vous avez une invitation sur Abbenage</h2>
+
+    <p>Bonjour <strong>{{ recipient_name }}</strong>,</p>
+
+    <p><strong>{{ envoye_par_name }}</strong> vous invite à rejoindre <strong>{{ entreprise_nom }}</strong>.</p>
+
+    <div class="highlight">
+        <p><strong>Détails</strong></p>
+        <ul class="meta-list">
+            <li><strong>Entreprise :</strong> {{ entreprise_nom }}</li>
+            <li><strong>Rôle proposé :</strong> <span class="pill">{{ role_display }}</span></li>
+            <li><strong>Invité par :</strong> {{ envoye_par_name }}</li>
+            <li><strong>Expire le :</strong> {{ date_expiration }}</li>
+        </ul>
+    </div>
+
+    <p>Validez l’invitation en un clic :</p>
+
+    <div style="text-align: center;">
+        <a href="{{ invitation_link }}" class="btn">
+            Rejoindre l’entreprise
+        </a>
+    </div>
+
+    <p><strong>Bon à savoir</strong></p>
+    <ul class="meta-list">
+        <li>Le lien est valable 7 jours</li>
+        <li>Pas encore de compte ? Vous pourrez en créer un en 30 secondes</li>
+        <li>Déjà membre ? Connectez-vous avant d’accepter</li>
+    </ul>
+
+    <p>Si vous n’êtes pas concerné(e), vous pouvez ignorer cet email en toute sécurité.</p>
+
+    <p>À bientôt sur Abbenage.</p>
+{% endblock %}

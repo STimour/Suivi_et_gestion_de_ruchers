@@ -1,0 +1,40 @@
+table:
+  name: type_maladie
+  schema: public
+array_relationships:
+  - name: ruches
+    using:
+      foreign_key_constraint_on:
+        column: maladie
+        table:
+          name: ruches
+          schema: public
+select_permissions:
+  - role: AdminEntreprise
+    permission:
+      columns:
+        - value
+        - label
+      filter: {}
+    comment: ""
+  - role: Apiculteur
+    permission:
+      columns:
+        - value
+        - label
+      filter: {}
+    comment: ""
+  - role: Lecteur
+    permission:
+      columns:
+        - value
+        - label
+      filter: {}
+    comment: ""
+  - role: anonymous
+    permission:
+      columns:
+        - label
+        - value
+      filter: {}
+    comment: ""

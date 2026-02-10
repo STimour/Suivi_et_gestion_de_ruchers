@@ -5,6 +5,9 @@ object_relationships:
   - name: rucher
     using:
       foreign_key_constraint_on: rucher_id
+  - name: type_flore
+    using:
+      foreign_key_constraint_on: floreCible
 insert_permissions:
   - role: AdminEntreprise
     permission:
@@ -62,6 +65,8 @@ select_permissions:
         - origineLng
         - id
         - rucher_id
+        - created_at
+        - updated_at
       filter:
         _and:
           - rucher:
@@ -84,6 +89,8 @@ select_permissions:
         - origineLng
         - id
         - rucher_id
+        - created_at
+        - updated_at
       filter:
         _and:
           - rucher:
@@ -106,6 +113,8 @@ select_permissions:
         - origineLng
         - id
         - rucher_id
+        - created_at
+        - updated_at
       filter:
         _and:
           - rucher:
@@ -116,6 +125,21 @@ select_permissions:
                 utilisateurs_entreprises:
                   utilisateur_id:
                     _eq: X-Hasura-User-Id
+    comment: ""
+  - role: anonymous
+    permission:
+      columns:
+        - floreCible
+        - date
+        - destinationLat
+        - destinationLng
+        - origineLat
+        - origineLng
+        - created_at
+        - updated_at
+        - id
+        - rucher_id
+      filter: {}
     comment: ""
 update_permissions:
   - role: AdminEntreprise

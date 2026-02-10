@@ -6,9 +6,9 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        - NEXT_PUBLIC_GRAPHQL_ENDPOINT=http://localhost:8081/v1/graphql
+        - NEXT_PUBLIC_GRAPHQL_ENDPOINT=http://hasura.localhost:8088/v1/graphql
         - NEXT_PUBLIC_HASURA_ADMIN_SECRET=adminsecret
-        - NEXT_PUBLIC_DJANGO_API_URL=http://localhost:8000
+        - NEXT_PUBLIC_DJANGO_API_URL=http://api.localhost:8088
     container_name: rucher-frontend
     restart: unless-stopped
     ports:

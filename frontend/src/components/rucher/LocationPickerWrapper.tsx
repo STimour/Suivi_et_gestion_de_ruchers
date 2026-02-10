@@ -9,7 +9,7 @@ const LocationPicker = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-[320px] rounded-lg border border-amber-200 bg-amber-50 flex items-center justify-center">
+      <div className="h-[320px] rounded-lg bg-amber-50 flex items-center justify-center">
         <div className="flex items-center gap-2 text-amber-700">
           <Loader2 className="h-5 w-5 animate-spin" />
           <span>Chargement de la carte...</span>

@@ -1,0 +1,16 @@
+table:
+  name: notifications
+  schema: public
+object_relationships:
+  - name: entreprise
+    using:
+      foreign_key_constraint_on: entreprise_id
+  - name: intervention
+    using:
+      foreign_key_constraint_on: intervention_id
+  - name: ruch
+    using:
+      foreign_key_constraint_on: ruche_id
+  - name: utilisateur
+    using:
+      foreign_key_constraint_on: utilisateur_id

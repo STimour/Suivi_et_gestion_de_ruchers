@@ -5,6 +5,12 @@ object_relationships:
   - name: entreprise
     using:
       foreign_key_constraint_on: entreprise_id
+  - name: limitations_offre
+    using:
+      foreign_key_constraint_on: limitationOffre_id
+  - name: type_offre
+    using:
+      foreign_key_constraint_on: type
 insert_permissions:
   - role: AdminEntreprise
     permission:
@@ -52,15 +58,20 @@ select_permissions:
   - role: AdminEntreprise
     permission:
       columns:
+        - active
+        - stripeCustomerId
+        - stripeSubscriptionId
         - type
+        - nbCapteursMax
+        - nbReinesMax
+        - nbRuchersMax
+        - created_at
         - dateDebut
         - dateFin
-        - active
-        - nbRuchersMax
-        - nbCapteursMax
-        - stripeCustomerId
+        - updated_at
         - entreprise_id
         - id
+        - limitationOffre_id
       filter:
         _and:
           - entreprise_id:
@@ -73,15 +84,20 @@ select_permissions:
   - role: Apiculteur
     permission:
       columns:
+        - active
+        - stripeCustomerId
+        - stripeSubscriptionId
         - type
+        - nbCapteursMax
+        - nbReinesMax
+        - nbRuchersMax
+        - created_at
         - dateDebut
         - dateFin
-        - active
-        - nbRuchersMax
-        - nbCapteursMax
-        - stripeCustomerId
+        - updated_at
         - entreprise_id
         - id
+        - limitationOffre_id
       filter:
         _and:
           - entreprise_id:
@@ -94,15 +110,20 @@ select_permissions:
   - role: Lecteur
     permission:
       columns:
+        - active
+        - stripeCustomerId
+        - stripeSubscriptionId
         - type
+        - nbCapteursMax
+        - nbReinesMax
+        - nbRuchersMax
+        - created_at
         - dateDebut
         - dateFin
-        - active
-        - nbRuchersMax
-        - nbCapteursMax
-        - stripeCustomerId
+        - updated_at
         - entreprise_id
         - id
+        - limitationOffre_id
       filter:
         _and:
           - entreprise_id:

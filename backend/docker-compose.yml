@@ -1,4 +1,22 @@
 services:
+  traefik:
+    image: traefik:v2.11
+    restart: always
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "8088:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.middlewares.ratelimit.ratelimit.average=20"
+      - "traefik.http.middlewares.ratelimit.ratelimit.burst=40"
+
   postgres:
     image: postgres:15
     restart: always
@@ -19,8 +37,6 @@ services:
   hasura:
     image: hasura/graphql-engine:v2.36.0.cli-migrations-v3
     restart: always
-    ports:
-      - "8081:8080"
     depends_on:
       postgres:
         condition: service_healthy
@@ -30,18 +46,39 @@ services:
       HASURA_GRAPHQL_DEV_MODE: "true"
       HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_GRAPHQL_ADMIN_SECRET}
       HASURA_GRAPHQL_JWT_SECRET: ${HASURA_GRAPHQL_JWT_SECRET}
+      HASURA_GRAPHQL_UNAUTHORIZED_ROLE: ${HASURA_GRAPHQL_UNAUTHORIZED_ROLE}
       HASURA_GRAPHQL_MIGRATIONS_DIR: /hasura-migrations
+      HASURA_WEBHOOK_SECRET: ${HASURA_WEBHOOK_SECRET}
+      DJANGO_WEBHOOK_URL: ${DJANGO_WEBHOOK_URL}
     volumes:
       - ./hasura:/hasura
       - ./hasura/migrations:/hasura-migrations
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.hasura.rule=Host(`hasura.localhost`)"
+      - "traefik.http.routers.hasura.entrypoints=web"
+      - "traefik.http.services.hasura.loadbalancer.server.port=8080"
+      - "traefik.http.routers.hasura.middlewares=ratelimit@docker"
 
   django:
     build: ./
-    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    command: sh -c "python manage.py migrate && daphne -b 0.0.0.0 -p 8000 config.asgi:application"
     volumes:
       - ./:/app
-    ports:
-      - "8000:8000"
+    develop:
+      watch:
+        - action: sync
+          path: ./
+          target: /app
+          ignore:
+            - .git/
+            - .venv/
+            - __pycache__/
+            - "*.pyc"
+        - action: rebuild
+          path: Dockerfile
+    env_file:
+      - .env
     depends_on:
       postgres:
         condition: service_healthy
@@ -51,6 +88,68 @@ services:
       DATABASE_USER: ${POSTGRES_USER}
       DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
+      HASURA_WEBHOOK_SECRET: ${HASURA_WEBHOOK_SECRET}
+      TRACCAR_BASE_URL: ${TRACCAR_BASE_URL}
+      TRACCAR_USER: ${TRACCAR_USER}
+      TRACCAR_PASSWORD: ${TRACCAR_PASSWORD}
+      TRACCAR_TOKEN: ${TRACCAR_TOKEN}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.django.rule=Host(`api.localhost`)"
+      - "traefik.http.routers.django.entrypoints=web"
+      - "traefik.http.services.django.loadbalancer.server.port=8000"
+      - "traefik.http.routers.django.middlewares=ratelimit@docker"
+
+  stripe-cli:
+    image: stripe/stripe-cli:latest
+    restart: unless-stopped
+    depends_on:
+      - django
+    environment:
+      STRIPE_API_KEY: ${STRIPE_SECRET_KEY}
+      STRIPE_DEVICE_NAME: "local-docker"
+    command: listen --forward-to http://django:8000/api/stripe/webhook
+
+  traccar-db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_DB: traccar
+      POSTGRES_USER: ${TRACCAR_DB_USER}
+      POSTGRES_PASSWORD: ${TRACCAR_DB_PASSWORD}
+    volumes:
+      - traccar_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${TRACCAR_DB_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  traccar:
+    image: traccar/traccar:latest
+    restart: always
+    depends_on:
+      traccar-db:
+        condition: service_healthy
+    environment:
+      CONFIG_USE_ENVIRONMENT_VARIABLES: "true"
+      DATABASE_DRIVER: org.postgresql.Driver
+      DATABASE_URL: jdbc:postgresql://traccar-db:5432/traccar
+      DATABASE_USER: ${TRACCAR_DB_USER}
+      DATABASE_PASSWORD: ${TRACCAR_DB_PASSWORD}
+    volumes:
+      - traccar_data:/opt/traccar/data
+    ports:
+      - "8082:8082"
+      - "5055:5055"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traccar.rule=Host(`traccar.localhost`)"
+      - "traefik.http.routers.traccar.entrypoints=web"
+      - "traefik.http.services.traccar.loadbalancer.server.port=8082"
+      - "traefik.http.routers.traccar.middlewares=ratelimit@docker"
 
 volumes:
   postgres_data:
+  traccar_db_data:
+  traccar_data:

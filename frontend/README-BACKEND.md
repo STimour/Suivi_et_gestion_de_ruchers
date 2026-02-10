@@ -20,7 +20,7 @@ Frontend (Next.js)          Backend
 **Fichier** : `src/lib/graphql/client.ts`
 - Client Apollo avec gestion des erreurs
 - Cache configuré pour les entités principales
-- Connexion à Hasura sur `http://localhost:8081/v1/graphql`
+- Connexion à Hasura sur `http://hasura.localhost:8088/v1/graphql`
 
 ### 2. Provider Apollo
 
@@ -50,8 +50,8 @@ Frontend (Next.js)          Backend
 
 **Fichier** : `.env.local` (créé automatiquement)
 ```bash
-NEXT_PUBLIC_GRAPHQL_ENDPOINT=http://localhost:8081/v1/graphql
-NEXT_PUBLIC_DJANGO_API_URL=http://localhost:8000
+NEXT_PUBLIC_GRAPHQL_ENDPOINT=http://hasura.localhost:8088/v1/graphql
+NEXT_PUBLIC_DJANGO_API_URL=http://api.localhost:8088
 ```
 
 ## 🚀 Démarrage
@@ -162,7 +162,7 @@ Si vous avez des erreurs de connexion :
 
 1. Vérifier que Hasura est accessible :
 ```bash
-curl http://localhost:8081/v1/graphql
+curl http://hasura.localhost:8088/v1/graphql
 ```
 
 2. Vérifier les logs Hasura :
@@ -191,7 +191,7 @@ HASURA_GRAPHQL_CORS_DOMAIN: "*"
 
 ## 🔗 Liens utiles
 
-- Console Hasura : http://localhost:8081/console
-- Django Admin : http://localhost:8000/admin
+- Console Hasura : http://hasura.localhost:8088/console
+- Django Admin : http://api.localhost:8088/admin
 - Frontend : http://localhost:3000
-- GraphQL Playground : http://localhost:8081/console/api-explorer
+- GraphQL Playground : http://hasura.localhost:8088/console/api-explorer

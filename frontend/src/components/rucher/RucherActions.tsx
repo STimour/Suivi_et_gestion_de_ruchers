@@ -27,6 +27,7 @@ import { toast } from 'sonner';
 import { DELETE_RUCHER } from '@/lib/graphql/mutations/rucher.mutations';
 import { GET_RUCHERS } from '@/lib/graphql/queries/rucher.queries';
 import { EditRucherDialog } from './EditRucherDialog';
+import { useCanEdit } from '@/hooks/useCanEdit';
 
 interface RucherActionsProps {
     rucherId: string;
@@ -37,6 +38,7 @@ export function RucherActions({ rucherId, rucherNom }: RucherActionsProps) {
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
     const [showEditDialog, setShowEditDialog] = useState(false);
     const router = useRouter();
+    const canEdit = useCanEdit();
 
     const [deleteRucher, { loading: deleteLoading }] = useMutation(DELETE_RUCHER, {
         refetchQueries: [{ query: GET_RUCHERS }],
@@ -73,53 +75,61 @@ export function RucherActions({ rucherId, rucherNom }: RucherActionsProps) {
                             Voir
                         </DropdownMenuItem>
                     </Link>
-                    <DropdownMenuItem
-                        className="cursor-pointer"
-                        onClick={() => setShowEditDialog(true)}
-                    >
-                        <Pencil className="mr-2 h-4 w-4 text-blue-600" />
-                        Modifier
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                        className="cursor-pointer text-red-600 focus:text-red-600"
-                        onClick={() => setShowDeleteDialog(true)}
-                    >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Supprimer
-                    </DropdownMenuItem>
+                    {canEdit && (
+                        <DropdownMenuItem
+                            className="cursor-pointer"
+                            onClick={() => setShowEditDialog(true)}
+                        >
+                            <Pencil className="mr-2 h-4 w-4 text-blue-600" />
+                            Modifier
+                        </DropdownMenuItem>
+                    )}
+                    {canEdit && (
+                        <DropdownMenuItem
+                            className="cursor-pointer text-red-600 focus:text-red-600"
+                            onClick={() => setShowDeleteDialog(true)}
+                        >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Supprimer
+                        </DropdownMenuItem>
+                    )}
                 </DropdownMenuContent>
             </DropdownMenu>
 
-            <EditRucherDialog
-                rucherId={rucherId}
-                open={showEditDialog}
-                onOpenChange={setShowEditDialog}
-            />
+            {canEdit && (
+                <EditRucherDialog
+                    rucherId={rucherId}
+                    open={showEditDialog}
+                    onOpenChange={setShowEditDialog}
+                />
+            )}
 
-            <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Supprimer le rucher ?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            Êtes-vous sûr de vouloir supprimer le rucher <span className="font-semibold">{rucherNom}</span> ?
-                            Cette action est irréversible et supprimera toutes les ruches associées.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel disabled={deleteLoading}>Annuler</AlertDialogCancel>
-                        <AlertDialogAction
-                            className="bg-red-600 hover:bg-red-700 text-white"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                handleDelete();
-                            }}
-                            disabled={deleteLoading}
-                        >
-                            {deleteLoading ? "Suppression..." : "Supprimer"}
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+            {canEdit && (
+                <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Supprimer le rucher ?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                Êtes-vous sûr de vouloir supprimer le rucher <span className="font-semibold">{rucherNom}</span> ?
+                                Cette action est irréversible et supprimera toutes les ruches associées.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel disabled={deleteLoading}>Annuler</AlertDialogCancel>
+                            <AlertDialogAction
+                                className="bg-red-600 hover:bg-red-700 text-white"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    handleDelete();
+                                }}
+                                disabled={deleteLoading}
+                            >
+                                {deleteLoading ? "Suppression..." : "Supprimer"}
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+            )}
         </>
     );
 }

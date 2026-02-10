@@ -5,6 +5,14 @@ object_relationships:
   - name: ruch
     using:
       foreign_key_constraint_on: ruche_id
+array_relationships:
+  - name: notifications
+    using:
+      foreign_key_constraint_on:
+        column: intervention_id
+        table:
+          name: notifications
+          schema: public
 insert_permissions:
   - role: AdminEntreprise
     permission:
@@ -69,6 +77,8 @@ select_permissions:
         - poidsKg
         - id
         - ruche_id
+        - created_at
+        - updated_at
       filter:
         _and:
           - ruch:
@@ -94,6 +104,8 @@ select_permissions:
         - poidsKg
         - id
         - ruche_id
+        - created_at
+        - updated_at
       filter:
         _and:
           - ruch:
@@ -119,6 +131,8 @@ select_permissions:
         - poidsKg
         - id
         - ruche_id
+        - created_at
+        - updated_at
       filter:
         _and:
           - ruch:
@@ -131,6 +145,19 @@ select_permissions:
                   utilisateurs_entreprises:
                     utilisateur_id:
                       _eq: X-Hasura-User-Id
+    comment: ""
+  - role: anonymous
+    permission:
+      columns:
+        - created_at
+        - date
+        - dosage
+        - nbHausses
+        - poidsKg
+        - produit
+        - type
+        - updated_at
+      filter: {}
     comment: ""
 update_permissions:
   - role: AdminEntreprise

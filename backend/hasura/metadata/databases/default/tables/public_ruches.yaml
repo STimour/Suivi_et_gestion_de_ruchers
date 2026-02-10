@@ -4,10 +4,25 @@ table:
 object_relationships:
   - name: reine
     using:
-      foreign_key_constraint_on: reine_id
+      manual_configuration:
+        column_mapping:
+          id: ruche_id
+        insertion_order: null
+        remote_table:
+          name: reines
+          schema: public
   - name: rucher
     using:
       foreign_key_constraint_on: rucher_id
+  - name: type_maladie
+    using:
+      foreign_key_constraint_on: maladie
+  - name: type_race_abeille
+    using:
+      foreign_key_constraint_on: race
+  - name: type_ruche
+    using:
+      foreign_key_constraint_on: type
 array_relationships:
   - name: capteurs
     using:
@@ -22,6 +37,13 @@ array_relationships:
         column: ruche_id
         table:
           name: interventions
+          schema: public
+  - name: notifications
+    using:
+      foreign_key_constraint_on:
+        column: ruche_id
+        table:
+          name: notifications
           schema: public
 insert_permissions:
   - role: AdminEntreprise
@@ -80,6 +102,8 @@ select_permissions:
         - maladie
         - id
         - rucher_id
+        - created_at
+        - updated_at
       filter:
         _and:
           - rucher:
@@ -90,6 +114,7 @@ select_permissions:
                 utilisateurs_entreprises:
                   utilisateur_id:
                     _eq: X-Hasura-User-Id
+      allow_aggregations: true
     comment: ""
   - role: Apiculteur
     permission:
@@ -102,6 +127,8 @@ select_permissions:
         - maladie
         - id
         - rucher_id
+        - created_at
+        - updated_at
       filter:
         _and:
           - rucher:
@@ -112,6 +139,7 @@ select_permissions:
                 utilisateurs_entreprises:
                   utilisateur_id:
                     _eq: X-Hasura-User-Id
+      allow_aggregations: true
     comment: ""
   - role: Lecteur
     permission:
@@ -124,6 +152,8 @@ select_permissions:
         - maladie
         - id
         - rucher_id
+        - created_at
+        - updated_at
       filter:
         _and:
           - rucher:
@@ -134,6 +164,21 @@ select_permissions:
                 utilisateurs_entreprises:
                   utilisateur_id:
                     _eq: X-Hasura-User-Id
+      allow_aggregations: true
+    comment: ""
+  - role: anonymous
+    permission:
+      columns:
+        - created_at
+        - immatriculation
+        - maladie
+        - race
+        - rucher_id
+        - securisee
+        - statut
+        - type
+        - updated_at
+      filter: {}
     comment: ""
 update_permissions:
   - role: AdminEntreprise

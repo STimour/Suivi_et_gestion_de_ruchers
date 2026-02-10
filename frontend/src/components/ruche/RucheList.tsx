@@ -1,0 +1,216 @@
+import { useState } from 'react';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Hexagon, MapPin, Shield, ShieldOff, Pencil, Trash2, AlertTriangle, ClipboardList } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { EditRucheDialog } from './EditRucheDialog';
+import { AddInterventionDialog } from './AddInterventionDialog';
+import { useCanEdit } from '@/hooks/useCanEdit';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
+interface RucheListProps {
+    ruches: any[];
+    onDelete: (id: string) => void;
+}
+
+const getStatutColor = (statut: string) => {
+    switch (statut) {
+        case 'Active':
+            return 'bg-green-100 text-green-800';
+        case 'Faible':
+            return 'bg-yellow-100 text-yellow-800';
+        case 'Malade':
+            return 'bg-red-100 text-red-800';
+        case 'Morte':
+            return 'bg-gray-100 text-gray-800';
+        default:
+            return 'bg-gray-100 text-gray-800';
+    }
+};
+
+const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('fr-FR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    });
+};
+
+export function RucheList({ ruches, onDelete }: RucheListProps) {
+    const [editingRucheId, setEditingRucheId] = useState<string | null>(null);
+    const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+    const canEdit = useCanEdit();
+
+    if (ruches.length === 0) {
+        return null;
+    }
+
+    const handleDeleteConfirm = () => {
+        if (deleteConfirmId) {
+            onDelete(deleteConfirmId);
+            setDeleteConfirmId(null);
+        }
+    };
+
+    return (
+        <>
+            <div className="rounded-md border bg-white shadow-sm overflow-hidden">
+                <Table>
+                    <TableHeader className="bg-green-50/50">
+                        <TableRow>
+                            <TableHead className="w-[150px]">Immatriculation</TableHead>
+                            <TableHead>Rucher</TableHead>
+                            <TableHead>Type</TableHead>
+                            <TableHead>Race</TableHead>
+                            <TableHead className="text-center">Statut</TableHead>
+                            <TableHead className="text-center">Sécurisée</TableHead>
+                            <TableHead>Date création</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {ruches.map((ruche) => (
+                            <TableRow key={ruche.id} className="hover:bg-green-50/30">
+                                <TableCell className="font-mono font-medium text-green-900">
+                                    <div className="flex items-center gap-2">
+                                        <Hexagon className="h-4 w-4 text-green-600" />
+                                        {ruche.immatriculation}
+                                    </div>
+                                </TableCell>
+                                <TableCell>
+                                    {ruche.rucher ? (
+                                        <Link href={`/dashboard/apiaries/${ruche.rucher.id}`} className="flex items-center gap-1.5 hover:text-amber-600">
+                                            <MapPin className="h-3 w-3 text-amber-600" />
+                                            <span className="text-sm">{ruche.rucher.nom}</span>
+                                        </Link>
+                                    ) : (
+                                        <span className="text-sm text-gray-400">Sans rucher</span>
+                                    )}
+                                </TableCell>
+                                <TableCell className="text-sm">{ruche.type}</TableCell>
+                                <TableCell className="text-sm">{ruche.race}</TableCell>
+                                <TableCell className="text-center">
+                                    <div className="flex flex-col items-center gap-1">
+                                        <Badge className={getStatutColor(ruche.statut)}>
+                                            {ruche.statut}
+                                        </Badge>
+                                        {ruche.statut === 'Malade' && ruche.maladie && (
+                                            <div className="flex items-center gap-1 text-[10px] text-red-600 font-medium">
+                                                <AlertTriangle className="h-3 w-3" />
+                                                <span>{ruche.maladie}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </TableCell>
+                                <TableCell className="text-center">
+                                    {ruche.securisee ? (
+                                        <Shield className="h-4 w-4 text-green-600 mx-auto" />
+                                    ) : (
+                                        <ShieldOff className="h-4 w-4 text-gray-300 mx-auto" />
+                                    )}
+                                </TableCell>
+                                <TableCell>
+                                    <span className="text-sm text-gray-600">
+                                        {ruche.created_at ? formatDate(ruche.created_at) : '-'}
+                                    </span>
+                                </TableCell>
+                                <TableCell className="text-right">
+                                    <div className="flex justify-end items-center gap-2">
+                                        {canEdit && (
+                                            <AddInterventionDialog
+                                                rucheId={ruche.id}
+                                                rucheImmatriculation={ruche.immatriculation}
+                                                trigger={
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
+                                                    >
+                                                        <ClipboardList className="h-4 w-4" />
+                                                    </Button>
+                                                }
+                                            />
+                                        )}
+                                        {canEdit && (
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                                                onClick={() => setEditingRucheId(ruche.id)}
+                                            >
+                                                <Pencil className="h-4 w-4" />
+                                            </Button>
+                                        )}
+                                        {canEdit && (
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50"
+                                                onClick={() => setDeleteConfirmId(ruche.id)}
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        )}
+                                        <Link href={`/dashboard/hives/${ruche.id}`}>
+                                            <Button variant="ghost" size="sm">
+                                                Voir
+                                            </Button>
+                                        </Link>
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </div>
+
+            {canEdit && editingRucheId && (
+                <EditRucheDialog
+                    rucheId={editingRucheId}
+                    open={!!editingRucheId}
+                    onOpenChange={(open) => !open && setEditingRucheId(null)}
+                />
+            )}
+
+            {canEdit && (
+                <AlertDialog open={!!deleteConfirmId} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
+                    <AlertDialogContent className="bg-white">
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                Êtes-vous sûr de vouloir supprimer cette ruche ? Cette action est irréversible.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Annuler</AlertDialogCancel>
+                            <AlertDialogAction
+                                onClick={handleDeleteConfirm}
+                                className="bg-red-600 hover:bg-red-700"
+                            >
+                                Supprimer
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+            )}
+        </>
+    );
+}

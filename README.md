@@ -32,7 +32,7 @@ Cette application aide les apiculteurs à digitaliser la gestion de leurs rucher
 - TailwindCSS + Shadcn/ui
 
 **Communication**
-- API GraphQL unique via Hasura (`http://localhost:8081/v1/graphql`)
+- API GraphQL unique via Hasura (`http://hasura.localhost:8088/v1/graphql`)
 
 ## 🚀 Installation
  
