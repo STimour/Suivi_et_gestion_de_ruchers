@@ -15,10 +15,13 @@ import {
     Calendar,
     ClipboardList,
     AlertTriangle,
+    Radio,
 } from 'lucide-react';
 import Link from 'next/link';
 import { GET_RUCHE_BY_ID } from '@/lib/graphql/queries/ruche.queries';
 import { AddInterventionDialog } from '@/components/ruche/AddInterventionDialog';
+import { AddCapteurDialog } from '@/components/capteur/AddCapteurDialog';
+import { CapteurCard } from '@/components/capteur/CapteurCard';
 import { useCanEdit } from '@/hooks/useCanEdit';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -140,7 +143,7 @@ export default function RucheDetailPage() {
 
     const canEdit = useCanEdit();
 
-    const { data, loading, error } = useQuery<RucheData>(GET_RUCHE_BY_ID, {
+    const { data, loading, error, refetch } = useQuery<RucheData>(GET_RUCHE_BY_ID, {
         variables: { id: rucheId },
         skip: !rucheId,
     });
@@ -177,6 +180,7 @@ export default function RucheDetailPage() {
 
     const ruche = data.ruches_by_pk;
     const interventions = ruche.interventions || [];
+    const capteurs = ruche.capteurs || [];
 
     return (
         <div className="container mx-auto py-8 space-y-6">
@@ -334,6 +338,44 @@ export default function RucheDetailPage() {
                     </Card>
                 )}
             </div>
+
+            {/* Capteurs IoT */}
+            <Card>
+                <CardHeader>
+                    <div className="flex items-center justify-between">
+                        <CardTitle className="flex items-center gap-2">
+                            <Radio className="h-5 w-5 text-blue-600" />
+                            Capteurs ({capteurs.length})
+                        </CardTitle>
+                        {canEdit && (
+                            <AddCapteurDialog
+                                rucheId={ruche.id}
+                                rucheImmatriculation={ruche.immatriculation}
+                                onSuccess={() => refetch()}
+                            />
+                        )}
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    {capteurs.length === 0 ? (
+                        <div className="text-center py-12 text-gray-500">
+                            <Radio className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                            <p>Aucun capteur associé à cette ruche.</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {capteurs.map((capteur) => (
+                                <CapteurCard
+                                    key={capteur.id}
+                                    capteur={capteur}
+                                    canDelete={canEdit}
+                                    onDeleted={() => refetch()}
+                                />
+                            ))}
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
 
             {/* Historique des interventions */}
             <Card>

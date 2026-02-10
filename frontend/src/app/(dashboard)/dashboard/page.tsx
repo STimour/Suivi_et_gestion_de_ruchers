@@ -15,6 +15,8 @@ import { CreateRucheDialog } from '@/components/ruche/CreateRucheDialog';
 import { BulkCreateRuchesDialog } from '@/components/ruche/BulkCreateRuchesDialog';
 import { CreateReineDialog } from '@/components/reine/CreateReineDialog';
 import Link from "next/link";
+import { useRouter } from 'next/navigation';
+import { useProfileMode } from '@/lib/context/ProfileModeContext';
 import { useCanEdit } from '@/hooks/useCanEdit';
 import { useQuota } from '@/hooks/useQuota';
 
@@ -40,6 +42,14 @@ const RuchersMap = dynamic(
 );
 
 export default function DashboardPage() {
+  const router = useRouter();
+  const { isEleveur } = useProfileMode();
+
+  if (isEleveur) {
+    router.replace('/dashboard/elevage');
+    return null;
+  }
+
   const { data: ruchersData, loading: ruchersLoading, error: ruchersError } = useQuery<any>(GET_RUCHERS);
   const { data: ruchesData, loading: ruchesLoading, error: ruchesError } = useQuery<any>(GET_RUCHES);
   const { data: reinesData, loading: reinesLoading, error: reinesError } = useQuery<any>(GET_REINES);

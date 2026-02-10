@@ -33,10 +33,9 @@ import {
 } from '@/components/ui/select';
 import { Crown, Loader2 } from 'lucide-react';
 import { UPDATE_REINE } from '@/lib/graphql/mutations/reine.mutations';
-import { GET_REINE_BY_ID, GET_REINES } from '@/lib/graphql/queries/reine.queries';
+import { GET_REINE_BY_ID, GET_REINES, GET_REINES_ELEVAGE, GET_RACLES_ELEVAGE } from '@/lib/graphql/queries/reine.queries';
 import { GET_RUCHES } from '@/lib/graphql/queries/ruche.queries';
 
-// Options de couleur (cycle international 5 ans)
 const COLOR_OPTIONS = [
     { value: 'Blanc', label: 'Blanc (années en 1 ou 6)' },
     { value: 'Jaune', label: 'Jaune (années en 2 ou 7)' },
@@ -45,21 +44,31 @@ const COLOR_OPTIONS = [
     { value: 'Bleu', label: 'Bleu (années en 5 ou 0)' },
 ];
 
-// Statuts possibles
 const STATUT_OPTIONS = [
-    { value: 'ACTIVE', label: 'Active' },
-    { value: 'LOST', label: 'Perdue' },
-    { value: 'REPLACED', label: 'Remplacée' },
-    { value: 'DEAD', label: 'Morte' },
+    { value: 'Fecondee', label: 'Fécondée' },
+    { value: 'NonFecondee', label: 'Non fécondée' },
+    { value: 'DisponibleVente', label: 'Disponible à la vente' },
+    { value: 'Vendu', label: 'Vendue' },
+    { value: 'Perdue', label: 'Perdue' },
+    { value: 'Eliminee', label: 'Éliminée' },
 ];
 
-// Interface pour typer les données de la reine
+const LIGNEE_OPTIONS = [
+    { value: 'Buckfast', label: 'Buckfast' },
+    { value: 'Carnica', label: 'Carnica' },
+    { value: 'Ligustica', label: 'Ligustica' },
+    { value: 'Caucasica', label: 'Caucasica' },
+    { value: 'Locale', label: 'Locale' },
+    { value: 'Inconnue', label: 'Inconnue' },
+];
+
 interface ReineData {
     reines_by_pk: {
         id: string;
         anneeNaissance: number;
         codeCouleur?: string;
         lignee?: string;
+        statut?: string;
         noteDouceur?: number;
         commentaire?: string;
         nonReproductible?: boolean;
@@ -74,7 +83,6 @@ interface ReineData {
     };
 }
 
-// Schéma de validation
 const reineSchema = z.object({
     anneeNaissance: z.number({ message: 'L\'année est requise' })
         .int('L\'année doit être un entier')
@@ -97,23 +105,28 @@ interface EditReineDialogProps {
     reineId: string;
     open: boolean;
     onOpenChange: (open: boolean) => void;
+    isEleveur?: boolean;
 }
 
-export function EditReineDialog({ reineId, open, onOpenChange }: EditReineDialogProps) {
+export function EditReineDialog({ reineId, open, onOpenChange, isEleveur }: EditReineDialogProps) {
     const [isLoading, setIsLoading] = useState(true);
 
-    // Récupérer les données de la reine
     const { data: reineData, loading: fetchLoading } = useQuery<ReineData>(GET_REINE_BY_ID, {
         variables: { id: reineId },
         skip: !open,
         fetchPolicy: 'network-only',
     });
 
-    // Récupérer la liste des ruches pour le select
-    const { data: ruchesData } = useQuery<any>(GET_RUCHES);
+    const { data: ruchesData } = useQuery<any>(GET_RUCHES, {
+        skip: !!isEleveur,
+    });
+
+    const statutOptions = STATUT_OPTIONS;
 
     const [updateReine, { loading: updateLoading }] = useMutation(UPDATE_REINE, {
-        refetchQueries: [{ query: GET_REINES }],
+        refetchQueries: isEleveur
+            ? [{ query: GET_REINES_ELEVAGE }, { query: GET_RACLES_ELEVAGE }]
+            : [{ query: GET_REINES }],
         onCompleted: () => {
             toast.success('Reine modifiée avec succès !');
             onOpenChange(false);
@@ -133,12 +146,11 @@ export function EditReineDialog({ reineId, open, onOpenChange }: EditReineDialog
             lignee: '',
             rucheId: 'none',
             noteDouceur: 5,
-            statut: 'ACTIVE',
+            statut: 'NonFecondee',
             commentaire: '',
         },
     });
 
-    // Charger les données de la reine dans le formulaire
     useEffect(() => {
         if (reineData?.reines_by_pk) {
             const reine = reineData.reines_by_pk;
@@ -148,27 +160,30 @@ export function EditReineDialog({ reineId, open, onOpenChange }: EditReineDialog
                 lignee: reine.lignee || '',
                 rucheId: reine.ruche?.id || 'none',
                 noteDouceur: reine.noteDouceur ?? 5,
-                statut: 'ACTIVE',
+                statut: reine.statut || 'NonFecondee',
                 commentaire: reine.commentaire || '',
             });
             setIsLoading(false);
         }
-    }, [reineData, form]);
+    }, [reineData, form, isEleveur]);
 
     const onSubmit = async (values: ReineFormValues) => {
         try {
+            const changes: Record<string, any> = {
+                anneeNaissance: values.anneeNaissance,
+                codeCouleur: values.codeCouleur || null,
+                lignee: values.lignee || null,
+                noteDouceur: values.noteDouceur,
+                statut: values.statut,
+                commentaire: values.commentaire || '',
+            };
+
+            if (!isEleveur) {
+                changes.ruche_id = values.rucheId === 'none' ? null : values.rucheId;
+            }
+
             await updateReine({
-                variables: {
-                    id: reineId,
-                    changes: {
-                        anneeNaissance: values.anneeNaissance,
-                        codeCouleur: values.codeCouleur || null,
-                        lignee: values.lignee || null,
-                        ruche_id: values.rucheId === 'none' ? null : values.rucheId,
-                        noteDouceur: values.noteDouceur,
-                        commentaire: values.commentaire || '',
-                    },
-                },
+                variables: { id: reineId, changes },
             });
         } catch (error) {
             console.error('Erreur lors de la modification:', error);
@@ -205,7 +220,7 @@ export function EditReineDialog({ reineId, open, onOpenChange }: EditReineDialog
                                             <FormControl>
                                                 <Input
                                                     type="number"
-                                                    placeholder="2024"
+                                                    placeholder="2026"
                                                     {...field}
                                                     onChange={(e) => field.onChange(e.target.valueAsNumber)}
                                                 />
@@ -221,10 +236,7 @@ export function EditReineDialog({ reineId, open, onOpenChange }: EditReineDialog
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Code couleur</FormLabel>
-                                            <Select
-                                                onValueChange={field.onChange}
-                                                value={field.value}
-                                            >
+                                            <Select onValueChange={field.onChange} value={field.value}>
                                                 <FormControl>
                                                     <SelectTrigger>
                                                         <SelectValue placeholder="Sélectionner..." />
@@ -250,46 +262,62 @@ export function EditReineDialog({ reineId, open, onOpenChange }: EditReineDialog
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Lignée</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                placeholder="Ex: Buckfast, Carnica, Noire..."
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <FormField
-                                    control={form.control}
-                                    name="rucheId"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Ruche associée</FormLabel>
-                                            <Select
-                                                onValueChange={field.onChange}
-                                                value={field.value}
-                                            >
+                                        {isEleveur ? (
+                                            <Select onValueChange={field.onChange} value={field.value}>
                                                 <FormControl>
                                                     <SelectTrigger>
                                                         <SelectValue placeholder="Sélectionner..." />
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent className="bg-white">
-                                                    <SelectItem value="none">Aucune ruche</SelectItem>
-                                                    {ruchesData?.ruches?.filter((ruche: any) => !ruche.reine || ruche.id === reineData?.reines_by_pk?.ruche?.id).map((ruche: any) => (
-                                                        <SelectItem key={ruche.id} value={ruche.id}>
-                                                            {ruche.immatriculation} {ruche.rucher?.nom ? `(${ruche.rucher.nom})` : ''}
+                                                    {LIGNEE_OPTIONS.map((option) => (
+                                                        <SelectItem key={option.value} value={option.value}>
+                                                            {option.label}
                                                         </SelectItem>
                                                     ))}
                                                 </SelectContent>
                                             </Select>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
+                                        ) : (
+                                            <FormControl>
+                                                <Input
+                                                    placeholder="Ex: Buckfast, Carnica, Noire..."
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                        )}
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <div className="grid grid-cols-2 gap-4">
+                                {!isEleveur && (
+                                    <FormField
+                                        control={form.control}
+                                        name="rucheId"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Ruche associée</FormLabel>
+                                                <Select onValueChange={field.onChange} value={field.value}>
+                                                    <FormControl>
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Sélectionner..." />
+                                                        </SelectTrigger>
+                                                    </FormControl>
+                                                    <SelectContent className="bg-white">
+                                                        <SelectItem value="none">Aucune ruche</SelectItem>
+                                                        {ruchesData?.ruches?.filter((ruche: any) => !ruche.reine || ruche.id === reineData?.reines_by_pk?.ruche?.id).map((ruche: any) => (
+                                                            <SelectItem key={ruche.id} value={ruche.id}>
+                                                                {ruche.immatriculation} {ruche.rucher?.nom ? `(${ruche.rucher.nom})` : ''}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                )}
 
                                 <FormField
                                     control={form.control}
@@ -297,17 +325,14 @@ export function EditReineDialog({ reineId, open, onOpenChange }: EditReineDialog
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Statut *</FormLabel>
-                                            <Select
-                                                onValueChange={field.onChange}
-                                                value={field.value}
-                                            >
+                                            <Select onValueChange={field.onChange} value={field.value}>
                                                 <FormControl>
                                                     <SelectTrigger>
                                                         <SelectValue placeholder="Sélectionner..." />
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent className="bg-white">
-                                                    {STATUT_OPTIONS.map((option) => (
+                                                    {statutOptions.map((option) => (
                                                         <SelectItem key={option.value} value={option.value}>
                                                             {option.label}
                                                         </SelectItem>
@@ -318,28 +343,53 @@ export function EditReineDialog({ reineId, open, onOpenChange }: EditReineDialog
                                         </FormItem>
                                     )}
                                 />
+
+                                {isEleveur && (
+                                    <FormField
+                                        control={form.control}
+                                        name="noteDouceur"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Note de douceur * (1-10)</FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        type="number"
+                                                        min={1}
+                                                        max={10}
+                                                        placeholder="5"
+                                                        {...field}
+                                                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                )}
                             </div>
 
-                            <FormField
-                                control={form.control}
-                                name="noteDouceur"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Note de douceur * (1-10)</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                type="number"
-                                                min={1}
-                                                max={10}
-                                                placeholder="5"
-                                                {...field}
-                                                onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                            {!isEleveur && (
+                                <FormField
+                                    control={form.control}
+                                    name="noteDouceur"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Note de douceur * (1-10)</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    type="number"
+                                                    min={1}
+                                                    max={10}
+                                                    placeholder="5"
+                                                    {...field}
+                                                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            )}
 
                             <FormField
                                 control={form.control}
@@ -360,24 +410,25 @@ export function EditReineDialog({ reineId, open, onOpenChange }: EditReineDialog
                                 )}
                             />
 
-                            {/* Section Future Features - Disabled placeholders */}
-                            <div className="space-y-3 pt-4 border-t border-gray-200">
-                                <p className="text-xs text-gray-400 uppercase tracking-wide">Fonctionnalités à venir</p>
-                                <div className="grid grid-cols-3 gap-3">
-                                    <div className="p-3 rounded-lg bg-gray-50 border border-dashed border-gray-200 opacity-50">
-                                        <p className="text-sm font-medium text-gray-400">Cycle</p>
-                                        <p className="text-xs text-gray-300">Indisponible</p>
-                                    </div>
-                                    <div className="p-3 rounded-lg bg-gray-50 border border-dashed border-gray-200 opacity-50">
-                                        <p className="text-sm font-medium text-gray-400">Généalogie</p>
-                                        <p className="text-xs text-gray-300">Indisponible</p>
-                                    </div>
-                                    <div className="p-3 rounded-lg bg-gray-50 border border-dashed border-gray-200 opacity-50">
-                                        <p className="text-sm font-medium text-gray-400">Historique</p>
-                                        <p className="text-xs text-gray-300">Indisponible</p>
+                            {!isEleveur && (
+                                <div className="space-y-3 pt-4 border-t border-gray-200">
+                                    <p className="text-xs text-gray-400 uppercase tracking-wide">Fonctionnalités à venir</p>
+                                    <div className="grid grid-cols-3 gap-3">
+                                        <div className="p-3 rounded-lg bg-gray-50 border border-dashed border-gray-200 opacity-50">
+                                            <p className="text-sm font-medium text-gray-400">Cycle</p>
+                                            <p className="text-xs text-gray-300">Indisponible</p>
+                                        </div>
+                                        <div className="p-3 rounded-lg bg-gray-50 border border-dashed border-gray-200 opacity-50">
+                                            <p className="text-sm font-medium text-gray-400">Généalogie</p>
+                                            <p className="text-xs text-gray-300">Indisponible</p>
+                                        </div>
+                                        <div className="p-3 rounded-lg bg-gray-50 border border-dashed border-gray-200 opacity-50">
+                                            <p className="text-sm font-medium text-gray-400">Historique</p>
+                                            <p className="text-xs text-gray-300">Indisponible</p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            )}
 
                             <div className="flex justify-end gap-3 pt-4">
                                 <Button

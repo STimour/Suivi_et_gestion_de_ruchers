@@ -60,8 +60,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (data: LoginData) => {
     try {
-      const authData = await authService.login(data);
-      setUser(authData.user);
+      await authService.login(data);
+      const userData = await authService.getMe();
+      setUser(userData);
+
       router.push('/dashboard');
     } catch (error) {
       throw error;
