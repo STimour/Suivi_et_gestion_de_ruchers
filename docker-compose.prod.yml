@@ -127,14 +127,8 @@ services:
     volumes:
       - traccar_data:/opt/traccar/data
     ports:
+      - "8082:8082"
       - "5055:5055"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.traccar.rule=PathPrefix(`/traccar`)"
-      - "traefik.http.routers.traccar.entrypoints=web"
-      - "traefik.http.services.traccar.loadbalancer.server.port=8082"
-      - "traefik.http.middlewares.traccar-strip.stripprefix.prefixes=/traccar"
-      - "traefik.http.routers.traccar.middlewares=traccar-strip"
 
 volumes:
   postgres_data:
