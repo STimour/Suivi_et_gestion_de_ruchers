@@ -7,8 +7,6 @@ import jwt
 from django.conf import settings
 from django.http import JsonResponse
 from django.utils import timezone as tz_util
-from django.views.decorators.csrf import csrf_exempt
-
 from core.models import (
     RoleUtilisateur,
     Utilisateur,
@@ -164,7 +162,6 @@ def _serialize_offre(offre: Offre):
     }
 
 
-@csrf_exempt
 def register(request):
     if request.method != "POST":
         return JsonResponse({"error": "method_not_allowed"}, status=405)
@@ -249,7 +246,6 @@ def register(request):
     )
 
 
-@csrf_exempt
 def login(request):
     if request.method != "POST":
         return JsonResponse({"error": "method_not_allowed"}, status=405)
@@ -306,7 +302,6 @@ def login(request):
     )
 
 
-@csrf_exempt
 def logout(request):
     if request.method != "POST":
         return JsonResponse({"error": "method_not_allowed"}, status=405)
@@ -316,7 +311,6 @@ def logout(request):
     return JsonResponse({"message": "logout_successful"}, status=200)
 
 
-@csrf_exempt
 def verify_account(request):
     if request.method not in ("GET", "POST"):
         return JsonResponse({"error": "method_not_allowed"}, status=405)
@@ -371,7 +365,6 @@ def verify_account(request):
     return JsonResponse({"message": "account_verified"}, status=200)
 
 
-@csrf_exempt
 def resend_verification_email(request):
     if request.method != "POST":
         return JsonResponse({"error": "method_not_allowed"}, status=405)
@@ -464,7 +457,6 @@ def resend_verification_email(request):
     )
 
 
-@csrf_exempt
 def request_password_reset(request):
     if request.method != "POST":
         return JsonResponse({"error": "method_not_allowed"}, status=405)
@@ -537,7 +529,6 @@ def request_password_reset(request):
     )
 
 
-@csrf_exempt
 def reset_password(request):
     if request.method != "POST":
         return JsonResponse({"error": "method_not_allowed"}, status=405)
@@ -659,7 +650,6 @@ def me(request):
     )
 
 
-@csrf_exempt
 def accept_invitation(request):
     """POST /api/auth/accept-invitation - Accepter une invitation (token dans le body). Lie l'utilisateur connecté à l'entreprise avec le rôle proposé."""
     if request.method != "POST":
@@ -739,7 +729,6 @@ def accept_invitation(request):
     )
 
 
-@csrf_exempt
 def switch_entreprise(request):
     """POST /api/auth/switch-entreprise - Retourne un token pour une autre entreprise."""
     if request.method != "POST":
@@ -780,7 +769,6 @@ def switch_entreprise(request):
     )
 
 
-@csrf_exempt
 def current_entreprise(request):
     """GET /api/auth/current-entreprise - Retourne l'entreprise courante du token."""
     if request.method != "GET":

@@ -23,6 +23,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { EntrepriseSwitcher } from "./EntrepriseSwitcher";
+import { ProfileModeSwitcher } from "./ProfileModeSwitcher";
 import { InviteMemberDialog } from "./InviteMemberDialog";
 import { NotificationPanel } from "./NotificationPanel";
 import { SidebarMobile } from "./Sidebar";
@@ -73,14 +74,14 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-backdrop-filter:bg-white/60">
       <div className="px-4">
-        <div className="flex items-center justify-between h-16 gap-3">
-          {/* Left — Mobile burger + Logo */}
-          <div className="flex items-center gap-3 flex-1 min-w-0">
-            {/* Mobile burger */}
+        <div className="flex items-center justify-between h-16">
+          {/* Left — Burger (mobile) + ProfileModeSwitcher + EntrepriseSwitcher */}
+          <div className="flex items-center gap-1 sm:gap-2 min-w-0 shrink-0">
+            {/* Mobile burger — first on mobile */}
             <div className="lg:hidden">
               <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
                 <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" aria-label="Ouvrir le menu">
+                  <Button variant="ghost" size="icon" className="shrink-0" aria-label="Ouvrir le menu">
                     <Menu className="h-5 w-5 text-amber-700" />
                   </Button>
                 </SheetTrigger>
@@ -93,29 +94,29 @@ export function Header() {
               </Sheet>
             </div>
 
-            {/* Logo (visible on all sizes) */}
-            <Link href={isEleveur ? '/dashboard/elevage' : '/dashboard'} className="flex items-center">
-              <Image
-                src="/logo_ruche_1.png"
-                alt="Logo"
-                width={36}
-                height={36}
-                className="object-contain shrink-0"
-              />
-            </Link>
-
+            <ProfileModeSwitcher />
             <EntrepriseSwitcher />
           </div>
 
-          {/* Center — Title */}
-          <div className="flex items-center justify-center">
-            <span className="font-bold text-lg text-amber-900 whitespace-nowrap">
+          {/* Center — Logo + Title */}
+          <Link
+            href={isEleveur ? '/dashboard/elevage' : '/dashboard'}
+            className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 pointer-events-auto"
+          >
+            <Image
+              src="/logo_ruche_1.png"
+              alt="Logo"
+              width={36}
+              height={36}
+              className="object-contain shrink-0"
+            />
+            <span className="font-bold text-lg text-amber-900 whitespace-nowrap hidden sm:inline">
               {title}
             </span>
-          </div>
+          </Link>
 
           {/* Right — Badge + Notifications + Profile */}
-          <div className="flex items-center gap-2 justify-end flex-1">
+          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
             {isPremium !== null && (
               <span
                 className={`rounded-full border px-2 py-1 text-[11px] font-semibold uppercase tracking-wide whitespace-nowrap ${

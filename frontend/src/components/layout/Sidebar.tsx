@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, MapPin, Hexagon, Crown, ClipboardList } from "lucide-react";
 import { useProfileMode } from "@/lib/context/ProfileModeContext";
-import { ProfileModeSwitcher } from "./ProfileModeSwitcher";
 import { cn } from "@/lib/utils";
 
 type NavItem = { href: string; label: string; icon: typeof Home };
@@ -38,11 +37,6 @@ export function Sidebar() {
 
   return (
     <aside className="hidden lg:flex flex-col w-60 border-r border-amber-100 bg-white min-h-[calc(100vh-4rem)]">
-      {/* Mode switcher */}
-      <div className="px-3 pt-4 pb-2 border-b border-amber-100">
-        <ProfileModeSwitcher />
-      </div>
-
       {/* Navigation */}
       <nav className="flex-1 flex flex-col gap-1 px-3 py-4">
         {navItems.map((item) => {
@@ -89,13 +83,7 @@ export function SidebarMobile({ onNavigate }: { onNavigate?: () => void }) {
   };
 
   return (
-    <div className="flex flex-col">
-      {/* Mode switcher */}
-      <div className="px-3 pt-3 pb-2 border-b border-amber-100">
-        <ProfileModeSwitcher />
-      </div>
-
-      <nav className="flex flex-col gap-1 px-2 py-3">
+    <nav className="flex flex-col gap-1 px-2 py-3">
       {navItems.map((item) => {
         const Icon = item.icon;
         const active = isActive(item.href);
@@ -117,6 +105,5 @@ export function SidebarMobile({ onNavigate }: { onNavigate?: () => void }) {
         );
       })}
     </nav>
-    </div>
   );
 }

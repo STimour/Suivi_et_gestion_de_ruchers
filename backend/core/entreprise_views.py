@@ -9,8 +9,6 @@ from django.conf import settings
 from django.db import transaction
 from django.http import JsonResponse
 from django.utils import timezone
-from django.views.decorators.csrf import csrf_exempt
-
 from core.models import (
     Entreprise,
     EntrepriseProfile,
@@ -132,7 +130,6 @@ def _premium_limits():
     }
 
 
-@csrf_exempt
 def create_entreprise(request):
     """POST /api/entreprise - Créer une entreprise et lier l'utilisateur connecté comme AdminEntreprise."""
     if request.method != "POST":
@@ -213,7 +210,6 @@ def create_entreprise(request):
     )
 
 
-@csrf_exempt
 def create_invitation(request):
     """POST /api/entreprise/invitation - Créer une invitation (token unique) et optionnellement envoyer un email."""
     if request.method != "POST":
@@ -322,7 +318,6 @@ def create_invitation(request):
     return JsonResponse(response, status=201)
 
 
-@csrf_exempt
 def create_premium_checkout(request, entreprise_id):
     """POST /api/entreprises/{id}/checkout/premium - Crée une session Stripe Checkout (subscription) pour Premium."""
     if request.method != "POST":
@@ -373,7 +368,6 @@ def create_premium_checkout(request, entreprise_id):
     return JsonResponse({"url": session.url}, status=200)
 
 
-@csrf_exempt
 def update_entreprise_offre(request, entreprise_id):
     """POST /api/entreprises/{id}/offre - Mettre a jour le type d'offre d'une entreprise."""
     if request.method != "POST":
@@ -462,7 +456,6 @@ def update_entreprise_offre(request, entreprise_id):
     )
 
 
-@csrf_exempt
 def update_entreprise_profiles(request, entreprise_id):
     """POST /api/entreprises/{id}/profiles - Mettre a jour les profils d'une entreprise."""
     if request.method != "POST":
@@ -527,7 +520,6 @@ def update_entreprise_profiles(request, entreprise_id):
     )
 
 
-@csrf_exempt
 def get_entreprise_offre_status(request, entreprise_id):
     """GET /api/entreprises/{id}/offre/status - Statut de l'offre pour l'entreprise."""
     if request.method != "GET":
@@ -567,7 +559,6 @@ def get_entreprise_offre_status(request, entreprise_id):
     )
 
 
-@csrf_exempt
 def list_type_profiles(request):
     """GET /api/profiles - Liste des profils entreprise."""
     if request.method != "GET":
@@ -606,7 +597,6 @@ def list_type_profiles(request):
     return JsonResponse({"profiles": data}, status=200)
 
 
-@csrf_exempt
 def stripe_webhook(request):
     """POST /api/stripe/webhook - Webhook Stripe pour activer l'offre Premium."""
     if request.method != "POST":
