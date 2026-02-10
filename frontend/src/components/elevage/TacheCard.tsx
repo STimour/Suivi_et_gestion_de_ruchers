@@ -1,9 +1,10 @@
 'use client';
 
+import { useMutation } from '@apollo/client/react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, Calendar, Crown } from 'lucide-react';
+import { CheckCircle, Calendar, Grip } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   getTacheTypeLabel,
@@ -11,6 +12,13 @@ import {
   getStatutTacheLabel,
 } from '@/lib/constants/elevage.constants';
 import { useUpdateTache } from '@/hooks/useElevage';
+import { UPDATE_REINES_BY_RACLE } from '@/lib/graphql/mutations/reine.mutations';
+import { GET_RACLES_ELEVAGE } from '@/lib/graphql/queries/reine.queries';
+
+const TACHE_STATUT_REINE_MAP: Record<string, { statut: string; label: string }> = {
+  ValidationPonte: { statut: 'Fecondee', label: 'Fécondées' },
+  MiseEnVente: { statut: 'DisponibleVente', label: 'Disponibles à la vente' },
+};
 
 interface TacheCardProps {
   tache: any;
@@ -18,7 +26,11 @@ interface TacheCardProps {
 
 export function TacheCard({ tache }: TacheCardProps) {
   const { updateTache, loading } = useUpdateTache();
-  const reine = tache.cycles_elevage_reine?.reine;
+  const racle = tache.cycles_elevage_reine?.racle;
+
+  const [updateReinesByRacle] = useMutation(UPDATE_REINES_BY_RACLE, {
+    refetchQueries: [{ query: GET_RACLES_ELEVAGE }],
+  });
 
   const handleMarquerFaite = async () => {
     try {
@@ -31,7 +43,21 @@ export function TacheCard({ tache }: TacheCardProps) {
           },
         },
       });
-      toast.success('Tâche marquée comme faite');
+
+      const mapping = TACHE_STATUT_REINE_MAP[tache.type];
+      if (mapping && racle?.id) {
+        await updateReinesByRacle({
+          variables: {
+            racleId: racle.id,
+            changes: { statut: mapping.statut },
+          },
+        });
+        toast.success('Tâche marquée comme faite', {
+          description: `Reines du racle passées en « ${mapping.label} »`,
+        });
+      } else {
+        toast.success('Tâche marquée comme faite');
+      }
     } catch (error: any) {
       toast.error('Erreur', { description: error.message });
     }
@@ -56,10 +82,10 @@ export function TacheCard({ tache }: TacheCardProps) {
           </div>
         )}
 
-        {reine && (
+        {racle && (
           <div className="flex items-center gap-1.5 text-xs text-gray-500">
-            <Crown className="h-3 w-3 text-amber-600" />
-            Reine {reine.codeCouleur} - {reine.anneeNaissance}
+            <Grip className="h-3 w-3 text-amber-600" />
+            Racle : {racle.reference}
           </div>
         )}
 

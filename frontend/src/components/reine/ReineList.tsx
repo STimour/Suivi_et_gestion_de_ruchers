@@ -8,7 +8,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Crown, MapPin, Hexagon, Pencil, Trash2, Eye } from "lucide-react";
+import { Crown, MapPin, Hexagon, Pencil, Trash2, Eye, Grip } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { EditReineDialog } from './EditReineDialog';
@@ -27,37 +27,20 @@ import {
 interface ReineListProps {
     reines: any[];
     onDelete: (id: string) => void;
+    isEleveur?: boolean;
 }
 
-const getStatutColor = (statut: string) => {
-    switch (statut) {
-        case 'ACTIVE':
-            return 'bg-green-100 text-green-800';
-        case 'LOST':
-            return 'bg-yellow-100 text-yellow-800';
-        case 'REPLACED':
-            return 'bg-blue-100 text-blue-800';
-        case 'DEAD':
-            return 'bg-gray-100 text-gray-800';
-        default:
-            return 'bg-gray-100 text-gray-800';
-    }
+const STATUT_MAP: Record<string, { label: string; color: string; dot: string }> = {
+    Fecondee: { label: 'Fécondée', color: 'bg-green-50 text-green-700 border-green-200', dot: 'bg-green-500' },
+    NonFecondee: { label: 'Non fécondée', color: 'bg-amber-50 text-amber-700 border-amber-200', dot: 'bg-amber-500' },
+    DisponibleVente: { label: 'Dispo. vente', color: 'bg-blue-50 text-blue-700 border-blue-200', dot: 'bg-blue-500' },
+    Vendu: { label: 'Vendue', color: 'bg-purple-50 text-purple-700 border-purple-200', dot: 'bg-purple-500' },
+    Perdue: { label: 'Perdue', color: 'bg-yellow-50 text-yellow-700 border-yellow-200', dot: 'bg-yellow-500' },
+    Eliminee: { label: 'Éliminée', color: 'bg-gray-50 text-gray-600 border-gray-200', dot: 'bg-gray-400' },
 };
 
-const getStatutLabel = (statut: string) => {
-    switch (statut) {
-        case 'ACTIVE':
-            return 'Active';
-        case 'LOST':
-            return 'Perdue';
-        case 'REPLACED':
-            return 'Remplacée';
-        case 'DEAD':
-            return 'Morte';
-        default:
-            return statut || 'Active';
-    }
-};
+const getStatut = (statut: string) =>
+    STATUT_MAP[statut] ?? { label: statut || '—', color: 'bg-gray-50 text-gray-600 border-gray-200', dot: 'bg-gray-400' };
 
 const getColorBadge = (color: string) => {
     const colors: Record<string, string> = {
@@ -70,7 +53,7 @@ const getColorBadge = (color: string) => {
     return colors[color] || 'bg-gray-100 text-gray-800';
 };
 
-export function ReineList({ reines, onDelete }: ReineListProps) {
+export function ReineList({ reines, onDelete, isEleveur }: ReineListProps) {
     const [editingReineId, setEditingReineId] = useState<string | null>(null);
     const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
     const canEdit = useCanEdit();
@@ -100,8 +83,14 @@ export function ReineList({ reines, onDelete }: ReineListProps) {
                             <TableHead className="w-30">Identifiant</TableHead>
                             <TableHead>Année / Couleur</TableHead>
                             <TableHead>Lignée</TableHead>
-                            <TableHead>Ruche</TableHead>
-                            <TableHead>Rucher</TableHead>
+                            {isEleveur ? (
+                                <TableHead>Racle</TableHead>
+                            ) : (
+                                <>
+                                    <TableHead>Ruche</TableHead>
+                                    <TableHead>Rucher</TableHead>
+                                </>
+                            )}
                             <TableHead className="text-center">Statut</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
@@ -126,29 +115,45 @@ export function ReineList({ reines, onDelete }: ReineListProps) {
                                     </div>
                                 </TableCell>
                                 <TableCell className="text-sm">{reine.lignee || '—'}</TableCell>
-                                <TableCell>
-                                    {reine.ruche ? (
-                                        <Link href={`/dashboard/hives/${reine.ruche.id}`} className="flex items-center gap-1.5 hover:text-green-600">
-                                            <Hexagon className="h-3 w-3 text-green-600" />
-                                            <span className="text-sm">{reine.ruche.immatriculation}</span>
-                                        </Link>
-                                    ) : (
-                                        <span className="text-sm text-gray-400">Sans ruche</span>
-                                    )}
-                                </TableCell>
-                                <TableCell>
-                                    {reine.ruche?.rucher ? (
-                                        <Link href={`/dashboard/apiaries/${reine.ruche.rucher.id}`} className="flex items-center gap-1.5 hover:text-amber-600">
-                                            <MapPin className="h-3 w-3 text-amber-600" />
-                                            <span className="text-sm">{reine.ruche.rucher.nom}</span>
-                                        </Link>
-                                    ) : (
-                                        <span className="text-sm text-gray-400">—</span>
-                                    )}
-                                </TableCell>
+                                {isEleveur ? (
+                                    <TableCell>
+                                        {reine.racle ? (
+                                            <span className="flex items-center gap-1.5 text-amber-700">
+                                                <Grip className="h-3 w-3" />
+                                                <span className="text-sm">{reine.racle.reference}</span>
+                                            </span>
+                                        ) : (
+                                            <span className="text-sm text-gray-400">Sans racle</span>
+                                        )}
+                                    </TableCell>
+                                ) : (
+                                    <>
+                                        <TableCell>
+                                            {reine.ruche ? (
+                                                <Link href={`/dashboard/hives/${reine.ruche.id}`} className="flex items-center gap-1.5 hover:text-green-600">
+                                                    <Hexagon className="h-3 w-3 text-green-600" />
+                                                    <span className="text-sm">{reine.ruche.immatriculation}</span>
+                                                </Link>
+                                            ) : (
+                                                <span className="text-sm text-gray-400">Sans ruche</span>
+                                            )}
+                                        </TableCell>
+                                        <TableCell>
+                                            {reine.ruche?.rucher ? (
+                                                <Link href={`/dashboard/apiaries/${reine.ruche.rucher.id}`} className="flex items-center gap-1.5 hover:text-amber-600">
+                                                    <MapPin className="h-3 w-3 text-amber-600" />
+                                                    <span className="text-sm">{reine.ruche.rucher.nom}</span>
+                                                </Link>
+                                            ) : (
+                                                <span className="text-sm text-gray-400">—</span>
+                                            )}
+                                        </TableCell>
+                                    </>
+                                )}
                                 <TableCell className="text-center">
-                                    <Badge className={getStatutColor('ACTIVE')}>
-                                        {getStatutLabel('ACTIVE')}
+                                    <Badge variant="outline" className={`${getStatut(reine.statut).color} gap-1.5`}>
+                                        <span className={`h-1.5 w-1.5 rounded-full ${getStatut(reine.statut).dot}`} />
+                                        {getStatut(reine.statut).label}
                                     </Badge>
                                 </TableCell>
                                 <TableCell className="text-right">
@@ -195,6 +200,7 @@ export function ReineList({ reines, onDelete }: ReineListProps) {
                     reineId={editingReineId}
                     open={!!editingReineId}
                     onOpenChange={(open) => !open && setEditingReineId(null)}
+                    isEleveur={isEleveur}
                 />
             )}
 

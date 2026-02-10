@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useMutation, useQuery } from '@apollo/client/react';
+import { useMutation } from '@apollo/client/react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -18,7 +18,6 @@ import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -34,14 +33,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { CREATE_REINE } from '@/lib/graphql/mutations/reine.mutations';
-import { GET_REINES } from '@/lib/graphql/queries/reine.queries';
-import { GET_RUCHES } from '@/lib/graphql/queries/ruche.queries';
+import { GET_RACLES_ELEVAGE, GET_TACHES_ELEVAGE_OVERVIEW } from '@/lib/graphql/queries/reine.queries';
 import { Crown, Plus } from 'lucide-react';
-import { useAuth } from '@/lib/auth/AuthContext';
-import { useProfileMode } from '@/lib/context/ProfileModeContext';
-import { GET_REINES_ELEVAGE, GET_RACLES_ELEVAGE } from '@/lib/graphql/queries/reine.queries';
 
-// Options de couleur (cycle international 5 ans)
 const COLOR_OPTIONS = [
   { value: 'Blanc', label: 'Blanc (années en 1 ou 6)' },
   { value: 'Jaune', label: 'Jaune (années en 2 ou 7)' },
@@ -50,7 +44,6 @@ const COLOR_OPTIONS = [
   { value: 'Bleu', label: 'Bleu (années en 5 ou 0)' },
 ];
 
-// Statuts possibles (valeurs DB)
 const STATUT_OPTIONS = [
   { value: 'Fecondee', label: 'Fécondée' },
   { value: 'NonFecondee', label: 'Non fécondée' },
@@ -60,7 +53,6 @@ const STATUT_OPTIONS = [
   { value: 'Eliminee', label: 'Éliminée' },
 ];
 
-// Lignées valides (FK vers lignee_reine)
 const LIGNEE_OPTIONS = [
   { value: 'Buckfast', label: 'Buckfast' },
   { value: 'Carnica', label: 'Carnica' },
@@ -70,52 +62,52 @@ const LIGNEE_OPTIONS = [
   { value: 'Inconnue', label: 'Inconnue' },
 ];
 
-// Schéma de validation
-const createReineSchema = (isEleveur: boolean) => z.object({
-  anneeNaissance: z.number({ message: 'L\'année est requise' })
-    .int('L\'année doit être un entier')
+const addReineSchema = z.object({
+  anneeNaissance: z.number({ message: "L'année est requise" })
+    .int("L'année doit être un entier")
     .min(2000, 'Minimum 2000')
     .max(new Date().getFullYear(), 'Année invalide'),
   codeCouleur: z.string().min(1, 'La couleur est requise'),
   lignee: z.string().min(1, 'La lignée est requise').max(100, 'La lignée est trop longue'),
-  rucheId: isEleveur
-    ? z.string().optional()
-    : z.string().uuid('Sélectionnez une ruche'),
   statut: z.string().min(1, 'Le statut est requis'),
   noteDouceur: z.number({ message: 'La note est requise' })
     .int('La note doit être un entier')
     .min(1, 'Minimum 1')
     .max(10, 'Maximum 10'),
-  commentaire: z.string().max(500, 'Les notes sont trop longues').optional(),
+  commentaire: z.string().max(500, 'Notes trop longues').optional(),
 });
 
-type ReineFormValues = z.infer<ReturnType<typeof createReineSchema>>;
+type AddReineFormValues = z.infer<typeof addReineSchema>;
 
-interface CreateReineDialogProps {
+interface AddReineToRacleDialogProps {
+  racleId: string;
+  racleReference: string;
+  entrepriseId: string;
+  currentCount: number;
+  maxCupules: number;
+  onSuccess?: () => void;
   trigger?: React.ReactNode;
-  defaultRucheId?: string;
 }
 
-export function CreateReineDialog({ trigger, defaultRucheId }: CreateReineDialogProps) {
+export function AddReineToRacleDialog({
+  racleId,
+  racleReference,
+  entrepriseId,
+  currentCount,
+  maxCupules,
+  onSuccess,
+  trigger,
+}: AddReineToRacleDialogProps) {
+  const remaining = maxCupules - currentCount;
   const [open, setOpen] = useState(false);
-  const { user } = useAuth();
-  const { isEleveur } = useProfileMode();
-
-  // Récupérer la liste des ruches pour le select
-  const { data: ruchesData } = useQuery<any>(GET_RUCHES);
-
-  const refetchQueries: any[] = [{ query: GET_REINES }];
-  if (isEleveur) {
-    refetchQueries.push({ query: GET_REINES_ELEVAGE });
-    refetchQueries.push({ query: GET_RACLES_ELEVAGE });
-  }
 
   const [createReine, { loading }] = useMutation(CREATE_REINE, {
-    refetchQueries,
+    refetchQueries: [{ query: GET_RACLES_ELEVAGE }, { query: GET_TACHES_ELEVAGE_OVERVIEW }],
     onCompleted: () => {
-      toast.success('Reine créée avec succès !');
+      toast.success('Reine ajoutée au racle !');
       setOpen(false);
       form.reset();
+      onSuccess?.();
     },
     onError: (error) => {
       toast.error('Erreur lors de la création de la reine', {
@@ -124,20 +116,19 @@ export function CreateReineDialog({ trigger, defaultRucheId }: CreateReineDialog
     },
   });
 
-  const form = useForm<ReineFormValues>({
-    resolver: zodResolver(createReineSchema(isEleveur)),
+  const form = useForm<AddReineFormValues>({
+    resolver: zodResolver(addReineSchema),
     defaultValues: {
       anneeNaissance: new Date().getFullYear(),
       codeCouleur: '',
       lignee: '',
-      rucheId: defaultRucheId || '',
+      statut: 'NonFecondee',
       noteDouceur: 5,
-      statut: 'Fecondee',
       commentaire: '',
     },
   });
 
-  const onSubmit = async (values: ReineFormValues) => {
+  const onSubmit = async (values: AddReineFormValues) => {
     try {
       await createReine({
         variables: {
@@ -146,13 +137,13 @@ export function CreateReineDialog({ trigger, defaultRucheId }: CreateReineDialog
             anneeNaissance: values.anneeNaissance,
             codeCouleur: values.codeCouleur,
             lignee: values.lignee,
-            ruche_id: values.rucheId || null,
-            noteDouceur: values.noteDouceur,
             statut: values.statut,
+            noteDouceur: values.noteDouceur,
             commentaire: values.commentaire || '',
             nonReproductible: false,
-            isElevage: isEleveur,
-            entreprise_id: user?.entreprise_id || null,
+            isElevage: true,
+            racle_id: racleId,
+            entreprise_id: entrepriseId,
           },
         },
       });
@@ -165,21 +156,23 @@ export function CreateReineDialog({ trigger, defaultRucheId }: CreateReineDialog
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button className="bg-amber-600 hover:bg-amber-700 text-white gap-2">
-            <Plus className="h-4 w-4" />
-            Nouvelle reine
+          <Button size="sm" variant="outline" className="text-amber-700 border-amber-200 hover:bg-amber-50 gap-1.5">
+            <Plus className="h-3.5 w-3.5" />
+            Ajouter une reine
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-150 bg-white">
+      <DialogContent className="sm:max-w-lg bg-white">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-amber-900">
             <Crown className="h-5 w-5" />
-            Créer une nouvelle reine
+            Ajouter une reine au racle
           </DialogTitle>
           <DialogDescription>
-            Ajoutez une nouvelle reine à votre exploitation. Remplissez tous les
-            champs requis.
+            Racle : <span className="font-medium">{racleReference}</span>
+            <span className="block mt-1">
+              Places disponibles : <span className="font-medium">{remaining}/{maxCupules}</span>
+            </span>
           </DialogDescription>
         </DialogHeader>
 
@@ -195,7 +188,7 @@ export function CreateReineDialog({ trigger, defaultRucheId }: CreateReineDialog
                     <FormControl>
                       <Input
                         type="number"
-                        placeholder="2024"
+                        placeholder="2026"
                         {...field}
                         onChange={(e) => field.onChange(e.target.valueAsNumber)}
                       />
@@ -211,10 +204,7 @@ export function CreateReineDialog({ trigger, defaultRucheId }: CreateReineDialog
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Code couleur *</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Sélectionner..." />
@@ -240,10 +230,7 @@ export function CreateReineDialog({ trigger, defaultRucheId }: CreateReineDialog
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Lignée *</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                  >
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Sélectionner..." />
@@ -257,9 +244,6 @@ export function CreateReineDialog({ trigger, defaultRucheId }: CreateReineDialog
                       ))}
                     </SelectContent>
                   </Select>
-                  <FormDescription>
-                    Origine génétique de la reine
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -268,42 +252,11 @@ export function CreateReineDialog({ trigger, defaultRucheId }: CreateReineDialog
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="rucheId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Ruche associée {isEleveur ? '(optionnel)' : '*'}</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Sélectionner..." />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="bg-white">
-                        {ruchesData?.ruches?.filter((ruche: any) => !ruche.reine).map((ruche: any) => (
-                          <SelectItem key={ruche.id} value={ruche.id}>
-                            {ruche.immatriculation} {ruche.rucher?.nom ? `(${ruche.rucher.nom})` : ''}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
                 name="statut"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Statut *</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Sélectionner..." />
@@ -321,28 +274,28 @@ export function CreateReineDialog({ trigger, defaultRucheId }: CreateReineDialog
                   </FormItem>
                 )}
               />
-            </div>
 
-            <FormField
-              control={form.control}
-              name="noteDouceur"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Note de douceur * (1-10)</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      min={1}
-                      max={10}
-                      placeholder="5"
-                      {...field}
-                      onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="noteDouceur"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Note de douceur * (1-10)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min={1}
+                        max={10}
+                        placeholder="5"
+                        {...field}
+                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <FormField
               control={form.control}
@@ -363,25 +316,6 @@ export function CreateReineDialog({ trigger, defaultRucheId }: CreateReineDialog
               )}
             />
 
-            {/* Section Future Features - Disabled placeholders */}
-            <div className="space-y-3 pt-4 border-t border-gray-200">
-              <p className="text-xs text-gray-400 uppercase tracking-wide">Fonctionnalités à venir</p>
-              <div className="grid grid-cols-3 gap-3">
-                <div className="p-3 rounded-lg bg-gray-50 border border-dashed border-gray-200 opacity-50">
-                  <p className="text-sm font-medium text-gray-400">Cycle</p>
-                  <p className="text-xs text-gray-300">Indisponible</p>
-                </div>
-                <div className="p-3 rounded-lg bg-gray-50 border border-dashed border-gray-200 opacity-50">
-                  <p className="text-sm font-medium text-gray-400">Généalogie</p>
-                  <p className="text-xs text-gray-300">Indisponible</p>
-                </div>
-                <div className="p-3 rounded-lg bg-gray-50 border border-dashed border-gray-200 opacity-50">
-                  <p className="text-sm font-medium text-gray-400">Historique</p>
-                  <p className="text-xs text-gray-300">Indisponible</p>
-                </div>
-              </div>
-            </div>
-
             <div className="flex justify-end gap-3 pt-4">
               <Button
                 type="button"
@@ -396,7 +330,7 @@ export function CreateReineDialog({ trigger, defaultRucheId }: CreateReineDialog
                 className="bg-amber-600 hover:bg-amber-700"
                 disabled={loading}
               >
-                {loading ? 'Création...' : 'Créer la reine'}
+                {loading ? 'Ajout...' : 'Ajouter la reine'}
               </Button>
             </div>
           </form>

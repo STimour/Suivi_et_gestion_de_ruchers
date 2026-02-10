@@ -56,20 +56,23 @@ export default function ReinesPage() {
     };
 
     const filteredReines = data?.reines?.filter((reine: any) => {
+        const q = searchQuery.toLowerCase();
         // Search filter
-        const matchesSearch =
-            reine.lignee?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            reine.codeCouleur?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            reine.ruche?.immatriculation?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            reine.ruche?.rucher?.nom?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            String(reine.anneeNaissance).includes(searchQuery);
+        const matchesSearch = !searchQuery ||
+            reine.lignee?.toLowerCase().includes(q) ||
+            reine.codeCouleur?.toLowerCase().includes(q) ||
+            String(reine.anneeNaissance).includes(searchQuery) ||
+            (isEleveur
+                ? reine.racle?.reference?.toLowerCase().includes(q)
+                : (reine.ruche?.immatriculation?.toLowerCase().includes(q) ||
+                   reine.ruche?.rucher?.nom?.toLowerCase().includes(q)));
 
-        // Rucher filter
-        const matchesRucher = rucherFilter === 'all' ||
+        // Rucher filter (only in apiculteur mode)
+        const matchesRucher = isEleveur || rucherFilter === 'all' ||
             reine.ruche?.rucher?.id === rucherFilter;
 
-        // Statut filter (currently all queens are considered ACTIVE as backend doesn't store status)
-        const matchesStatut = statutFilter === 'all' || statutFilter === 'ACTIVE';
+        // Statut filter
+        const matchesStatut = statutFilter === 'all' || reine.statut === statutFilter;
 
         return matchesSearch && matchesRucher && matchesStatut;
     }) || [];
@@ -124,29 +127,33 @@ export default function ReinesPage() {
                             className="pl-9 border-amber-200 focus:border-amber-500 focus:ring-amber-500"
                         />
                     </div>
-                    <Select value={rucherFilter} onValueChange={setRucherFilter}>
-                        <SelectTrigger className="w-full sm:w-44 border-amber-200">
-                            <SelectValue placeholder="Rucher" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white">
-                            <SelectItem value="all">Tous les ruchers</SelectItem>
-                            {ruchersData?.ruchers?.map((rucher: any) => (
-                                <SelectItem key={rucher.id} value={rucher.id}>
-                                    {rucher.nom}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                    {!isEleveur && (
+                        <Select value={rucherFilter} onValueChange={setRucherFilter}>
+                            <SelectTrigger className="w-full sm:w-44 border-amber-200">
+                                <SelectValue placeholder="Rucher" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-white">
+                                <SelectItem value="all">Tous les ruchers</SelectItem>
+                                {ruchersData?.ruchers?.map((rucher: any) => (
+                                    <SelectItem key={rucher.id} value={rucher.id}>
+                                        {rucher.nom}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    )}
                     <Select value={statutFilter} onValueChange={setStatutFilter}>
                         <SelectTrigger className="w-full sm:w-40 border-amber-200">
                             <SelectValue placeholder="Statut" />
                         </SelectTrigger>
                         <SelectContent className="bg-white">
                             <SelectItem value="all">Tous les statuts</SelectItem>
-                            <SelectItem value="ACTIVE">Active</SelectItem>
-                            <SelectItem value="LOST">Perdue</SelectItem>
-                            <SelectItem value="REPLACED">Remplacée</SelectItem>
-                            <SelectItem value="DEAD">Morte</SelectItem>
+                            <SelectItem value="Fecondee">Fécondée</SelectItem>
+                            <SelectItem value="NonFecondee">Non fécondée</SelectItem>
+                            <SelectItem value="DisponibleVente">Dispo. vente</SelectItem>
+                            <SelectItem value="Vendu">Vendue</SelectItem>
+                            <SelectItem value="Perdue">Perdue</SelectItem>
+                            <SelectItem value="Eliminee">Éliminée</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
@@ -213,9 +220,9 @@ export default function ReinesPage() {
             ) : (
                 <>
                     {viewMode === 'list' ? (
-                        <ReineList reines={filteredReines} onDelete={handleDelete} />
+                        <ReineList reines={filteredReines} onDelete={handleDelete} isEleveur={isEleveur} />
                     ) : (
-                        <ReineGrid reines={filteredReines} onDelete={handleDelete} />
+                        <ReineGrid reines={filteredReines} onDelete={handleDelete} isEleveur={isEleveur} />
                     )}
 
                     {!loading && filteredReines.length === 0 && (searchQuery || rucherFilter !== 'all' || statutFilter !== 'all') && (
