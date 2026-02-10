@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { User, Menu, LogOut, Home, MapPin, Hexagon, Crown, UserPlus, ClipboardList } from "lucide-react";
+import { User, Menu, LogOut, UserPlus } from "lucide-react";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { authService } from "@/lib/auth/authService";
 import { useProfileMode } from "@/lib/context/ProfileModeContext";
@@ -26,31 +26,16 @@ import { EntrepriseSwitcher } from "./EntrepriseSwitcher";
 import { ProfileModeSwitcher } from "./ProfileModeSwitcher";
 import { InviteMemberDialog } from "./InviteMemberDialog";
 import { NotificationPanel } from "./NotificationPanel";
-
-type NavItem = { href: string; label: string; icon: typeof Home };
-
-const NAV_RUCHERS: NavItem[] = [
-  { href: '/dashboard', label: 'Dashboard', icon: Home },
-  { href: '/dashboard/apiaries', label: 'Ruchers', icon: MapPin },
-  { href: '/dashboard/hives', label: 'Ruches', icon: Hexagon },
-  { href: '/dashboard/reines', label: 'Reines', icon: Crown },
-  { href: '/dashboard/interventions', label: 'Interventions', icon: ClipboardList },
-];
-
-const NAV_ELEVAGE: NavItem[] = [
-  { href: '/dashboard/elevage', label: 'Dashboard', icon: Home },
-  { href: '/dashboard/reines', label: 'Reines', icon: Crown },
-  { href: '/dashboard/interventions', label: 'Interventions', icon: ClipboardList },
-];
+import { SidebarMobile } from "./Sidebar";
 
 export function Header() {
   const { user, logout } = useAuth();
   const { isEleveur } = useProfileMode();
   const [isPremium, setIsPremium] = useState<boolean | null>(null);
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  const navItems = isEleveur ? NAV_ELEVAGE : NAV_RUCHERS;
-  const title = isEleveur ? 'Elevage de Reines' : 'Gestion de Ruchers';
+  const title = isEleveur ? 'Élevage de Reines' : 'Gestion de Ruchers';
 
   useEffect(() => {
     const entrepriseId = user?.entreprise_id;
@@ -85,77 +70,56 @@ export function Header() {
       isActive = false;
     };
   }, [user?.entreprise_id]);
+
   return (
-  <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-backdrop-filter:bg-white/60">
-      <div className="container mx-auto px-4">
+    <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-backdrop-filter:bg-white/60">
+      <div className="px-4">
         <div className="flex items-center justify-between h-16 gap-3">
-          {/* Left - Navigation */}
-          <nav className="hidden lg:flex items-center gap-6 justify-start flex-1">
-            {navItems.map((item, i) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`text-sm font-medium transition-colors ${
-                  i === 0
-                    ? 'text-amber-900 hover:text-amber-600'
-                    : 'text-amber-700/70 hover:text-amber-600'
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
+          {/* Left — Mobile burger + Logo + Title (centered on desktop) */}
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            {/* Mobile burger */}
+            <div className="lg:hidden">
+              <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" aria-label="Ouvrir le menu">
+                    <Menu className="h-5 w-5 text-amber-700" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="bg-white w-64">
+                  <SheetHeader>
+                    <SheetTitle className="text-amber-900">Navigation</SheetTitle>
+                  </SheetHeader>
+                  <SidebarMobile onNavigate={() => setMobileOpen(false)} />
+                </SheetContent>
+              </Sheet>
+            </div>
 
-          {/* Mobile Menu Button - Left on mobile */}
-          <div className="lg:hidden">
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" aria-label="Ouvrir le menu">
-                  <Menu className="h-5 w-5 text-amber-700" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="bg-white">
-                <SheetHeader>
-                  <SheetTitle className="text-amber-900">Navigation</SheetTitle>
-                </SheetHeader>
-                <nav className="flex flex-col gap-2 px-4">
-                  {navItems.map((item) => {
-                    const Icon = item.icon;
-                    return (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-amber-900 hover:bg-amber-50"
-                      >
-                        <Icon className="h-4 w-4 text-amber-600" />
-                        {item.label}
-                      </Link>
-                    );
-                  })}
-                </nav>
-              </SheetContent>
-            </Sheet>
-          </div>
-
-          {/* Center - Logo, Title & Switchers */}
-          <div className="flex items-center gap-3 justify-center min-w-0">
-            <Link href={isEleveur ? '/dashboard/elevage' : '/dashboard'} className="flex items-center gap-2">
+            {/* Logo + Title */}
+            <Link href={isEleveur ? '/dashboard/elevage' : '/dashboard'} className="flex items-center gap-2 min-w-0">
               <Image
                 src="/logo_ruche_1.png"
                 alt="Logo"
-                width={40}
-                height={40}
-                className="object-contain"
+                width={36}
+                height={36}
+                className="object-contain shrink-0"
               />
-              <span className="font-bold text-lg text-amber-900 hidden md:inline truncate">
+              <span className="font-bold text-lg text-amber-900 hidden sm:inline truncate">
                 {title}
               </span>
             </Link>
+          </div>
+
+          {/* Center — Switchers */}
+          <div className="flex items-center gap-2">
             <EntrepriseSwitcher />
             <ProfileModeSwitcher />
+          </div>
+
+          {/* Right — Badge + Notifications + Profile */}
+          <div className="flex items-center gap-2 justify-end flex-1">
             {isPremium !== null && (
               <span
-                className={`rounded-full border px-2 py-1 text-[11px] font-semibold uppercase tracking-wide ${
+                className={`rounded-full border px-2 py-1 text-[11px] font-semibold uppercase tracking-wide whitespace-nowrap ${
                   isPremium
                     ? "border-green-200 bg-green-50 text-green-700"
                     : "border-amber-200 bg-amber-50 text-amber-700"
@@ -164,11 +128,7 @@ export function Header() {
                 {isPremium ? "Premium" : "Freemium"}
               </span>
             )}
-          </div>
 
-          {/* Right - Notifications & Profile */}
-          <div className="flex items-center gap-2 justify-end flex-1">
-            {/* Notifications */}
             <NotificationPanel />
 
             {/* User Menu */}

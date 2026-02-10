@@ -1,4 +1,5 @@
 import { Header } from "@/components/layout/Header";
+import { Sidebar } from "@/components/layout/Sidebar";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 export default function DashboardLayout({
@@ -10,9 +11,12 @@ export default function DashboardLayout({
     <ProtectedRoute>
       <div className="min-h-screen bg-amber-50/30">
         <Header />
-        <main className="container mx-auto px-4 py-8">
-          {children}
-        </main>
+        <div className="flex">
+          <Sidebar />
+          <main className="flex-1 px-4 py-8 lg:px-8">
+            {children}
+          </main>
+        </div>
       </div>
     </ProtectedRoute>
   );
