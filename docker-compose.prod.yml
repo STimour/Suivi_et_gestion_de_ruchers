@@ -6,10 +6,19 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - letsencrypt:/letsencrypt
 
   postgres:
     image: postgres:15
@@ -41,12 +50,15 @@ services:
       HASURA_GRAPHQL_UNAUTHORIZED_ROLE: ${HASURA_GRAPHQL_UNAUTHORIZED_ROLE}
       HASURA_WEBHOOK_SECRET: ${HASURA_WEBHOOK_SECRET}
       DJANGO_WEBHOOK_URL: http://django:8000/api
+      HASURA_GRAPHQL_METADATA_DIR: /hasura-metadata
     volumes:
       - ./backend/hasura/migrations:/hasura-migrations
+      - ./backend/hasura/metadata:/hasura-metadata
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.hasura.rule=PathPrefix(`/v1`)"
-      - "traefik.http.routers.hasura.entrypoints=web"
+      - "traefik.http.routers.hasura.rule=Host(`${DOMAIN}`) && PathPrefix(`/v1`)"
+      - "traefik.http.routers.hasura.entrypoints=websecure"
+      - "traefik.http.routers.hasura.tls.certresolver=letsencrypt"
       - "traefik.http.services.hasura.loadbalancer.server.port=8080"
 
   django:
@@ -77,8 +89,9 @@ services:
       TRACCAR_TOKEN: ${TRACCAR_TOKEN}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.django.rule=PathPrefix(`/api`)"
-      - "traefik.http.routers.django.entrypoints=web"
+      - "traefik.http.routers.django.rule=Host(`${DOMAIN}`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.django.entrypoints=websecure"
+      - "traefik.http.routers.django.tls.certresolver=letsencrypt"
       - "traefik.http.services.django.loadbalancer.server.port=8000"
 
   frontend:
@@ -86,14 +99,15 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        - NEXT_PUBLIC_GRAPHQL_ENDPOINT=http://${VPS_IP}/v1/graphql
+        - NEXT_PUBLIC_GRAPHQL_ENDPOINT=https://${DOMAIN}/v1/graphql
         - NEXT_PUBLIC_HASURA_ADMIN_SECRET=${HASURA_GRAPHQL_ADMIN_SECRET}
-        - NEXT_PUBLIC_DJANGO_API_URL=http://${VPS_IP}
+        - NEXT_PUBLIC_DJANGO_API_URL=https://${DOMAIN}
     restart: always
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=PathPrefix(`/`)"
-      - "traefik.http.routers.frontend.entrypoints=web"
+      - "traefik.http.routers.frontend.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.frontend.entrypoints=websecure"
+      - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
       - "traefik.http.routers.frontend.priority=1"
       - "traefik.http.services.frontend.loadbalancer.server.port=3000"
 
@@ -135,3 +149,4 @@ volumes:
   django_static:
   traccar_db_data:
   traccar_data:
+  letsencrypt:

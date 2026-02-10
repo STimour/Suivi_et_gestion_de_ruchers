@@ -1,6 +1,6 @@
 - name: daily_notification_check
-  webhook: '{{DJANGO_WEBHOOK_URL}}/webhooks/daily-notifications'
-  schedule: 0 7 * * *
+  webhook: "{{DJANGO_WEBHOOK_URL}}/webhooks/daily-notifications"
+  schedule: "0 7 * * *"
   include_in_metadata: true
   payload: {}
   retry_conf:
