@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Bell, User, Menu, LogOut, Home, MapPin, Hexagon, Crown, UserPlus } from "lucide-react";
+import { User, Menu, LogOut, Home, MapPin, Hexagon, Crown, UserPlus, ClipboardList } from "lucide-react";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { authService } from "@/lib/auth/authService";
+import { useProfileMode } from "@/lib/context/ProfileModeContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,13 +23,34 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { EntrepriseSwitcher } from "./EntrepriseSwitcher";
+import { ProfileModeSwitcher } from "./ProfileModeSwitcher";
 import { InviteMemberDialog } from "./InviteMemberDialog";
 import { NotificationPanel } from "./NotificationPanel";
 
+type NavItem = { href: string; label: string; icon: typeof Home };
+
+const NAV_RUCHERS: NavItem[] = [
+  { href: '/dashboard', label: 'Dashboard', icon: Home },
+  { href: '/dashboard/apiaries', label: 'Ruchers', icon: MapPin },
+  { href: '/dashboard/hives', label: 'Ruches', icon: Hexagon },
+  { href: '/dashboard/reines', label: 'Reines', icon: Crown },
+  { href: '/dashboard/interventions', label: 'Interventions', icon: ClipboardList },
+];
+
+const NAV_ELEVAGE: NavItem[] = [
+  { href: '/dashboard/elevage', label: 'Dashboard', icon: Home },
+  { href: '/dashboard/reines', label: 'Reines', icon: Crown },
+  { href: '/dashboard/interventions', label: 'Interventions', icon: ClipboardList },
+];
+
 export function Header() {
   const { user, logout } = useAuth();
+  const { isEleveur } = useProfileMode();
   const [isPremium, setIsPremium] = useState<boolean | null>(null);
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
+
+  const navItems = isEleveur ? NAV_ELEVAGE : NAV_RUCHERS;
+  const title = isEleveur ? 'Elevage de Reines' : 'Gestion de Ruchers';
 
   useEffect(() => {
     const entrepriseId = user?.entreprise_id;
@@ -69,36 +91,19 @@ export function Header() {
         <div className="flex items-center justify-between h-16 gap-3">
           {/* Left - Navigation */}
           <nav className="hidden lg:flex items-center gap-6 justify-start flex-1">
-            <Link
-              href="/dashboard"
-              className="text-sm font-medium text-amber-900 hover:text-amber-600 transition-colors"
-            >
-              Dashboard
-            </Link>
-            <Link
-              href="/dashboard/apiaries"
-              className="text-sm font-medium text-amber-700/70 hover:text-amber-600 transition-colors"
-            >
-              Ruchers
-            </Link>
-            <Link
-              href="/dashboard/hives"
-              className="text-sm font-medium text-amber-700/70 hover:text-amber-600 transition-colors"
-            >
-              Ruches
-            </Link>
-            <Link
-              href="/dashboard/reines"
-              className="text-sm font-medium text-amber-700/70 hover:text-amber-600 transition-colors"
-            >
-              Reines
-            </Link>
-            <Link
-              href="/dashboard/interventions"
-              className="text-sm font-medium text-amber-700/70 hover:text-amber-600 transition-colors"
-            >
-              Interventions
-            </Link>
+            {navItems.map((item, i) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`text-sm font-medium transition-colors ${
+                  i === 0
+                    ? 'text-amber-900 hover:text-amber-600'
+                    : 'text-amber-700/70 hover:text-amber-600'
+                }`}
+              >
+                {item.label}
+              </Link>
+            ))}
           </nav>
 
           {/* Mobile Menu Button - Left on mobile */}
@@ -114,49 +119,27 @@ export function Header() {
                   <SheetTitle className="text-amber-900">Navigation</SheetTitle>
                 </SheetHeader>
                 <nav className="flex flex-col gap-2 px-4">
-                  <Link
-                    href="/dashboard"
-                    className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-amber-900 hover:bg-amber-50"
-                  >
-                    <Home className="h-4 w-4 text-amber-600" />
-                    Dashboard
-                  </Link>
-                  <Link
-                    href="/dashboard/apiaries"
-                    className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-amber-900 hover:bg-amber-50"
-                  >
-                    <MapPin className="h-4 w-4 text-amber-600" />
-                    Ruchers
-                  </Link>
-                  <Link
-                    href="/dashboard/hives"
-                    className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-amber-900 hover:bg-amber-50"
-                  >
-                    <Hexagon className="h-4 w-4 text-green-600" />
-                    Ruches
-                  </Link>
-                  <Link
-                    href="/dashboard/reines"
-                    className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-amber-900 hover:bg-amber-50"
-                  >
-                    <Crown className="h-4 w-4 text-amber-600" />
-                    Reines
-                  </Link>
-                  <Link
-                    href="/dashboard/interventions"
-                    className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-amber-900 hover:bg-amber-50"
-                  >
-                    <Bell className="h-4 w-4 text-amber-600" />
-                    Interventions
-                  </Link>
+                  {navItems.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-amber-900 hover:bg-amber-50"
+                      >
+                        <Icon className="h-4 w-4 text-amber-600" />
+                        {item.label}
+                      </Link>
+                    );
+                  })}
                 </nav>
               </SheetContent>
             </Sheet>
           </div>
 
-          {/* Center - Logo, Title & Entreprise Switcher */}
+          {/* Center - Logo, Title & Switchers */}
           <div className="flex items-center gap-3 justify-center min-w-0">
-            <Link href="/dashboard" className="flex items-center gap-2">
+            <Link href={isEleveur ? '/dashboard/elevage' : '/dashboard'} className="flex items-center gap-2">
               <Image
                 src="/logo_ruche_1.png"
                 alt="Logo"
@@ -165,10 +148,11 @@ export function Header() {
                 className="object-contain"
               />
               <span className="font-bold text-lg text-amber-900 hidden md:inline truncate">
-                Gestion de Ruchers
+                {title}
               </span>
             </Link>
             <EntrepriseSwitcher />
+            <ProfileModeSwitcher />
             {isPremium !== null && (
               <span
                 className={`rounded-full border px-2 py-1 text-[11px] font-semibold uppercase tracking-wide ${
@@ -219,7 +203,6 @@ export function Header() {
                     Inviter un membre
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="text-red-600 focus:text-red-600 cursor-pointer"
                   onClick={() => logout()}

@@ -61,7 +61,7 @@ def webhook_intervention_created(request):
 
     event = body.get('event', {})
     new_data = event.get('data', {}).get('new', {})
-    session = event.get('session_variables', {})
+    session = event.get('session_variables') or {}
 
     ruche_id = new_data.get('ruche_id')
     intervention_type = new_data.get('type', '')

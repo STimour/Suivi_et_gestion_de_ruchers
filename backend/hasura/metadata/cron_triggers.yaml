@@ -1,1 +1,12 @@
-[]
+- name: daily_notification_check
+  webhook: "{{DJANGO_WEBHOOK_URL}}/webhooks/daily-notifications"
+  schedule: "0 7 * * *"
+  include_in_metadata: true
+  payload: {}
+  retry_conf:
+    num_retries: 2
+    retry_interval_seconds: 60
+    timeout_seconds: 120
+  headers:
+    - name: X-Hasura-Webhook-Secret
+      value_from_env: HASURA_WEBHOOK_SECRET

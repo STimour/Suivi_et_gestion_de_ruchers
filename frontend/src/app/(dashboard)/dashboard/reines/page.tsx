@@ -15,7 +15,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { toast } from 'sonner';
-import { GET_REINES } from '@/lib/graphql/queries/reine.queries';
+import { GET_REINES, GET_REINES_ELEVAGE } from '@/lib/graphql/queries/reine.queries';
 import { GET_RUCHERS } from '@/lib/graphql/queries/rucher.queries';
 import { DELETE_REINE } from '@/lib/graphql/mutations/reine.mutations';
 import { CreateReineDialog } from '@/components/reine/CreateReineDialog';
@@ -23,6 +23,7 @@ import { ReineList } from '@/components/reine/ReineList';
 import { ReineGrid } from '@/components/reine/ReineGrid';
 import { useCanEdit } from '@/hooks/useCanEdit';
 import { useQuota } from '@/hooks/useQuota';
+import { useProfileMode } from '@/lib/context/ProfileModeContext';
 
 type ViewMode = 'grid' | 'list';
 
@@ -32,9 +33,10 @@ export default function ReinesPage() {
     const [rucherFilter, setRucherFilter] = useState<string>('all');
     const [statutFilter, setStatutFilter] = useState<string>('all');
 
+    const { isEleveur } = useProfileMode();
     const canEdit = useCanEdit();
     const { canCreateReine } = useQuota();
-    const { data, loading, error, refetch } = useQuery<any>(GET_REINES);
+    const { data, loading, error, refetch } = useQuery<any>(isEleveur ? GET_REINES_ELEVAGE : GET_REINES);
     const { data: ruchersData } = useQuery<any>(GET_RUCHERS);
 
     const [deleteReine] = useMutation(DELETE_REINE, {
