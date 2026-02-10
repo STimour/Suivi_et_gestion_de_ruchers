@@ -1,3 +1,4 @@
+- "!include public_account_verification_tokens.yaml"
 - "!include public_alertes.yaml"
 - "!include public_auth_group.yaml"
 - "!include public_auth_group_permissions.yaml"
@@ -20,6 +21,7 @@
 - "!include public_mesures.yaml"
 - "!include public_notifications.yaml"
 - "!include public_offres.yaml"
+- "!include public_password_reset_tokens.yaml"
 - "!include public_reines.yaml"
 - "!include public_ruchers.yaml"
 - "!include public_ruches.yaml"

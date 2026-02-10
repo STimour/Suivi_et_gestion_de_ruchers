@@ -2,12 +2,33 @@ table:
   name: utilisateurs
   schema: public
 array_relationships:
+  - name: account_verification_tokens
+    using:
+      foreign_key_constraint_on:
+        column: utilisateur_id
+        table:
+          name: account_verification_tokens
+          schema: public
   - name: invitations
     using:
       foreign_key_constraint_on:
         column: envoyeePar_id
         table:
           name: invitations
+          schema: public
+  - name: notifications
+    using:
+      foreign_key_constraint_on:
+        column: utilisateur_id
+        table:
+          name: notifications
+          schema: public
+  - name: password_reset_tokens
+    using:
+      foreign_key_constraint_on:
+        column: utilisateur_id
+        table:
+          name: password_reset_tokens
           schema: public
   - name: utilisateurs_entreprises
     using:
