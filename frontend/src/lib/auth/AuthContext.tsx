@@ -13,6 +13,28 @@ interface User {
     id: string;
     nom: string;
     role: string;
+    typeOffre?: string;
+    typeProfiles?: string[];
+    subscriptionActive?: boolean;
+    paid?: boolean;
+    offre?: {
+      id?: string;
+      dateDebut?: string;
+      dateFin?: string | null;
+      active?: boolean;
+      nbRuchersMax?: number;
+      nbCapteursMax?: number;
+      nbReinesMax?: number;
+      createdAt?: string;
+      updatedAt?: string;
+      type?: {
+        value?: string;
+        titre?: string;
+        description?: string;
+        prixHT?: string | number | null;
+        prixTTC?: string | number | null;
+      };
+    };
   }>;
   entreprise_id?: string;
   entreprise_nom?: string;

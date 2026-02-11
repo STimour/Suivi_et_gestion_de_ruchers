@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { User, Menu, LogOut, UserPlus } from "lucide-react";
+import { Crown, User, Menu, LogOut, UserPlus } from "lucide-react";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { authService } from "@/lib/auth/authService";
 import { useProfileMode } from "@/lib/context/ProfileModeContext";
@@ -34,6 +34,7 @@ export function Header() {
   const [isPremium, setIsPremium] = useState<boolean | null>(null);
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const showUpgradeCta = isPremium === false;
 
   const title = isEleveur ? 'Élevage de Reines' : 'Gestion de Ruchers';
 
@@ -128,6 +129,14 @@ export function Header() {
                 {isPremium ? "Premium" : "Freemium"}
               </span>
             )}
+            {showUpgradeCta && (
+              <Button asChild size="sm" className="hidden md:inline-flex bg-green-600 hover:bg-green-700 text-white">
+                <Link href="/upgrade-premium">
+                  <Crown className="h-4 w-4" />
+                  Passer au premium
+                </Link>
+              </Button>
+            )}
 
             <NotificationPanel />
 
@@ -150,10 +159,20 @@ export function Header() {
                     <DropdownMenuSeparator />
                   </>
                 )}
-                <DropdownMenuItem>
-                  <User className="mr-2 h-4 w-4" />
-                  Mon profil
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard/profile" className="cursor-pointer">
+                    <User className="mr-2 h-4 w-4" />
+                    Mon profil
+                  </Link>
                 </DropdownMenuItem>
+                {showUpgradeCta && (
+                  <DropdownMenuItem asChild>
+                    <Link href="/upgrade-premium" className="cursor-pointer">
+                      <Crown className="mr-2 h-4 w-4" />
+                      Passer au premium
+                    </Link>
+                  </DropdownMenuItem>
+                )}
                 {user?.entreprise_role === 'AdminEntreprise' && (
                   <DropdownMenuItem
                     className="cursor-pointer"
