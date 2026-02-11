@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Trash2, MapPin, MapPinOff } from 'lucide-react';
 import { toast } from 'sonner';
 import { getCapteurTypeLabel, getCapteurTypeIcon } from '@/lib/constants/capteur.constants';
@@ -28,6 +29,9 @@ export function CapteurCard({ capteur, canDelete, onDeleted }: CapteurCardProps)
     const [confirmDelete, setConfirmDelete] = useState(false);
     const [gpsLoading, setGpsLoading] = useState(false);
     const [gpsActive, setGpsActive] = useState(capteur.gpsAlertActive ?? false);
+    const [thresholdMeters, setThresholdMeters] = useState('100');
+    const [hasGpsAlert, setHasGpsAlert] = useState(false);
+    const [clearAlertLoading, setClearAlertLoading] = useState(false);
 
     const Icon = getCapteurTypeIcon(capteur.type);
     const typeLabel = getCapteurTypeLabel(capteur.type);
@@ -60,10 +64,17 @@ export function CapteurCard({ capteur, canDelete, onDeleted }: CapteurCardProps)
                 setGpsActive(false);
                 toast.success('Alerte GPS désactivée');
             } else {
-                await capteurService.activateGpsAlert(capteur.id, 100);
+                const threshold = Number(thresholdMeters);
+                if (!Number.isFinite(threshold) || threshold <= 0) {
+                    toast.error('Seuil invalide', {
+                        description: 'Le seuil doit être un nombre strictement positif.',
+                    });
+                    return;
+                }
+                await capteurService.activateGpsAlert(capteur.id, threshold);
                 setGpsActive(true);
                 toast.success('Alerte GPS activée', {
-                    description: 'Seuil : 100m depuis la position actuelle',
+                    description: `Seuil : ${threshold}m depuis la position actuelle`,
                 });
             }
         } catch (error: any) {
@@ -72,6 +83,48 @@ export function CapteurCard({ capteur, canDelete, onDeleted }: CapteurCardProps)
             setGpsLoading(false);
         }
     };
+
+    const handleClearGpsAlert = async () => {
+        setClearAlertLoading(true);
+        try {
+            const result = await capteurService.clearCapteurGpsAlert(capteur.id);
+            if (result.status === 'cleared') {
+                toast.success('Alerte GPS supprimée');
+            } else {
+                toast.info("Aucune alerte à supprimer");
+            }
+            setHasGpsAlert(false);
+        } catch (error: any) {
+            toast.error('Erreur', { description: error.message });
+        } finally {
+            setClearAlertLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (!isGps) {
+            setHasGpsAlert(false);
+            return;
+        }
+
+        let mounted = true;
+        capteurService
+            .getCapteurGpsAlertStatus(capteur.id)
+            .then((status) => {
+                if (mounted) {
+                    setHasGpsAlert(status.hasAlert);
+                }
+            })
+            .catch(() => {
+                if (mounted) {
+                    setHasGpsAlert(false);
+                }
+            });
+
+        return () => {
+            mounted = false;
+        };
+    }, [capteur.id, isGps]);
 
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleString('fr-FR', {
@@ -139,35 +192,62 @@ export function CapteurCard({ capteur, canDelete, onDeleted }: CapteurCardProps)
                 {/* GPS Alert toggle */}
                 {isGps && (
                     <div className="pt-2 border-t">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-1.5">
-                                {gpsActive ? (
-                                    <MapPin className="h-4 w-4 text-green-600" />
-                                ) : (
-                                    <MapPinOff className="h-4 w-4 text-gray-400" />
-                                )}
-                                <span className="text-xs font-medium text-gray-700">
-                                    Alerte GPS
-                                </span>
+                        <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-1.5">
+                                    {gpsActive ? (
+                                        <MapPin className="h-4 w-4 text-green-600" />
+                                    ) : (
+                                        <MapPinOff className="h-4 w-4 text-gray-400" />
+                                    )}
+                                    <span className="text-xs font-medium text-gray-700">
+                                        Alerte GPS
+                                    </span>
+                                </div>
+                                <Button
+                                    size="sm"
+                                    variant={gpsActive ? 'destructive' : 'default'}
+                                    onClick={handleToggleGpsAlert}
+                                    disabled={gpsLoading}
+                                    className={`h-7 text-xs gap-1 ${
+                                        gpsActive
+                                            ? ''
+                                            : 'bg-green-600 hover:bg-green-700'
+                                    }`}
+                                >
+                                    {gpsLoading
+                                        ? 'Chargement...'
+                                        : gpsActive
+                                          ? 'Désactiver'
+                                          : 'Activer'
+                                    }
+                                </Button>
                             </div>
-                            <Button
-                                size="sm"
-                                variant={gpsActive ? 'destructive' : 'default'}
-                                onClick={handleToggleGpsAlert}
-                                disabled={gpsLoading}
-                                className={`h-7 text-xs gap-1 ${
-                                    gpsActive
-                                        ? ''
-                                        : 'bg-green-600 hover:bg-green-700'
-                                }`}
-                            >
-                                {gpsLoading
-                                    ? 'Chargement...'
-                                    : gpsActive
-                                      ? 'Désactiver'
-                                      : 'Activer'
-                                }
-                            </Button>
+                            {!gpsActive && (
+                                <div className="space-y-1">
+                                    <span className="text-xs text-gray-500">Seuil (m)</span>
+                                    <Input
+                                        type="number"
+                                        min="1"
+                                        step="1"
+                                        value={thresholdMeters}
+                                        onChange={(e) => setThresholdMeters(e.target.value)}
+                                        className="h-8 text-xs"
+                                        placeholder="100"
+                                    />
+                                </div>
+                            )}
+                            {hasGpsAlert && (
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={handleClearGpsAlert}
+                                    disabled={clearAlertLoading}
+                                    className="h-7 text-xs text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+                                >
+                                    {clearAlertLoading ? 'Suppression...' : "Supprimer l'alerte"}
+                                </Button>
+                            )}
                         </div>
                     </div>
                 )}

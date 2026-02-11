@@ -6,6 +6,7 @@ from django.utils import timezone
 from core.auth_views import _get_user_from_request, _json_body, _get_bearer_token, _decode_token
 from core.models import (
     Capteur,
+    Rucher,
     Ruche,
     TypeCapteur,
     UtilisateurEntreprise,
@@ -518,3 +519,150 @@ def deactivate_gps_alert(request, capteur_id):
     capteur.save(update_fields=["gpsAlertActive"])
 
     return JsonResponse({"status": "deactivated"}, status=200)
+
+
+def get_capteur_gps_alert_status(request, capteur_id):
+    """GET /api/capteurs/{id}/gps-alert/status - Etat des alertes GPS non acquittees du capteur."""
+    if request.method != "GET":
+        return JsonResponse({"error": "method_not_allowed"}, status=405)
+
+    user, err = _get_user_from_request(request)
+    if err:
+        return err
+
+    entreprise_id = _entreprise_id_from_request(request)
+    err = _ensure_user_in_entreprise(user, entreprise_id)
+    if err:
+        return err
+
+    try:
+        capteur = Capteur.objects.select_related("ruche", "ruche__rucher").get(id=capteur_id)
+    except Capteur.DoesNotExist:
+        return JsonResponse({"error": "capteur_not_found"}, status=404)
+
+    if not _capteur_belongs_to_entreprise(capteur, entreprise_id):
+        return JsonResponse({"error": "forbidden"}, status=403)
+
+    if capteur.type != TypeCapteur.GPS.value:
+        return JsonResponse({"error": "capteur_not_gps"}, status=400)
+
+    alertes = (
+        Alerte.objects.filter(
+            capteur=capteur,
+            type=TypeAlerte.DEPLACEMENT_GPS.value,
+            acquittee=False,
+        )
+        .order_by("-date", "-created_at")
+    )
+    latest = alertes.first()
+
+    return JsonResponse(
+        {
+            "capteurId": str(capteur.id),
+            "hasAlert": bool(latest),
+            "alertesCount": alertes.count(),
+            "latestAlerte": (
+                {
+                    "id": str(latest.id),
+                    "type": latest.type,
+                    "message": latest.message,
+                    "date": latest.date.isoformat() if latest.date else None,
+                }
+                if latest
+                else None
+            ),
+        },
+        status=200,
+    )
+
+
+def clear_capteur_gps_alert(request, capteur_id):
+    """POST /api/capteurs/{id}/gps-alert/clear - Supprime les alertes GPS non acquittees du capteur."""
+    if request.method != "POST":
+        return JsonResponse({"error": "method_not_allowed"}, status=405)
+
+    user, err = _get_user_from_request(request)
+    if err:
+        return err
+
+    entreprise_id = _entreprise_id_from_request(request)
+    err = _ensure_user_in_entreprise(user, entreprise_id)
+    if err:
+        return err
+
+    try:
+        capteur = Capteur.objects.select_related("ruche", "ruche__rucher").get(id=capteur_id)
+    except Capteur.DoesNotExist:
+        return JsonResponse({"error": "capteur_not_found"}, status=404)
+
+    if not _capteur_belongs_to_entreprise(capteur, entreprise_id):
+        return JsonResponse({"error": "forbidden"}, status=403)
+
+    if capteur.type != TypeCapteur.GPS.value:
+        return JsonResponse({"error": "capteur_not_gps"}, status=400)
+
+    alertes = Alerte.objects.filter(
+        capteur=capteur,
+        type=TypeAlerte.DEPLACEMENT_GPS.value,
+        acquittee=False,
+    )
+    deleted_count, _ = alertes.delete()
+
+    if deleted_count == 0:
+        return JsonResponse({"status": "no_alert", "deleted": 0}, status=200)
+
+    return JsonResponse({"status": "cleared", "deleted": deleted_count}, status=200)
+
+
+def get_rucher_gps_alert_status(request, rucher_id):
+    """GET /api/ruchers/{id}/gps-alert/status - Retourne l'etat des alertes GPS du rucher."""
+    if request.method != "GET":
+        return JsonResponse({"error": "method_not_allowed"}, status=405)
+
+    user, err = _get_user_from_request(request)
+    if err:
+        return err
+
+    entreprise_id = _entreprise_id_from_request(request)
+    err = _ensure_user_in_entreprise(user, entreprise_id)
+    if err:
+        return err
+
+    try:
+        rucher = Rucher.objects.get(id=rucher_id)
+    except Rucher.DoesNotExist:
+        return JsonResponse({"error": "rucher_not_found"}, status=404)
+
+    if str(getattr(rucher, "entreprise_id", "")) != str(entreprise_id):
+        return JsonResponse({"error": "forbidden"}, status=403)
+
+    gps_capteurs = list(
+        Capteur.objects.select_related("ruche")
+        .filter(ruche__rucher_id=rucher_id, type=TypeCapteur.GPS.value)
+        .order_by("-created_at")
+    )
+
+    active_alerts = [capteur for capteur in gps_capteurs if capteur.gpsAlertActive]
+
+    return JsonResponse(
+        {
+            "rucherId": str(rucher_id),
+            "hasGpsCapteur": bool(gps_capteurs),
+            "hasActiveAlert": bool(active_alerts),
+            "activeAlertsCount": len(active_alerts),
+            "capteurs": [
+                {
+                    "id": str(capteur.id),
+                    "rucheId": str(capteur.ruche_id),
+                    "rucheImmatriculation": getattr(capteur.ruche, "immatriculation", ""),
+                    "identifiant": capteur.identifiant,
+                    "gpsAlertActive": capteur.gpsAlertActive,
+                    "thresholdMeters": capteur.gpsThresholdMeters,
+                    "lastCheckedAt": capteur.gpsLastCheckedAt.isoformat() if capteur.gpsLastCheckedAt else None,
+                    "lastAlertAt": capteur.gpsLastAlertAt.isoformat() if capteur.gpsLastAlertAt else None,
+                }
+                for capteur in gps_capteurs
+            ],
+        },
+        status=200,
+    )

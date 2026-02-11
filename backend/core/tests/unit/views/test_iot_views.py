@@ -345,3 +345,131 @@ class IotViewsTest(TestCase):
             f"/api/capteurs/{capteur.id}/delete", **self._auth_header()
         )
         self.assertEqual(resp.status_code, 403)
+
+    def test_get_rucher_gps_alert_status_success(self):
+        Capteur.objects.create(
+            type=TypeCapteur.GPS, identifiant="RSTATUS01",
+            ruche=self.ruche, actif=True, gpsAlertActive=True,
+        )
+        Capteur.objects.create(
+            type=TypeCapteur.GPS, identifiant="RSTATUS02",
+            ruche=self.ruche, actif=True, gpsAlertActive=False,
+        )
+
+        resp = self.client.get(
+            f"/api/ruchers/{self.rucher.id}/gps-alert/status",
+            **self._auth_header(),
+        )
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertEqual(data["rucherId"], str(self.rucher.id))
+        self.assertTrue(data["hasGpsCapteur"])
+        self.assertTrue(data["hasActiveAlert"])
+        self.assertEqual(data["activeAlertsCount"], 1)
+        self.assertEqual(len(data["capteurs"]), 2)
+
+    def test_get_rucher_gps_alert_status_no_gps(self):
+        resp = self.client.get(
+            f"/api/ruchers/{self.rucher.id}/gps-alert/status",
+            **self._auth_header(),
+        )
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertFalse(data["hasGpsCapteur"])
+        self.assertFalse(data["hasActiveAlert"])
+        self.assertEqual(data["activeAlertsCount"], 0)
+        self.assertEqual(data["capteurs"], [])
+
+    def test_get_rucher_gps_alert_status_forbidden(self):
+        other_ent = Entreprise.objects.create(nom="Other2", adresse="X")
+        other_rucher = Rucher.objects.create(
+            nom="OtherR2", latitude=44.0, longitude=4.0,
+            flore_id="Lavande", altitude=300, entreprise=other_ent,
+        )
+
+        resp = self.client.get(
+            f"/api/ruchers/{other_rucher.id}/gps-alert/status",
+            **self._auth_header(),
+        )
+        self.assertEqual(resp.status_code, 403)
+
+    def test_get_rucher_gps_alert_status_not_found(self):
+        import uuid
+        resp = self.client.get(
+            f"/api/ruchers/{uuid.uuid4()}/gps-alert/status",
+            **self._auth_header(),
+        )
+        self.assertEqual(resp.status_code, 404)
+
+    def test_get_capteur_gps_alert_status_with_alert(self):
+        capteur = Capteur.objects.create(
+            type=TypeCapteur.GPS, identifiant="GPSSTAT01",
+            ruche=self.ruche, actif=True,
+        )
+        Alerte.objects.create(
+            type="DeplacementGPS",
+            message="Test alerte GPS",
+            capteur=capteur,
+            acquittee=False,
+        )
+        resp = self.client.get(
+            f"/api/capteurs/{capteur.id}/gps-alert/status",
+            **self._auth_header(),
+        )
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertTrue(data["hasAlert"])
+        self.assertEqual(data["alertesCount"], 1)
+        self.assertIsNotNone(data["latestAlerte"])
+
+    def test_get_capteur_gps_alert_status_without_alert(self):
+        capteur = Capteur.objects.create(
+            type=TypeCapteur.GPS, identifiant="GPSSTAT02",
+            ruche=self.ruche, actif=True,
+        )
+        resp = self.client.get(
+            f"/api/capteurs/{capteur.id}/gps-alert/status",
+            **self._auth_header(),
+        )
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertFalse(data["hasAlert"])
+        self.assertEqual(data["alertesCount"], 0)
+        self.assertIsNone(data["latestAlerte"])
+
+    def test_clear_capteur_gps_alert_success(self):
+        capteur = Capteur.objects.create(
+            type=TypeCapteur.GPS, identifiant="GPSCLR01",
+            ruche=self.ruche, actif=True,
+        )
+        Alerte.objects.create(
+            type="DeplacementGPS",
+            message="Alerte a supprimer",
+            capteur=capteur,
+            acquittee=False,
+        )
+        resp = self._post_json(
+            f"/api/capteurs/{capteur.id}/gps-alert/clear",
+            {},
+            **self._auth_header(),
+        )
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertEqual(data["status"], "cleared")
+        self.assertGreaterEqual(data["deleted"], 1)
+        self.assertFalse(Alerte.objects.filter(capteur=capteur, acquittee=False).exists())
+
+    def test_clear_capteur_gps_alert_no_alert(self):
+        capteur = Capteur.objects.create(
+            type=TypeCapteur.GPS, identifiant="GPSCLR02",
+            ruche=self.ruche, actif=True,
+        )
+        resp = self._post_json(
+            f"/api/capteurs/{capteur.id}/gps-alert/clear",
+            {},
+            **self._auth_header(),
+        )
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertEqual(data["status"], "no_alert")
+        self.assertEqual(data["deleted"], 0)

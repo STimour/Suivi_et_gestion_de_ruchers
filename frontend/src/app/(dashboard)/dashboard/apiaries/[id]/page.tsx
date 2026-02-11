@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useQuery } from '@apollo/client/react';
 import { Button } from '@/components/ui/button';
@@ -13,6 +14,7 @@ import { BulkInterventionDialog } from '@/components/rucher/BulkInterventionDial
 import { Skeleton } from '@/components/ui/skeleton';
 import { GET_RUCHER_DETAILS } from '@/lib/graphql/queries/rucher.queries';
 import { useCanEdit } from '@/hooks/useCanEdit';
+import { capteurService, RucherGpsAlertStatus } from '@/lib/services/capteurService';
 
 interface RucherDetailsData {
   ruchers_by_pk: {
@@ -39,12 +41,34 @@ export default function RucherDetailPage() {
   const params = useParams();
   const router = useRouter();
   const rucherId = params.id as string;
+  const [gpsAlertStatus, setGpsAlertStatus] = useState<RucherGpsAlertStatus | null>(null);
 
   const canEdit = useCanEdit();
 
   const { data, loading, error } = useQuery<RucherDetailsData>(GET_RUCHER_DETAILS, {
     variables: { id: rucherId },
   });
+
+  useEffect(() => {
+    let mounted = true;
+
+    capteurService
+      .getRucherGpsAlertStatus(rucherId)
+      .then((status) => {
+        if (mounted) {
+          setGpsAlertStatus(status);
+        }
+      })
+      .catch(() => {
+        if (mounted) {
+          setGpsAlertStatus(null);
+        }
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [rucherId]);
 
   if (loading) {
     return (
@@ -166,6 +190,22 @@ export default function RucherDetailPage() {
                   {ruchesMortes}
                 </Badge>
               </div>
+              {gpsAlertStatus?.hasGpsCapteur && (
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Alerte GPS</span>
+                  <Badge
+                    className={
+                      gpsAlertStatus.hasActiveAlert
+                        ? 'bg-red-100 text-red-800'
+                        : 'bg-green-100 text-green-800'
+                    }
+                  >
+                    {gpsAlertStatus.hasActiveAlert
+                      ? `Active (${gpsAlertStatus.activeAlertsCount})`
+                      : 'Inactive'}
+                  </Badge>
+                </div>
+              )}
             </CardContent>
           </Card>
 

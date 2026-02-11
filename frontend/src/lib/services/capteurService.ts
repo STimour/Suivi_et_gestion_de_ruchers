@@ -15,6 +15,35 @@ export interface AssociateCapteurData {
     name?: string;
 }
 
+export interface RucherGpsAlertStatus {
+    rucherId: string;
+    hasGpsCapteur: boolean;
+    hasActiveAlert: boolean;
+    activeAlertsCount: number;
+    capteurs: Array<{
+        id: string;
+        rucheId: string;
+        rucheImmatriculation: string;
+        identifiant: string;
+        gpsAlertActive: boolean;
+        thresholdMeters: number;
+        lastCheckedAt: string | null;
+        lastAlertAt: string | null;
+    }>;
+}
+
+export interface CapteurGpsAlertStatus {
+    capteurId: string;
+    hasAlert: boolean;
+    alertesCount: number;
+    latestAlerte: {
+        id: string;
+        type: string;
+        message: string;
+        date: string | null;
+    } | null;
+}
+
 class CapteurService {
     async associateCapteur(data: AssociateCapteurData): Promise<any> {
         const response = await fetch(`${DJANGO_API_URL}/api/capteurs/associate`, {
@@ -74,6 +103,49 @@ class CapteurService {
         if (!response.ok) {
             const error = await response.json().catch(() => ({}));
             throw new Error(error.message || error.error || "Erreur lors de la désactivation de l'alerte GPS");
+        }
+
+        return response.json();
+    }
+
+    async getRucherGpsAlertStatus(rucherId: string): Promise<RucherGpsAlertStatus> {
+        const response = await fetch(`${DJANGO_API_URL}/api/ruchers/${rucherId}/gps-alert/status`, {
+            method: 'GET',
+            headers: getAuthHeaders(),
+        });
+
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.message || error.error || "Erreur lors de la récupération du statut d'alerte GPS");
+        }
+
+        return response.json();
+    }
+
+    async getCapteurGpsAlertStatus(capteurId: string): Promise<CapteurGpsAlertStatus> {
+        const response = await fetch(`${DJANGO_API_URL}/api/capteurs/${capteurId}/gps-alert/status`, {
+            method: 'GET',
+            headers: getAuthHeaders(),
+        });
+
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.message || error.error || "Erreur lors de la récupération des alertes GPS");
+        }
+
+        return response.json();
+    }
+
+    async clearCapteurGpsAlert(capteurId: string): Promise<{ status: string; deleted: number }> {
+        const response = await fetch(`${DJANGO_API_URL}/api/capteurs/${capteurId}/gps-alert/clear`, {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({}),
+        });
+
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.message || error.error || "Erreur lors de la suppression de l'alerte GPS");
         }
 
         return response.json();

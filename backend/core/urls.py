@@ -29,6 +29,9 @@ urlpatterns = [
     path('capteurs/<uuid:capteur_id>/gps-alert/activate', iot_views.activate_gps_alert, name='capteurs-gps-alert-activate'),
     path('capteurs/<uuid:capteur_id>/gps-alert/check', iot_views.check_gps_alert, name='capteurs-gps-alert-check'),
     path('capteurs/<uuid:capteur_id>/gps-alert/deactivate', iot_views.deactivate_gps_alert, name='capteurs-gps-alert-deactivate'),
+    path('capteurs/<uuid:capteur_id>/gps-alert/status', iot_views.get_capteur_gps_alert_status, name='capteurs-gps-alert-status'),
+    path('capteurs/<uuid:capteur_id>/gps-alert/clear', iot_views.clear_capteur_gps_alert, name='capteurs-gps-alert-clear'),
+    path('ruchers/<uuid:rucher_id>/gps-alert/status', iot_views.get_rucher_gps_alert_status, name='ruchers-gps-alert-status'),
     path('webhooks/intervention-created', notification_views.webhook_intervention_created, name='webhook-intervention-created'),
     path('webhooks/daily-notifications', notification_views.webhook_daily_notifications, name='webhook-daily-notifications'),
 ]
