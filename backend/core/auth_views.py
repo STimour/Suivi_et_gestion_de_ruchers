@@ -20,6 +20,7 @@ from core.models import (
     PasswordResetToken,
 )
 from django.contrib.auth.hashers import check_password, make_password
+from django.views.decorators.http import require_POST, require_http_methods, require_GET
 from core.email_utils import send_email
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
@@ -162,10 +163,8 @@ def _serialize_offre(offre: Offre):
     }
 
 
+@require_POST
 def register(request):
-    if request.method != "POST":
-        return JsonResponse({"error": "method_not_allowed"}, status=405)
-
     data = _json_body(request)
     if data is None:
         return JsonResponse({"error": "invalid_json"}, status=400)
@@ -246,10 +245,8 @@ def register(request):
     )
 
 
+@require_POST
 def login(request):
-    if request.method != "POST":
-        return JsonResponse({"error": "method_not_allowed"}, status=405)
-
     data = _json_body(request)
     if data is None:
         return JsonResponse({"error": "invalid_json"}, status=400)
@@ -302,19 +299,15 @@ def login(request):
     )
 
 
+@require_POST
 def logout(request):
-    if request.method != "POST":
-        return JsonResponse({"error": "method_not_allowed"}, status=405)
-
     # For JWT-based authentication, logout is typically handled client-side
     # by removing the token from storage. This endpoint serves as a confirmation.
     return JsonResponse({"message": "logout_successful"}, status=200)
 
 
+@require_http_methods(["GET", "POST"])
 def verify_account(request):
-    if request.method not in ("GET", "POST"):
-        return JsonResponse({"error": "method_not_allowed"}, status=405)
-
     token = (request.GET.get("token") or "").strip()
     if request.method == "POST":
         data = _json_body(request)
@@ -365,10 +358,8 @@ def verify_account(request):
     return JsonResponse({"message": "account_verified"}, status=200)
 
 
+@require_POST
 def resend_verification_email(request):
-    if request.method != "POST":
-        return JsonResponse({"error": "method_not_allowed"}, status=405)
-
     data = _json_body(request)
     if data is None:
         return JsonResponse({"error": "invalid_json"}, status=400)
@@ -457,10 +448,8 @@ def resend_verification_email(request):
     )
 
 
+@require_POST
 def request_password_reset(request):
-    if request.method != "POST":
-        return JsonResponse({"error": "method_not_allowed"}, status=405)
-
     data = _json_body(request)
     if data is None:
         return JsonResponse({"error": "invalid_json"}, status=400)
@@ -529,10 +518,8 @@ def request_password_reset(request):
     )
 
 
+@require_POST
 def reset_password(request):
-    if request.method != "POST":
-        return JsonResponse({"error": "method_not_allowed"}, status=405)
-
     data = _json_body(request)
     if data is None:
         return JsonResponse({"error": "invalid_json"}, status=400)
@@ -567,6 +554,7 @@ def reset_password(request):
     return JsonResponse({"message": "password_reset_success"}, status=200)
 
 
+@require_GET
 def me(request):
     token = _get_bearer_token(request)
     if not token:
@@ -650,11 +638,9 @@ def me(request):
     )
 
 
+@require_POST
 def accept_invitation(request):
     """POST /api/auth/accept-invitation - Accepter une invitation (token dans le body). Lie l'utilisateur connecté à l'entreprise avec le rôle proposé."""
-    if request.method != "POST":
-        return JsonResponse({"error": "method_not_allowed"}, status=405)
-
     user, err = _get_user_from_request(request)
     if err:
         return err
@@ -729,11 +715,9 @@ def accept_invitation(request):
     )
 
 
+@require_POST
 def switch_entreprise(request):
     """POST /api/auth/switch-entreprise - Retourne un token pour une autre entreprise."""
-    if request.method != "POST":
-        return JsonResponse({"error": "method_not_allowed"}, status=405)
-
     user, err = _get_user_from_request(request)
     if err:
         return err
@@ -769,11 +753,9 @@ def switch_entreprise(request):
     )
 
 
+@require_GET
 def current_entreprise(request):
     """GET /api/auth/current-entreprise - Retourne l'entreprise courante du token."""
-    if request.method != "GET":
-        return JsonResponse({"error": "method_not_allowed"}, status=405)
-
     token = _get_bearer_token(request)
     if not token:
         return JsonResponse({"error": "missing_authorization"}, status=401)

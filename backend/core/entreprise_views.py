@@ -22,6 +22,7 @@ from core.models import (
     LimitationOffre,
     TypeProfileEntrepriseModel,
 )
+from django.views.decorators.http import require_POST, require_GET
 from core.auth_views import _json_body, _get_user_from_request, _make_access_token
 from core.email_utils import send_email
 from core.email_templates import generate_invitation_email_content
@@ -130,11 +131,9 @@ def _premium_limits():
     }
 
 
+@require_POST
 def create_entreprise(request):
     """POST /api/entreprise - Créer une entreprise et lier l'utilisateur connecté comme AdminEntreprise."""
-    if request.method != "POST":
-        return JsonResponse({"error": "method_not_allowed"}, status=405)
-
     user, err = _get_user_from_request(request)
     if err:
         return err
@@ -210,11 +209,9 @@ def create_entreprise(request):
     )
 
 
+@require_POST
 def create_invitation(request):
     """POST /api/entreprise/invitation - Créer une invitation (token unique) et optionnellement envoyer un email."""
-    if request.method != "POST":
-        return JsonResponse({"error": "method_not_allowed"}, status=405)
-
     user, err = _get_user_from_request(request)
     if err:
         return err
@@ -318,11 +315,9 @@ def create_invitation(request):
     return JsonResponse(response, status=201)
 
 
+@require_POST
 def create_premium_checkout(request, entreprise_id):
     """POST /api/entreprises/{id}/checkout/premium - Crée une session Stripe Checkout (subscription) pour Premium."""
-    if request.method != "POST":
-        return JsonResponse({"error": "method_not_allowed"}, status=405)
-
     user, err = _get_user_from_request(request)
     if err:
         return err
@@ -368,11 +363,9 @@ def create_premium_checkout(request, entreprise_id):
     return JsonResponse({"url": session.url}, status=200)
 
 
+@require_POST
 def update_entreprise_offre(request, entreprise_id):
     """POST /api/entreprises/{id}/offre - Mettre a jour le type d'offre d'une entreprise."""
-    if request.method != "POST":
-        return JsonResponse({"error": "method_not_allowed"}, status=405)
-
     user, err = _get_user_from_request(request)
     if err:
         return err
@@ -456,11 +449,9 @@ def update_entreprise_offre(request, entreprise_id):
     )
 
 
+@require_POST
 def update_entreprise_profiles(request, entreprise_id):
     """POST /api/entreprises/{id}/profiles - Mettre a jour les profils d'une entreprise."""
-    if request.method != "POST":
-        return JsonResponse({"error": "method_not_allowed"}, status=405)
-
     user, err = _get_user_from_request(request)
     if err:
         return err
@@ -520,11 +511,9 @@ def update_entreprise_profiles(request, entreprise_id):
     )
 
 
+@require_GET
 def get_entreprise_offre_status(request, entreprise_id):
     """GET /api/entreprises/{id}/offre/status - Statut de l'offre pour l'entreprise."""
-    if request.method != "GET":
-        return JsonResponse({"error": "method_not_allowed"}, status=405)
-
     user, err = _get_user_from_request(request)
     if err:
         return err
@@ -559,11 +548,9 @@ def get_entreprise_offre_status(request, entreprise_id):
     )
 
 
+@require_GET
 def list_type_profiles(request):
     """GET /api/profiles - Liste des profils entreprise."""
-    if request.method != "GET":
-        return JsonResponse({"error": "method_not_allowed"}, status=405)
-
     profiles = list(TypeProfileEntrepriseModel.objects.all().order_by("value"))
     if profiles:
         data = [
@@ -597,11 +584,9 @@ def list_type_profiles(request):
     return JsonResponse({"profiles": data}, status=200)
 
 
+@require_POST
 def stripe_webhook(request):
     """POST /api/stripe/webhook - Webhook Stripe pour activer l'offre Premium."""
-    if request.method != "POST":
-        return JsonResponse({"error": "method_not_allowed"}, status=405)
-
     if not settings.STRIPE_WEBHOOK_SECRET:
         return JsonResponse({"error": "stripe_webhook_not_configured"}, status=500)
 

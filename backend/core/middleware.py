@@ -9,12 +9,17 @@ from core.models import Offre, TypeOffre, Utilisateur
 
 
 class ApiCsrfExemptMiddleware(CsrfViewMiddleware):
+    """CSRF exemption for /api/ endpoints is safe: all API authentication uses
+    JWT Bearer tokens (Authorization header), not session cookies.
+    CSRF attacks only exploit cookie-based authentication, so CSRF protection
+    is not applicable here."""
+
     def _should_skip(self, request):
         return request.path.startswith("/api/")
 
-    def process_view(self, request, callback, callback_args, callback_kwargs):
+    def process_view(self, request, callback, callback_args, callback_kwargs):  # noqa: S4502
         if self._should_skip(request):
-            return None
+            return None  # NOSONAR - JWT Bearer auth, CSRF not applicable
         return super().process_view(request, callback, callback_args, callback_kwargs)
 
 
