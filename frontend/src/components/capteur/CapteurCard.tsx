@@ -369,7 +369,7 @@ export function CapteurCard({ capteur, canDelete, onDeleted }: CapteurCardProps)
                                     variant="destructive"
                                     onClick={handleDelete}
                                     disabled={deleting}
-                                    className="h-7 text-xs"
+                                    className="h-7 text-black text-xs"
                                 >
                                     {deleting ? 'Suppression...' : 'Oui, supprimer'}
                                 </Button>
