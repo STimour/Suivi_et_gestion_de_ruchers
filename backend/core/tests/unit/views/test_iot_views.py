@@ -437,6 +437,48 @@ class IotViewsTest(TestCase):
         self.assertEqual(data["alertesCount"], 0)
         self.assertIsNone(data["latestAlerte"])
 
+    @patch("core.iot_views.get_latest_position", return_value={"latitude": 43.5, "longitude": 3.2, "fixTime": "2026-02-11T10:00:00Z", "positionId": 123})
+    def test_get_capteur_gps_position_success(self, mock_pos):
+        capteur = Capteur.objects.create(
+            type=TypeCapteur.GPS, identifiant="GPSPOS01",
+            ruche=self.ruche, actif=True,
+        )
+        resp = self.client.get(
+            f"/api/capteurs/{capteur.id}/gps-position",
+            **self._auth_header(),
+        )
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertEqual(data["capteurId"], str(capteur.id))
+        self.assertEqual(data["identifiant"], "GPSPOS01")
+        self.assertAlmostEqual(data["latitude"], 43.5)
+        self.assertAlmostEqual(data["longitude"], 3.2)
+
+    def test_get_capteur_gps_position_not_gps(self):
+        capteur = Capteur.objects.create(
+            type=TypeCapteur.TEMPERATURE, identifiant="GPSTEMP01",
+            ruche=self.ruche, actif=True,
+        )
+        resp = self.client.get(
+            f"/api/capteurs/{capteur.id}/gps-position",
+            **self._auth_header(),
+        )
+        self.assertEqual(resp.status_code, 400)
+        self.assertEqual(resp.json()["error"], "capteur_not_gps")
+
+    @patch("core.iot_views.get_latest_position", return_value={"latitude": None, "longitude": None})
+    def test_get_capteur_gps_position_unavailable(self, mock_pos):
+        capteur = Capteur.objects.create(
+            type=TypeCapteur.GPS, identifiant="GPSPOS02",
+            ruche=self.ruche, actif=True,
+        )
+        resp = self.client.get(
+            f"/api/capteurs/{capteur.id}/gps-position",
+            **self._auth_header(),
+        )
+        self.assertEqual(resp.status_code, 400)
+        self.assertEqual(resp.json()["error"], "gps_position_unavailable")
+
     def test_clear_capteur_gps_alert_success(self):
         capteur = Capteur.objects.create(
             type=TypeCapteur.GPS, identifiant="GPSCLR01",

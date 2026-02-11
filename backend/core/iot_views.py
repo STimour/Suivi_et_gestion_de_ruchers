@@ -563,6 +563,48 @@ def get_capteur_gps_alert_status(request, capteur_id):
     )
 
 
+def get_capteur_gps_position(request, capteur_id):
+    """GET /api/capteurs/{id}/gps-position - Retourne la position GPS courante du capteur."""
+    if request.method != "GET":
+        return JsonResponse({"error": "method_not_allowed"}, status=405)
+
+    user, err = _get_user_from_request(request)
+    if err:
+        return err
+
+    entreprise_id = _entreprise_id_from_request(request)
+    err = _ensure_user_in_entreprise(user, entreprise_id)
+    if err:
+        return err
+
+    try:
+        capteur = Capteur.objects.select_related("ruche", "ruche__rucher").get(id=capteur_id)
+    except Capteur.DoesNotExist:
+        return JsonResponse({"error": "capteur_not_found"}, status=404)
+
+    if not _capteur_belongs_to_entreprise(capteur, entreprise_id):
+        return JsonResponse({"error": "forbidden"}, status=403)
+
+    if capteur.type != TypeCapteur.GPS.value:
+        return JsonResponse({"error": "capteur_not_gps"}, status=400)
+
+    pos, err = _get_latest_gps_or_error(capteur)
+    if err:
+        return err
+
+    return JsonResponse(
+        {
+            "capteurId": str(capteur.id),
+            "identifiant": capteur.identifiant,
+            "latitude": pos.get("latitude"),
+            "longitude": pos.get("longitude"),
+            "fixTime": pos.get("fixTime"),
+            "positionId": pos.get("positionId"),
+        },
+        status=200,
+    )
+
+
 def clear_capteur_gps_alert(request, capteur_id):
     """POST /api/capteurs/{id}/gps-alert/clear - Supprime les alertes GPS non acquittees du capteur."""
     if request.method != "POST":

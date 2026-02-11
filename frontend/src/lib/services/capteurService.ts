@@ -44,6 +44,15 @@ export interface CapteurGpsAlertStatus {
     } | null;
 }
 
+export interface CapteurGpsPosition {
+    capteurId: string;
+    identifiant: string;
+    latitude: number;
+    longitude: number;
+    fixTime: string | null;
+    positionId: number | null;
+}
+
 class CapteurService {
     async associateCapteur(data: AssociateCapteurData): Promise<any> {
         const response = await fetch(`${DJANGO_API_URL}/api/capteurs/associate`, {
@@ -131,6 +140,20 @@ class CapteurService {
         if (!response.ok) {
             const error = await response.json().catch(() => ({}));
             throw new Error(error.message || error.error || "Erreur lors de la récupération des alertes GPS");
+        }
+
+        return response.json();
+    }
+
+    async getCapteurGpsPosition(capteurId: string): Promise<CapteurGpsPosition> {
+        const response = await fetch(`${DJANGO_API_URL}/api/capteurs/${capteurId}/gps-position`, {
+            method: 'GET',
+            headers: getAuthHeaders(),
+        });
+
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.message || error.error || 'Erreur lors de la récupération de la position GPS');
         }
 
         return response.json();

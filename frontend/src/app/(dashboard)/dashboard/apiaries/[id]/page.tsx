@@ -14,7 +14,11 @@ import { BulkInterventionDialog } from '@/components/rucher/BulkInterventionDial
 import { Skeleton } from '@/components/ui/skeleton';
 import { GET_RUCHER_DETAILS } from '@/lib/graphql/queries/rucher.queries';
 import { useCanEdit } from '@/hooks/useCanEdit';
-import { capteurService, RucherGpsAlertStatus } from '@/lib/services/capteurService';
+import {
+  capteurService,
+  CapteurGpsPosition,
+  RucherGpsAlertStatus,
+} from '@/lib/services/capteurService';
 
 interface RucherDetailsData {
   ruchers_by_pk: {
@@ -42,6 +46,11 @@ export default function RucherDetailPage() {
   const router = useRouter();
   const rucherId = params.id as string;
   const [gpsAlertStatus, setGpsAlertStatus] = useState<RucherGpsAlertStatus | null>(null);
+  const [currentGpsCapteur, setCurrentGpsCapteur] = useState<{
+    id: string;
+    identifiant: string;
+  } | null>(null);
+  const [gpsPosition, setGpsPosition] = useState<CapteurGpsPosition | null>(null);
 
   const canEdit = useCanEdit();
 
@@ -69,6 +78,43 @@ export default function RucherDetailPage() {
       mounted = false;
     };
   }, [rucherId]);
+
+  useEffect(() => {
+    if (!gpsAlertStatus?.hasGpsCapteur || gpsAlertStatus.capteurs.length === 0) {
+      setCurrentGpsCapteur(null);
+      setGpsPosition(null);
+      return;
+    }
+
+    const capteurActuel =
+      gpsAlertStatus.capteurs.find((capteur) => capteur.gpsAlertActive) ?? gpsAlertStatus.capteurs[0];
+
+    if (!capteurActuel) {
+      setCurrentGpsCapteur(null);
+      setGpsPosition(null);
+      return;
+    }
+
+    let mounted = true;
+    setCurrentGpsCapteur({ id: capteurActuel.id, identifiant: capteurActuel.identifiant });
+
+    capteurService
+      .getCapteurGpsPosition(capteurActuel.id)
+      .then((position) => {
+        if (mounted) {
+          setGpsPosition(position);
+        }
+      })
+      .catch(() => {
+        if (mounted) {
+          setGpsPosition(null);
+        }
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [gpsAlertStatus]);
 
   if (loading) {
     return (
@@ -100,6 +146,8 @@ export default function RucherDetailPage() {
   const ruchesActives = rucher.ruches.filter(r => r.statut === 'Active').length;
   const ruchesMalades = rucher.ruches.filter(r => r.statut === 'Malade').length;
   const ruchesMortes = rucher.ruches.filter(r => r.statut === 'Morte').length;
+  const googleMapsUrl =
+    gpsPosition ? `https://www.google.com/maps?q=${gpsPosition.latitude},${gpsPosition.longitude}` : null;
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -204,6 +252,28 @@ export default function RucherDetailPage() {
                       ? `Active (${gpsAlertStatus.activeAlertsCount})`
                       : 'Inactive'}
                   </Badge>
+                </div>
+              )}
+              {gpsAlertStatus?.hasGpsCapteur && (
+                <div className="pt-3 border-t space-y-1">
+                  <p className="text-sm font-medium text-gray-800">Position capteur GPS</p>
+                  {gpsPosition ? (
+                    <>
+                      <p className="text-xs text-gray-600">
+                        {currentGpsCapteur?.identifiant} - {gpsPosition.latitude.toFixed(6)}, {gpsPosition.longitude.toFixed(6)}
+                      </p>
+                      <a
+                        href={googleMapsUrl ?? '#'}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-amber-700 hover:text-amber-800 underline"
+                      >
+                        Ouvrir dans Google Maps
+                      </a>
+                    </>
+                  ) : (
+                    <p className="text-xs text-gray-500">Position actuelle indisponible</p>
+                  )}
                 </div>
               )}
             </CardContent>
