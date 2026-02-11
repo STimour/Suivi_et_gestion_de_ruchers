@@ -1,0 +1,22 @@
+{% extends "email/base.html" %}
+
+{% block content %}
+    <h2>Alerte deplacement GPS</h2>
+
+    <p>Bonjour <strong>{{ recipient_name }}</strong>,</p>
+
+    <p>Un deplacement a ete detecte pour votre capteur.</p>
+
+    <div class="highlight">
+        <ul class="meta-list">
+            <li><strong>Capteur</strong> : {{ capteur_identifiant }}</li>
+            {% if ruche_immatriculation %}
+            <li><strong>Ruche</strong> : {{ ruche_immatriculation }}</li>
+            {% endif %}
+            <li><strong>Distance</strong> : {{ distance_meters|floatformat:1 }} m</li>
+            <li><strong>Seuil</strong> : {{ threshold_meters|floatformat:1 }} m</li>
+        </ul>
+    </div>
+
+    <p>Verifiez votre ruche des que possible.</p>
+{% endblock %}

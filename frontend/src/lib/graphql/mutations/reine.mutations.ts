@@ -57,3 +57,59 @@ export const DELETE_REINE = gql`
     }
   }
 `;
+
+export const CREATE_RACLE = gql`
+  mutation CreateRacle($racle: racles_elevage_insert_input!) {
+    insert_racles_elevage_one(object: $racle) {
+      id
+      reference
+      dateCreation
+      nbCupules
+    }
+  }
+`;
+
+export const DELETE_RACLE_CASCADE = gql`
+  mutation DeleteRacleCascade($racleId: uuid!) {
+    delete_taches_cycle_elevage(
+      where: { cycles_elevage_reine: { racle_id: { _eq: $racleId } } }
+    ) {
+      affected_rows
+    }
+    delete_cycles_elevage_reines(where: { racle_id: { _eq: $racleId } }) {
+      affected_rows
+    }
+    update_reines(
+      where: { racle_id: { _eq: $racleId } }
+      _set: { racle_id: null }
+    ) {
+      affected_rows
+    }
+    delete_racles_elevage_by_pk(id: $racleId) {
+      id
+    }
+  }
+`;
+
+export const CREATE_REINES_BATCH = gql`
+  mutation CreateReinesBatch($reines: [reines_insert_input!]!) {
+    insert_reines(objects: $reines) {
+      affected_rows
+      returning {
+        id
+      }
+    }
+  }
+`;
+
+export const UPDATE_REINES_BY_RACLE = gql`
+  mutation UpdateReinesByRacle($racleId: uuid!, $changes: reines_set_input!) {
+    update_reines(where: { racle_id: { _eq: $racleId } }, _set: $changes) {
+      affected_rows
+      returning {
+        id
+        statut
+      }
+    }
+  }
+`;

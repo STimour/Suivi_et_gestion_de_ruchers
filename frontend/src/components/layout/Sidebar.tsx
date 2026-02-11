@@ -19,7 +19,6 @@ const NAV_RUCHERS: NavItem[] = [
 const NAV_ELEVAGE: NavItem[] = [
   { href: '/dashboard/elevage', label: 'Dashboard', icon: Home },
   { href: '/dashboard/reines', label: 'Reines', icon: Crown },
-  { href: '/dashboard/interventions', label: 'Interventions', icon: ClipboardList },
 ];
 
 export function Sidebar() {

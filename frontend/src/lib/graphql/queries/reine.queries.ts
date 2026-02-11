@@ -2,13 +2,14 @@ import { gql } from '@apollo/client';
 
 export const GET_REINES = gql`
   query GetReines {
-    reines(order_by: { created_at: desc }) {
+    reines(where: { isElevage: { _eq: false } }, order_by: { created_at: desc }) {
       id
       created_at
       updated_at
       anneeNaissance
       codeCouleur
       lignee
+      statut
       noteDouceur
       commentaire
       nonReproductible
@@ -32,22 +33,49 @@ export const GET_REINES_ELEVAGE = gql`
   query GetReinesElevage {
     reines(where: { isElevage: { _eq: true } }, order_by: { created_at: desc }) {
       id
+      created_at
+      updated_at
       anneeNaissance
       codeCouleur
       lignee
       statut
+      noteDouceur
+      commentaire
+      nonReproductible
+      racle {
+        id
+        reference
+      }
+      entreprise {
+        id
+        nom
+      }
+    }
+  }
+`;
+
+export const GET_RACLES_ELEVAGE = gql`
+  query GetRaclesElevage {
+    racles_elevage(order_by: { created_at: desc }) {
+      id
+      reference
+      dateCreation
+      nbCupules
       commentaire
       created_at
-      ruche {
+      reines(order_by: { created_at: desc }) {
         id
-        immatriculation
+        anneeNaissance
+        codeCouleur
+        lignee
+        statut
+        commentaire
       }
       cycles_elevage_reines(order_by: { created_at: desc }) {
         id
         dateDebut
         dateFin
         statut
-        created_at
         taches_cycle_elevages(order_by: { jourTheorique: asc }) {
           id
           type
@@ -79,10 +107,13 @@ export const GET_TACHES_ELEVAGE_OVERVIEW = gql`
         id
         statut
         dateDebut
-        reine {
+        racle {
           id
-          codeCouleur
-          anneeNaissance
+          reference
+          reines {
+            id
+            statut
+          }
         }
       }
     }
@@ -98,6 +129,7 @@ export const GET_REINE_BY_ID = gql`
       anneeNaissance
       codeCouleur
       lignee
+      statut
       noteDouceur
       commentaire
       nonReproductible

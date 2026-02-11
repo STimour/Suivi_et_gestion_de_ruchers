@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Crown, Calendar } from 'lucide-react';
+import { Grip, Calendar } from 'lucide-react';
 import {
   getStatutCycleStyle,
   getStatutCycleLabel,
@@ -12,10 +12,10 @@ import {
 
 interface ElevageCycleCardProps {
   cycle: any;
-  reine: any;
+  racle: any;
 }
 
-export function ElevageCycleCard({ cycle, reine }: ElevageCycleCardProps) {
+export function ElevageCycleCard({ cycle, racle }: ElevageCycleCardProps) {
   const taches = cycle.taches_cycle_elevages ?? [];
   const tachesFaites = taches.filter((t: any) => t.statut === 'Faite').length;
   const totalTaches = taches.length;
@@ -28,9 +28,9 @@ export function ElevageCycleCard({ cycle, reine }: ElevageCycleCardProps) {
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-medium flex items-center gap-2">
-            <Crown className="h-4 w-4 text-amber-600" />
+            <Grip className="h-4 w-4 text-amber-600" />
             <span className="text-amber-900">
-              {reine.codeCouleur} - {reine.anneeNaissance}
+              {racle.reference}
             </span>
           </CardTitle>
           <Badge variant="outline" className={getStatutCycleStyle(cycle.statut)}>

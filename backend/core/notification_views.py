@@ -5,7 +5,6 @@ from datetime import timedelta
 from django.conf import settings
 from django.http import JsonResponse
 from django.utils import timezone
-from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 from core.models import (
@@ -48,7 +47,6 @@ def _get_entreprise_members(entreprise_id):
     ).select_related('utilisateur')
 
 
-@csrf_exempt
 @require_POST
 def webhook_intervention_created(request):
     if not _verify_webhook_secret(request):
@@ -108,7 +106,6 @@ def webhook_intervention_created(request):
     return JsonResponse({'ok': True, 'created': len(notifications)})
 
 
-@csrf_exempt
 @require_POST
 def webhook_daily_notifications(request):
     if not _verify_webhook_secret(request):

@@ -1,7 +1,6 @@
 import math
 from django.db import transaction
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 
 from core.auth_views import _get_user_from_request, _json_body, _get_bearer_token, _decode_token
@@ -18,6 +17,7 @@ from core.models import (
 )
 from core.traccar_client import TraccarError, create_device, update_device, delete_device, get_latest_position
 from core.email_utils import send_email
+from core.email_templates import generate_gps_alert_email_content
 
 
 def _entreprise_id_from_request(request):
@@ -113,7 +113,6 @@ def _create_iot_notifications(entreprise_id, ruche, title, message):
         Notification.objects.bulk_create(notifications)
 
 
-@csrf_exempt
 def associate_capteur(request):
     """POST /api/capteurs/associate - Associe un capteur a une ruche et cree le device dans Traccar."""
     if request.method != "POST":
@@ -184,7 +183,6 @@ def associate_capteur(request):
     )
 
 
-@csrf_exempt
 def list_capteurs(request):
     """GET /api/capteurs - Liste les capteurs de l'entreprise courante."""
     if request.method != "GET":
@@ -207,7 +205,6 @@ def list_capteurs(request):
     return JsonResponse({"capteurs": [_serialize_capteur(c) for c in capteurs]}, status=200)
 
 
-@csrf_exempt
 def update_capteur(request, capteur_id):
     """PATCH /api/capteurs/{id} - Met a jour un capteur et le device Traccar."""
     if request.method not in ("PATCH", "PUT"):
@@ -278,7 +275,6 @@ def update_capteur(request, capteur_id):
     return JsonResponse({"capteur": _serialize_capteur(capteur)}, status=200)
 
 
-@csrf_exempt
 def delete_capteur(request, capteur_id):
     """DELETE /api/capteurs/{id} - Supprime un capteur et le device Traccar."""
     if request.method != "DELETE":
@@ -310,7 +306,6 @@ def delete_capteur(request, capteur_id):
     return JsonResponse({"status": "deleted"}, status=200)
 
 
-@csrf_exempt
 def activate_gps_alert(request, capteur_id):
     """POST /api/capteurs/{id}/gps-alert/activate - Active les alertes GPS et enregistre la position de reference."""
     if request.method != "POST":
@@ -384,7 +379,6 @@ def activate_gps_alert(request, capteur_id):
     )
 
 
-@csrf_exempt
 def check_gps_alert(request, capteur_id):
     """POST /api/capteurs/{id}/gps-alert/check - Verifie la position et cree une alerte si besoin."""
     if request.method != "POST":
@@ -476,7 +470,13 @@ def check_gps_alert(request, capteur_id):
         to_email=user.email,
         to_name=f"{user.prenom} {user.nom}".strip(),
         subject="Alerte deplacement GPS",
-        html_content=f"<p>{message}</p>",
+        html_content=generate_gps_alert_email_content(
+            recipient_name=f"{user.prenom} {user.nom}".strip() or user.email,
+            capteur_identifiant=capteur.identifiant,
+            distance_meters=distance,
+            threshold_meters=capteur.gpsThresholdMeters,
+            ruche_immatriculation=getattr(capteur.ruche, "immatriculation", ""),
+        ),
     )
 
     capteur.gpsLastAlertAt = timezone.now()
@@ -492,7 +492,6 @@ def check_gps_alert(request, capteur_id):
     return JsonResponse(response, status=200)
 
 
-@csrf_exempt
 def deactivate_gps_alert(request, capteur_id):
     """POST /api/capteurs/{id}/gps-alert/deactivate - Desactive les alertes GPS."""
     if request.method != "POST":
