@@ -38,7 +38,7 @@ export function CapteurCard({ capteur, canDelete, onDeleted }: CapteurCardProps)
     const Icon = getCapteurTypeIcon(capteur.type);
     const typeLabel = getCapteurTypeLabel(capteur.type);
     const isGps = capteur.type === 'GPS';
-    const canActivateGpsAlert = !gpsActive && !hasGpsAlert;
+    const canActivateGpsAlert = !gpsActive;
     const googleMapsUrl = gpsPosition
         ? `https://www.google.com/maps?q=${gpsPosition.latitude},${gpsPosition.longitude}`
         : null;
@@ -71,7 +71,7 @@ export function CapteurCard({ capteur, canDelete, onDeleted }: CapteurCardProps)
             if (gpsActive) {
                 await capteurService.deactivateGpsAlert(capteur.id);
                 setGpsActive(false);
-                toast.success('Alerte GPS désactivée');
+                toast.success('Surveillance GPS désactivée');
             } else {
                 const threshold = Number(thresholdMeters);
                 if (!Number.isFinite(threshold) || threshold <= 0) {
@@ -82,8 +82,7 @@ export function CapteurCard({ capteur, canDelete, onDeleted }: CapteurCardProps)
                 }
                 await capteurService.activateGpsAlert(capteur.id, threshold);
                 setGpsActive(true);
-                setHasGpsAlert(true);
-                toast.success('Alerte GPS activée', {
+                toast.success('Surveillance GPS activée', {
                     description: `Seuil : ${threshold}m depuis la position actuelle`,
                 });
             }
@@ -280,9 +279,9 @@ export function CapteurCard({ capteur, canDelete, onDeleted }: CapteurCardProps)
                                     />
                                 </div>
                             )}
-                            {!gpsActive && hasGpsAlert && (
+                            {hasGpsAlert && (
                                 <p className="text-xs text-amber-700">
-                                    Une alerte existe deja pour ce capteur.
+                                    Une alerte GPS est actuellement declenchee pour ce capteur.
                                 </p>
                             )}
                             {hasGpsAlert && (
