@@ -65,10 +65,10 @@
   \setbeamertemplate{section in toc}[sections numbered]
   \begin{columns}[T]
   \begin{column}{0.48\textwidth}
-    \tableofcontents[sections={1-6}, hideallsubsections]
+    \tableofcontents[sections={1-5}, hideallsubsections]
   \end{column}
   \begin{column}{0.48\textwidth}
-    \tableofcontents[sections={7-11}, hideallsubsections]
+    \tableofcontents[sections={6-10}, hideallsubsections]
   \end{column}
   \end{columns}
 \end{frame}
@@ -296,50 +296,6 @@
 \end{frame}
 
 % ============================================================
-\section{Modèle de données}
-% ============================================================
-
-\begin{frame}{39 tables organisées en 4 domaines}
-  \begin{columns}[T]
-  \begin{column}{0.48\textwidth}
-    \begin{block}{\textcolor{amber}{\faIcon{map-marker-alt}}~~Gestion apicole}
-      \begin{itemize}\small
-        \item Entreprise $\rightarrow$ Ruchers $\rightarrow$ Ruches
-        \item Ruche $\leftrightarrow$ Reine \scriptsize{(1:1)}
-        \item Interventions \scriptsize{(7 types)}
-        \item Transhumances
-      \end{itemize}
-    \end{block}
-    \vspace{4pt}
-    \begin{block}{\textcolor{mVert}{\faIcon{dna}}~~Élevage}
-      \begin{itemize}\small
-        \item Racle $\rightarrow$ Reines
-        \item Cycle $\rightarrow$ 7 Tâches auto
-      \end{itemize}
-    \end{block}
-  \end{column}
-  \begin{column}{0.48\textwidth}
-    \begin{block}{\textcolor{mBleu}{\faIcon{broadcast-tower}}~~IoT}
-      \begin{itemize}\small
-        \item Capteurs \scriptsize{(7 types)} \normalsize$\rightarrow$ Mesures
-        \item Alertes \scriptsize{(6 types)}
-        \item GPS : position réf., seuil
-      \end{itemize}
-    \end{block}
-    \vspace{4pt}
-    \begin{block}{\textcolor{purple}{\faIcon{users}}~~Multi-tenant}
-      \begin{itemize}\small
-        \item Utilisateurs $\leftrightarrow$ Entreprises \scriptsize{(N:N)}
-        \item 3 rôles : Admin, Apiculteur, Lecteur
-        \item Offres Freemium / Premium
-        \item Invitations, notifications
-      \end{itemize}
-    \end{block}
-  \end{column}
-  \end{columns}
-\end{frame}
-
-% ============================================================
 \section{Fonctionnalités clés}
 % ============================================================
 
@@ -446,7 +402,7 @@
 \section{Problèmes et solutions}
 % ============================================================
 
-\begin{frame}{6 problèmes majeurs résolus en cours de route}
+\begin{frame}{4 problèmes majeurs résolus en cours de route}
   \footnotesize
   \renewcommand{\arraystretch}{1.25}
   \begin{tabularx}{\textwidth}{>{\color{mRouge}\centering\arraybackslash}p{0.4cm}
@@ -455,12 +411,6 @@
   \toprule
   & \textbf{Problème} & \textbf{Solution} \\
   \midrule
-  \faIcon{database}
-    & Hasura crash (\texttt{@} dans le MDP)
-    & URL construite par parties \\
-  \faIcon{route}
-    & Traccar inaccessible via proxy
-    & Port direct 8082 \\
   \faIcon{table}
     & Metadata Hasura perdu en prod
     & Volume Docker persistant \\

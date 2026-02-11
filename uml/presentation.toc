@@ -4,9 +4,8 @@
 \beamer@sectionintoc {3}{Étapes de développement}{7}{0}{3}
 \beamer@sectionintoc {4}{Technologies}{10}{0}{4}
 \beamer@sectionintoc {5}{Architecture}{12}{0}{5}
-\beamer@sectionintoc {6}{Modèle de données}{15}{0}{6}
-\beamer@sectionintoc {7}{Fonctionnalités clés}{17}{0}{7}
-\beamer@sectionintoc {8}{Problèmes et solutions}{21}{0}{8}
-\beamer@sectionintoc {9}{Choix techniques}{23}{0}{9}
-\beamer@sectionintoc {10}{Tests et déploiement}{25}{0}{10}
-\beamer@sectionintoc {11}{Bilan et perspectives}{28}{0}{11}
+\beamer@sectionintoc {6}{Fonctionnalités clés}{15}{0}{6}
+\beamer@sectionintoc {7}{Problèmes et solutions}{19}{0}{7}
+\beamer@sectionintoc {8}{Choix techniques}{21}{0}{8}
+\beamer@sectionintoc {9}{Tests et déploiement}{23}{0}{9}
+\beamer@sectionintoc {10}{Bilan et perspectives}{26}{0}{10}
