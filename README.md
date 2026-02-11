@@ -65,6 +65,37 @@ L'application sera accessible sur `http://localhost:3000`
 │   └── lib/          # GraphQL queries/mutations
 ```
 
+## 🧩 Fichiers UML
+
+- [uml/API_Documentation.md](./uml/API_Documentation.md)
+- [uml/beamercolorthememetropolis.sty](./uml/beamercolorthememetropolis.sty)
+- [uml/beamerfontthememetropolis.sty](./uml/beamerfontthememetropolis.sty)
+- [uml/beamerinnerthememetropolis.sty](./uml/beamerinnerthememetropolis.sty)
+- [uml/beamerouterthememetropolis.sty](./uml/beamerouterthememetropolis.sty)
+- [uml/beamerthememetropolis.sty](./uml/beamerthememetropolis.sty)
+- [uml/diagrammeClass.md](./uml/diagrammeClass.md)
+- [uml/DiagrammeClass.svg](./uml/DiagrammeClass.svg)
+- [uml/DiagrammeContexte.md](./uml/DiagrammeContexte.md)
+- [uml/DiagrammeContexte.png](./uml/DiagrammeContexte.png)
+- [uml/diagrammeEtat.md](./uml/diagrammeEtat.md)
+- [uml/DiagrammeSequence.md](./uml/DiagrammeSequence.md)
+- [uml/diagrammeSequence.png](./uml/diagrammeSequence.png)
+- [uml/personna_Jean.md](./uml/personna_Jean.md)
+- [uml/personna_Marc.md](./uml/personna_Marc.md)
+- [uml/pgfplotsthemetol.sty](./uml/pgfplotsthemetol.sty)
+- [uml/presentation.aux](./uml/presentation.aux)
+- [uml/presentation.log](./uml/presentation.log)
+- [uml/presentation.nav](./uml/presentation.nav)
+- [uml/presentation.out](./uml/presentation.out)
+- [uml/presentation.pdf](./uml/presentation.pdf)
+- [uml/presentation.snm](./uml/presentation.snm)
+- [uml/presentation.tex](./uml/presentation.tex)
+- [uml/presentation.toc](./uml/presentation.toc)
+- [uml/tableau_exigences_fonctionnelles_v1_v2.md](./uml/tableau_exigences_fonctionnelles_v1_v2.md)
+- [uml/tableau_exigences_fonctionnelles.md](./uml/tableau_exigences_fonctionnelles.md)
+- [uml/userFlow_GestionReine.md](./uml/userFlow_GestionReine.md)
+- [uml/userStories_GestionRuche.md](./uml/userStories_GestionRuche.md)
+
 ## 👥 Équipe
 
 - **Chef de projet** : Sayfoutdinov Timour
