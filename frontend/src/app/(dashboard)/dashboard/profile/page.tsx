@@ -179,6 +179,11 @@ export default function ProfilePage() {
                 <p className="text-sm text-amber-700/70">Aucun profil spécifique</p>
               )}
             </div>
+            <div className="mt-3">
+              <Button asChild variant="outline" className="border-amber-200 text-amber-800 hover:bg-amber-50">
+                <Link href="/upgrade-register">Modifier les profils</Link>
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>

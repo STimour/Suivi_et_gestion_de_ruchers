@@ -13,6 +13,7 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const hideSidebar =
     pathname === "/upgrade-premium" ||
+    pathname === "/upgrade-register" ||
     pathname === "/dashboard/profile" ||
     pathname.startsWith("/dashboard/profile/");
 

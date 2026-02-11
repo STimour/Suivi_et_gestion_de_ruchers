@@ -420,6 +420,7 @@ function RegisterPageInner() {
           localStorage.setItem(storageKeys.authToken, authToken || '');
           localStorage.setItem(storageKeys.entrepriseId, entrepriseId);
           localStorage.setItem(storageKeys.paymentStatus, 'pending');
+          localStorage.setItem('checkout_context', 'register-onboarding');
         }
         window.location.href = checkout.url;
         return;

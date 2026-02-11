@@ -96,6 +96,9 @@ export default function UpgradePremiumPage() {
     setError('');
     setProcessing(true);
     try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('checkout_context', 'upgrade-premium');
+      }
       const checkout = await authService.createPremiumCheckout(entrepriseId);
       window.location.href = checkout.url;
     } catch (err: any) {
