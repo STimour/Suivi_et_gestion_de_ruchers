@@ -65,10 +65,10 @@
   \setbeamertemplate{section in toc}[sections numbered]
   \begin{columns}[T]
   \begin{column}{0.48\textwidth}
-    \tableofcontents[sections={1-5}, hideallsubsections]
+    \tableofcontents[sections={1-6}, hideallsubsections]
   \end{column}
   \begin{column}{0.48\textwidth}
-    \tableofcontents[sections={6-9}, hideallsubsections]
+    \tableofcontents[sections={7-11}, hideallsubsections]
   \end{column}
   \end{columns}
 \end{frame}
@@ -84,7 +84,7 @@
       \begin{itemize}
         \item Carnets papier, perte d'historique
         \item Aucune traçabilité sanitaire
-        \item Pas de vue d'ensemble sur le cheptel
+        \item Pas de vue d'ensemble sur le rucher
         \item Risque de vol sans surveillance
       \end{itemize}
     \end{alertblock}
@@ -156,6 +156,58 @@
     \chip{mGris}{Discord} \enspace
     \chip{mGris}{Réunions hebdo}
   \end{center}
+\end{frame}
+
+% ============================================================
+\section{Étapes de développement}
+% ============================================================
+
+\begin{frame}{5 phases, de la conception à la production}
+  \begin{center}
+  \begin{tikzpicture}[
+    step/.style={rounded corners=4pt, minimum width=2.4cm, minimum height=1.4cm,
+      text width=2.2cm, align=center, font=\scriptsize, draw=#1!40, fill=#1!5},
+    arr/.style={-Stealth, gray!30, thick},
+  ]
+    \node[step=amber] (s1) at (0,0) {\textbf{1. Conception}\\UML, personas\\exigences};
+    \node[step=mBleu] (s2) at (3,0) {\textbf{2. Socle}\\Auth JWT\\Docker, Hasura};
+    \node[step=mVert] (s3) at (6,0) {\textbf{3. C\oe ur}\\Ruchers, ruches\\reines};
+    \node[step=purple] (s4) at (9,0) {\textbf{4. Avancé}\\IoT, élevage\\paiements};
+    \node[step=mRouge] (s5) at (12,0) {\textbf{5. Prod}\\HTTPS, CI/CD\\tests};
+
+    \draw[arr] (s1) -- (s2);
+    \draw[arr] (s2) -- (s3);
+    \draw[arr] (s3) -- (s4);
+    \draw[arr] (s4) -- (s5);
+  \end{tikzpicture}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Gestion de projet et CI/CD}
+  \begin{columns}[T]
+  \begin{column}{0.48\textwidth}
+    \begin{block}{\faIcon{code-branch}~~GitHub Actions}
+      \begin{itemize}\small
+        \item Pipeline CI automatisé sur chaque push
+        \item Lint + tests backend (pytest)
+        \item Lint + tests frontend (Vitest)
+        \item Analyse SonarCloud intégrée
+        \item Build Docker validé avant merge
+      \end{itemize}
+    \end{block}
+  \end{column}
+  \begin{column}{0.48\textwidth}
+    \begin{block}{\faIcon{project-diagram}~~Organisation}
+      \begin{itemize}\small
+        \item Branches : \texttt{main} / \texttt{develop} / features
+        \item Pull requests + code review
+        \item Issues GitHub pour le suivi
+        \item Réunions hebdomadaires
+        \item Discord pour la communication
+      \end{itemize}
+    \end{block}
+  \end{column}
+  \end{columns}
 \end{frame}
 
 % ============================================================
@@ -285,31 +337,6 @@
     \end{block}
   \end{column}
   \end{columns}
-\end{frame}
-
-% ============================================================
-\section{Étapes de développement}
-% ============================================================
-
-\begin{frame}{5 phases, de la conception à la production}
-  \begin{center}
-  \begin{tikzpicture}[
-    step/.style={rounded corners=4pt, minimum width=2.4cm, minimum height=1.4cm,
-      text width=2.2cm, align=center, font=\scriptsize, draw=#1!40, fill=#1!5},
-    arr/.style={-Stealth, gray!30, thick},
-  ]
-    \node[step=amber] (s1) at (0,0) {\textbf{1. Conception}\\UML, personas\\exigences};
-    \node[step=mBleu] (s2) at (3,0) {\textbf{2. Socle}\\Auth JWT\\Docker, Hasura};
-    \node[step=mVert] (s3) at (6,0) {\textbf{3. C\oe ur}\\Ruchers, ruches\\reines};
-    \node[step=purple] (s4) at (9,0) {\textbf{4. Avancé}\\IoT, élevage\\paiements};
-    \node[step=mRouge] (s5) at (12,0) {\textbf{5. Prod}\\HTTPS, CI/CD\\tests};
-
-    \draw[arr] (s1) -- (s2);
-    \draw[arr] (s2) -- (s3);
-    \draw[arr] (s3) -- (s4);
-    \draw[arr] (s4) -- (s5);
-  \end{tikzpicture}
-  \end{center}
 \end{frame}
 
 % ============================================================

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.2.11)  11 FEB 2026 11:31
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.2.11)  11 FEB 2026 11:56
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1346,10 +1346,69 @@ and I'll forget about whatever was undefined.
 share/texlive/texmf-dist/fonts/enc/dvips/fontawesome5/fa5free2.enc}] [7
 
 ]
+! Illegal parameter number in definition of \iterate.
+<to be read again> 
+                   1
+l.184 \end{frame}
+                 
+You meant to type ## instead of #, right?
+Or maybe a } was forgotten somewhere earlier, and things
+are all screwed up? I'm going to assume that you meant ##.
+
+! Illegal parameter number in definition of \iterate.
+<to be read again> 
+                   1
+l.184 \end{frame}
+                 
+You meant to type ## instead of #, right?
+Or maybe a } was forgotten somewhere earlier, and things
+are all screwed up? I'm going to assume that you meant ##.
+
+! Illegal parameter number in definition of \iterate.
+<to be read again> 
+                   1
+l.184 \end{frame}
+                 
+You meant to type ## instead of #, right?
+Or maybe a } was forgotten somewhere earlier, and things
+are all screwed up? I'm going to assume that you meant ##.
+
+! Illegal parameter number in definition of \iterate.
+<to be read again> 
+                   1
+l.184 \end{frame}
+                 
+You meant to type ## instead of #, right?
+Or maybe a } was forgotten somewhere earlier, and things
+are all screwed up? I'm going to assume that you meant ##.
+
+! Illegal parameter number in definition of \beamer@doifinframe.
+<to be read again> 
+                   1
+l.184 \end{frame}
+                 
+You meant to type ## instead of #, right?
+Or maybe a } was forgotten somewhere earlier, and things
+are all screwed up? I'm going to assume that you meant ##.
+
+! Illegal parameter number in definition of \beamer@doifinframe.
+<to be read again> 
+                   1
+l.184 \end{frame}
+                 
+You meant to type ## instead of #, right?
+Or maybe a } was forgotten somewhere earlier, and things
+are all screwed up? I'm going to assume that you meant ##.
+
+
+Overfull \hbox (13.34283pt too wide) in paragraph at lines 184--184
+ [] 
+ []
+
 ! Undefined control sequence.
 \insertframetitle ->{\metropolis@frametitleformat 
-                                                  {Une stack moderne et modu...
-l.201 \end{frame}
+                                                  {5 phases, de la conceptio...
+l.184 \end{frame}
                  
 The control sequence at the end of the top line
 of your error message was never \def'ed. If you have
@@ -1359,116 +1418,54 @@ and I'll forget about whatever was undefined.
 
 [8
 
-] [9
+]
+LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 2
+11.
+ (/usr/share/texlive/texmf-dist/tex/latex/base/t1cmtt.fd
+File: t1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
+)
+! Undefined control sequence.
+\insertframetitle ->{\metropolis@frametitleformat 
+                                                  {Gestion de projet et CI/C...
+l.211 \end{frame}
+                 
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+[9
+
+] [10
 
 ]
-<DiagrammeContexte.png, id=136, 7612.44pt x 2596.70125pt>
-File: DiagrammeContexte.png Graphic file (type png)
-<use DiagrammeContexte.png>
-Package pdftex.def Info: DiagrammeContexte.png  used on input line 213.
-(pdftex.def)             Requested size: 350.5399pt x 119.54083pt.
-
 ! Undefined control sequence.
 \insertframetitle ->{\metropolis@frametitleformat 
-                                                  {Vue d'ensemble du systèm...
-l.213 \end{frame}
+                                                  {Une stack moderne et modu...
+l.253 \end{frame}
                  
 The control sequence at the end of the top line
 of your error message was never \def'ed. If you have
 misspelled it (e.g., `\hobx'), type `I' and the correct
 spelling (e.g., `I\hbox'). Otherwise just continue,
 and I'll forget about whatever was undefined.
-
-[10
-
- <./DiagrammeContexte.png>]
-! Illegal parameter number in definition of \iterate.
-<to be read again> 
-                   1
-l.244 \end{frame}
-                 
-You meant to type ## instead of #, right?
-Or maybe a } was forgotten somewhere earlier, and things
-are all screwed up? I'm going to assume that you meant ##.
-
-! Illegal parameter number in definition of \iterate.
-<to be read again> 
-                   1
-l.244 \end{frame}
-                 
-You meant to type ## instead of #, right?
-Or maybe a } was forgotten somewhere earlier, and things
-are all screwed up? I'm going to assume that you meant ##.
-
-! Illegal parameter number in definition of \iterate.
-<to be read again> 
-                   1
-l.244 \end{frame}
-                 
-You meant to type ## instead of #, right?
-Or maybe a } was forgotten somewhere earlier, and things
-are all screwed up? I'm going to assume that you meant ##.
-
-! Illegal parameter number in definition of \iterate.
-<to be read again> 
-                   1
-l.244 \end{frame}
-                 
-You meant to type ## instead of #, right?
-Or maybe a } was forgotten somewhere earlier, and things
-are all screwed up? I'm going to assume that you meant ##.
-
-! Illegal parameter number in definition of \beamer@doifinframe.
-<to be read again> 
-                   1
-l.244 \end{frame}
-                 
-You meant to type ## instead of #, right?
-Or maybe a } was forgotten somewhere earlier, and things
-are all screwed up? I'm going to assume that you meant ##.
-
-! Illegal parameter number in definition of \beamer@doifinframe.
-<to be read again> 
-                   1
-l.244 \end{frame}
-                 
-You meant to type ## instead of #, right?
-Or maybe a } was forgotten somewhere earlier, and things
-are all screwed up? I'm going to assume that you meant ##.
-
-
-Overfull \hbox (6.09027pt too wide) in paragraph at lines 244--244
- [] 
- []
-
-! Undefined control sequence.
-\insertframetitle ->{\metropolis@frametitleformat 
-                                                  {Django gère la logique, ...
-l.244 \end{frame}
-                 
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-
-Overfull \vbox (7.30008pt too high) detected at line 244
- []
 
 [11
 
 ] [12
 
 ]
-LaTeX Font Info:    Trying to load font information for U+fontawesomefree1 on i
-nput line 288.
+<DiagrammeContexte.png, id=157, 7612.44pt x 2596.70125pt>
+File: DiagrammeContexte.png Graphic file (type png)
+<use DiagrammeContexte.png>
+Package pdftex.def Info: DiagrammeContexte.png  used on input line 265.
+(pdftex.def)             Requested size: 350.5399pt x 119.54083pt.
 
-(/usr/share/texlive/texmf-dist/tex/latex/fontawesome5/ufontawesomefree1.fd)
 ! Undefined control sequence.
 \insertframetitle ->{\metropolis@frametitleformat 
-                                                  {39 tables organisées en ...
-l.288 \end{frame}
+                                                  {Vue d'ensemble du systèm...
+l.265 \end{frame}
                  
 The control sequence at the end of the top line
 of your error message was never \def'ed. If you have
@@ -1478,14 +1475,11 @@ and I'll forget about whatever was undefined.
 
 [13
 
-{/usr/share/texlive/texmf-dist/fonts/enc/dvips/fontawesome5/fa5free1.enc}]
-[14
-
-]
+ <./DiagrammeContexte.png>]
 ! Illegal parameter number in definition of \iterate.
 <to be read again> 
                    1
-l.313 \end{frame}
+l.296 \end{frame}
                  
 You meant to type ## instead of #, right?
 Or maybe a } was forgotten somewhere earlier, and things
@@ -1494,7 +1488,7 @@ are all screwed up? I'm going to assume that you meant ##.
 ! Illegal parameter number in definition of \iterate.
 <to be read again> 
                    1
-l.313 \end{frame}
+l.296 \end{frame}
                  
 You meant to type ## instead of #, right?
 Or maybe a } was forgotten somewhere earlier, and things
@@ -1503,7 +1497,7 @@ are all screwed up? I'm going to assume that you meant ##.
 ! Illegal parameter number in definition of \iterate.
 <to be read again> 
                    1
-l.313 \end{frame}
+l.296 \end{frame}
                  
 You meant to type ## instead of #, right?
 Or maybe a } was forgotten somewhere earlier, and things
@@ -1512,7 +1506,7 @@ are all screwed up? I'm going to assume that you meant ##.
 ! Illegal parameter number in definition of \iterate.
 <to be read again> 
                    1
-l.313 \end{frame}
+l.296 \end{frame}
                  
 You meant to type ## instead of #, right?
 Or maybe a } was forgotten somewhere earlier, and things
@@ -1521,7 +1515,7 @@ are all screwed up? I'm going to assume that you meant ##.
 ! Illegal parameter number in definition of \beamer@doifinframe.
 <to be read again> 
                    1
-l.313 \end{frame}
+l.296 \end{frame}
                  
 You meant to type ## instead of #, right?
 Or maybe a } was forgotten somewhere earlier, and things
@@ -1530,21 +1524,21 @@ are all screwed up? I'm going to assume that you meant ##.
 ! Illegal parameter number in definition of \beamer@doifinframe.
 <to be read again> 
                    1
-l.313 \end{frame}
+l.296 \end{frame}
                  
 You meant to type ## instead of #, right?
 Or maybe a } was forgotten somewhere earlier, and things
 are all screwed up? I'm going to assume that you meant ##.
 
 
-Overfull \hbox (13.34283pt too wide) in paragraph at lines 313--313
+Overfull \hbox (6.09027pt too wide) in paragraph at lines 296--296
  [] 
  []
 
 ! Undefined control sequence.
 \insertframetitle ->{\metropolis@frametitleformat 
-                                                  {5 phases, de la conceptio...
-l.313 \end{frame}
+                                                  {Django gère la logique, ...
+l.296 \end{frame}
                  
 The control sequence at the end of the top line
 of your error message was never \def'ed. If you have
@@ -1552,20 +1546,23 @@ misspelled it (e.g., `\hobx'), type `I' and the correct
 spelling (e.g., `I\hbox'). Otherwise just continue,
 and I'll forget about whatever was undefined.
 
-[15
 
-] [16
+Overfull \vbox (7.30008pt too high) detected at line 296
+ []
+
+[14
+
+] [15
 
 ]
-LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 3
-49.
- (/usr/share/texlive/texmf-dist/tex/latex/base/t1cmtt.fd
-File: t1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
-)
+LaTeX Font Info:    Trying to load font information for U+fontawesomefree1 on i
+nput line 340.
+
+(/usr/share/texlive/texmf-dist/tex/latex/fontawesome5/ufontawesomefree1.fd)
 ! Undefined control sequence.
 \insertframetitle ->{\metropolis@frametitleformat 
-                                                  {Gestion complète des ruc...
-l.349 \end{frame}
+                                                  {39 tables organisées en ...
+l.340 \end{frame}
                  
 The control sequence at the end of the top line
 of your error message was never \def'ed. If you have
@@ -1573,13 +1570,16 @@ misspelled it (e.g., `\hobx'), type `I' and the correct
 spelling (e.g., `I\hbox'). Otherwise just continue,
 and I'll forget about whatever was undefined.
 
+[16
+
+{/usr/share/texlive/texmf-dist/fonts/enc/dvips/fontawesome5/fa5free1.enc}]
 [17
 
 ]
 ! Undefined control sequence.
 \insertframetitle ->{\metropolis@frametitleformat 
-                                                  {Élevage de reines : du g...
-l.379 \end{frame}
+                                                  {Gestion complète des ruc...
+l.376 \end{frame}
                  
 The control sequence at the end of the top line
 of your error message was never \def'ed. If you have
@@ -1592,8 +1592,8 @@ and I'll forget about whatever was undefined.
 ]
 ! Undefined control sequence.
 \insertframetitle ->{\metropolis@frametitleformat 
-                                                  {IoT, anti-vol GPS et mod�...
-l.416 \end{frame}
+                                                  {Élevage de reines : du g...
+l.406 \end{frame}
                  
 The control sequence at the end of the top line
 of your error message was never \def'ed. If you have
@@ -1603,13 +1603,27 @@ and I'll forget about whatever was undefined.
 
 [19
 
-] [20
+]
+! Undefined control sequence.
+\insertframetitle ->{\metropolis@frametitleformat 
+                                                  {IoT, anti-vol GPS et mod�...
+l.443 \end{frame}
+                 
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+[20
+
+] [21
 
 ]
 ! Undefined control sequence.
 \insertframetitle ->{\metropolis@frametitleformat 
                                                   {6 problèmes majeurs rés...
-l.451 \end{frame}
+l.478 \end{frame}
                  
 The control sequence at the end of the top line
 of your error message was never \def'ed. If you have
@@ -1618,18 +1632,18 @@ spelling (e.g., `I\hbox'). Otherwise just continue,
 and I'll forget about whatever was undefined.
 
 
-Overfull \vbox (7.33281pt too high) detected at line 451
+Overfull \vbox (7.33281pt too high) detected at line 478
  []
 
-[21
+[22
 
-] [22
+] [23
 
 ]
 ! Undefined control sequence.
 \insertframetitle ->{\metropolis@frametitleformat 
                                                   {Ce qui a marché et ce qu...
-l.482 \end{frame}
+l.509 \end{frame}
                  
 The control sequence at the end of the top line
 of your error message was never \def'ed. If you have
@@ -1637,15 +1651,15 @@ misspelled it (e.g., `\hobx'), type `I' and the correct
 spelling (e.g., `I\hbox'). Otherwise just continue,
 and I'll forget about whatever was undefined.
 
-[23
+[24
 
-] [24
+] [25
 
 ]
 ! Illegal parameter number in definition of \iterate.
 <to be read again> 
                    1
-l.535 \end{frame}
+l.562 \end{frame}
                  
 You meant to type ## instead of #, right?
 Or maybe a } was forgotten somewhere earlier, and things
@@ -1654,7 +1668,7 @@ are all screwed up? I'm going to assume that you meant ##.
 ! Illegal parameter number in definition of \iterate.
 <to be read again> 
                    1
-l.535 \end{frame}
+l.562 \end{frame}
                  
 You meant to type ## instead of #, right?
 Or maybe a } was forgotten somewhere earlier, and things
@@ -1663,7 +1677,7 @@ are all screwed up? I'm going to assume that you meant ##.
 ! Illegal parameter number in definition of \iterate.
 <to be read again> 
                    1
-l.535 \end{frame}
+l.562 \end{frame}
                  
 You meant to type ## instead of #, right?
 Or maybe a } was forgotten somewhere earlier, and things
@@ -1672,7 +1686,7 @@ are all screwed up? I'm going to assume that you meant ##.
 ! Illegal parameter number in definition of \iterate.
 <to be read again> 
                    1
-l.535 \end{frame}
+l.562 \end{frame}
                  
 You meant to type ## instead of #, right?
 Or maybe a } was forgotten somewhere earlier, and things
@@ -1681,7 +1695,7 @@ are all screwed up? I'm going to assume that you meant ##.
 ! Illegal parameter number in definition of \beamer@doifinframe.
 <to be read again> 
                    1
-l.535 \end{frame}
+l.562 \end{frame}
                  
 You meant to type ## instead of #, right?
 Or maybe a } was forgotten somewhere earlier, and things
@@ -1690,7 +1704,7 @@ are all screwed up? I'm going to assume that you meant ##.
 ! Illegal parameter number in definition of \beamer@doifinframe.
 <to be read again> 
                    1
-l.535 \end{frame}
+l.562 \end{frame}
                  
 You meant to type ## instead of #, right?
 Or maybe a } was forgotten somewhere earlier, and things
@@ -1699,7 +1713,7 @@ are all screwed up? I'm going to assume that you meant ##.
 ! Undefined control sequence.
 \insertframetitle ->{\metropolis@frametitleformat 
                                                   {Qualité du code et pipel...
-l.535 \end{frame}
+l.562 \end{frame}
                  
 The control sequence at the end of the top line
 of your error message was never \def'ed. If you have
@@ -1708,10 +1722,10 @@ spelling (e.g., `I\hbox'). Otherwise just continue,
 and I'll forget about whatever was undefined.
 
 
-Overfull \vbox (30.99869pt too high) detected at line 535
+Overfull \vbox (30.99869pt too high) detected at line 562
  []
 
-[25
+[26
 
 ]
 
@@ -1721,34 +1735,20 @@ See the keyval package documentation for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.539 \end{frame}
+l.566 \end{frame}
                  
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
-[26
+[27
 
-] [27
+] [28
 
 ]
 ! Undefined control sequence.
 \insertframetitle ->{\metropolis@frametitleformat 
                                                   {79\% des exigences implé...
-l.587 \end{frame}
-                 
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-[28
-
-]
-! Undefined control sequence.
-\insertframetitle ->{\metropolis@frametitleformat 
-                                                  {Roadmap : 7 évolutions p...
-l.605 \end{frame}
+l.614 \end{frame}
                  
 The control sequence at the end of the top line
 of your error message was never \def'ed. If you have
@@ -1759,17 +1759,16 @@ and I'll forget about whatever was undefined.
 [29
 
 ]
-
-! Package keyval Error: standout undefined.
-
-See the keyval package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.623 \end{frame}
+! Undefined control sequence.
+\insertframetitle ->{\metropolis@frametitleformat 
+                                                  {Roadmap : 7 évolutions p...
+l.632 \end{frame}
                  
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
 
 [30
 
@@ -1781,12 +1780,27 @@ See the keyval package documentation for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.631 \end{frame}
+l.650 \end{frame}
                  
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 [31
+
+]
+
+! Package keyval Error: standout undefined.
+
+See the keyval package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.658 \end{frame}
+                 
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+[32
 
 ]
 \tf@nav=\write6
@@ -1807,14 +1821,20 @@ L3 programming layer <2024-01-22>
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
-Package rerunfilecheck Info: File `presentation.out' has not changed.
-(rerunfilecheck)             Checksum: D6FB9F3C04794010337B2A7533CB9DD9;1506.
+
+Package rerunfilecheck Warning: File `presentation.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+Package rerunfilecheck Info: Checksums for `presentation.out':
+(rerunfilecheck)             Before: A3CBFC51FC9F96EBC355CB4BF5F99B89;1506
+(rerunfilecheck)             After:  033015E7CBF6F401E160D5F712749CC8;1506.
  ) 
 Here is how much of TeX's memory you used:
- 31402 strings out of 474222
- 630050 string characters out of 5748733
+ 31408 strings out of 474222
+ 630104 string characters out of 5748733
  1941975 words of memory out of 5000000
- 52956 multiletter control sequences out of 15000+600000
+ 52960 multiletter control sequences out of 15000+600000
  588016 words of font info for 112 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  128i,14n,123p,1945b,929s stack positions out of 10000i,1000n,20000p,200000b,200000s
@@ -1833,10 +1853,10 @@ per/sfsx1095.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfsx1200.pfb></u
 sr/share/texmf/fonts/type1/public/cm-super/sfsx1440.pfb></usr/share/texmf/fonts
 /type1/public/cm-super/sftt0900.pfb></usr/share/texmf/fonts/type1/public/cm-sup
 er/sftt1000.pfb>
-Output written on presentation.pdf (31 pages, 773017 bytes).
+Output written on presentation.pdf (32 pages, 782457 bytes).
 PDF statistics:
- 379 PDF objects out of 1000 (max. 8388607)
- 293 compressed objects within 3 object streams
- 74 named destinations out of 1000 (max. 500000)
+ 386 PDF objects out of 1000 (max. 8388607)
+ 299 compressed objects within 3 object streams
+ 76 named destinations out of 1000 (max. 500000)
  136 words of extra memory for PDF output out of 10000 (max. 10000000)
 
