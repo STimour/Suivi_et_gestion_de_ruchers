@@ -546,6 +546,10 @@ def get_capteur_gps_alert_status(request, capteur_id):
     return JsonResponse(
         {
             "capteurId": str(capteur.id),
+            "gpsAlertActive": capteur.gpsAlertActive,
+            "thresholdMeters": capteur.gpsThresholdMeters,
+            "lastCheckedAt": capteur.gpsLastCheckedAt.isoformat() if capteur.gpsLastCheckedAt else None,
+            "lastAlertAt": capteur.gpsLastAlertAt.isoformat() if capteur.gpsLastAlertAt else None,
             "hasAlert": bool(latest),
             "alertesCount": alertes.count(),
             "latestAlerte": (

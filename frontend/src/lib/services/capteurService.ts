@@ -34,6 +34,10 @@ export interface RucherGpsAlertStatus {
 
 export interface CapteurGpsAlertStatus {
     capteurId: string;
+    gpsAlertActive: boolean;
+    thresholdMeters?: number;
+    lastCheckedAt?: string | null;
+    lastAlertAt?: string | null;
     hasAlert: boolean;
     alertesCount: number;
     latestAlerte: {
