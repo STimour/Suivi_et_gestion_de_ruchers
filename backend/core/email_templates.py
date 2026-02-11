@@ -1,3 +1,6 @@
+import math
+from urllib.parse import urlencode
+
 from django.template.loader import render_to_string
 from django.conf import settings
 
@@ -104,7 +107,11 @@ def generate_gps_alert_email_content(
     capteur_identifiant: str,
     distance_meters: float,
     threshold_meters: float,
-    ruche_immatriculation: str = ""
+    ruche_immatriculation: str = "",
+    reference_lat: float | None = None,
+    reference_lng: float | None = None,
+    current_lat: float | None = None,
+    current_lng: float | None = None,
 ) -> str:
     """
     Génère le contenu HTML pour l'email d'alerte GPS.
@@ -115,19 +122,100 @@ def generate_gps_alert_email_content(
         distance_meters: Distance mesurée
         threshold_meters: Seuil configuré
         ruche_immatriculation: Immatriculation de la ruche (optionnel)
+        reference_lat: Latitude de référence (optionnel)
+        reference_lng: Longitude de référence (optionnel)
+        current_lat: Latitude actuelle (optionnel)
+        current_lng: Longitude actuelle (optionnel)
 
     Returns:
         Contenu HTML de l'email
     """
+    map_url = None
+    map_link = None
+    if (
+        reference_lat is not None
+        and reference_lng is not None
+        and current_lat is not None
+        and current_lng is not None
+    ):
+        map_url, map_link = _build_gps_alert_map(
+            reference_lat, reference_lng, current_lat, current_lng
+        )
+
     context = {
         'recipient_name': recipient_name,
         'capteur_identifiant': capteur_identifiant,
         'distance_meters': distance_meters,
         'threshold_meters': threshold_meters,
         'ruche_immatriculation': ruche_immatriculation,
+        'reference_lat': reference_lat,
+        'reference_lng': reference_lng,
+        'current_lat': current_lat,
+        'current_lng': current_lng,
+        'map_url': map_url,
+        'map_link': map_link,
         'subject': 'Alerte deplacement GPS',
         'header_subtitle': 'Alerte GPS',
         'header_badge': 'Alerte',
     }
 
     return render_to_string('email/gps_alert.html', context)
+
+
+def _haversine_meters(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
+    r = 6371000.0
+    phi1 = math.radians(lat1)
+    phi2 = math.radians(lat2)
+    dphi = math.radians(lat2 - lat1)
+    dlambda = math.radians(lng2 - lng1)
+    a = math.sin(dphi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2) ** 2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    return r * c
+
+
+def _zoom_for_distance(distance_m: float) -> int:
+    if distance_m <= 100:
+        return 18
+    if distance_m <= 300:
+        return 17
+    if distance_m <= 1000:
+        return 15
+    if distance_m <= 3000:
+        return 14
+    if distance_m <= 10000:
+        return 13
+    return 12
+
+
+def _build_gps_alert_map(
+    reference_lat: float,
+    reference_lng: float,
+    current_lat: float,
+    current_lng: float,
+) -> tuple[str, str]:
+    center_lat = (reference_lat + current_lat) / 2.0
+    center_lng = (reference_lng + current_lng) / 2.0
+    distance = _haversine_meters(reference_lat, reference_lng, current_lat, current_lng)
+    zoom = _zoom_for_distance(distance)
+
+    base_url = getattr(
+        settings,
+        "GPS_ALERT_MAP_BASE_URL",
+        "https://staticmap.openstreetmap.de/staticmap.php",
+    )
+    params = {
+        "center": f"{center_lat},{center_lng}",
+        "zoom": str(zoom),
+        "size": "600x300",
+        "maptype": "mapnik",
+        "markers": (
+            f"{reference_lat},{reference_lng},lightblue1|"
+            f"{current_lat},{current_lng},lightblue2"
+        ),
+    }
+    map_url = f"{base_url}?{urlencode(params)}"
+    map_link = (
+        "https://www.openstreetmap.org/"
+        f"?mlat={current_lat}&mlon={current_lng}#map={zoom}/{current_lat}/{current_lng}"
+    )
+    return map_url, map_link

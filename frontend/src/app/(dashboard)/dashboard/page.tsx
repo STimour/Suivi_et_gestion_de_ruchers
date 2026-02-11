@@ -182,7 +182,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="border-amber-200">
           <CardHeader>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap gap-5 items-center justify-between">
               <div>
                 <CardTitle className="text-amber-900">Mes Ruchers</CardTitle>
                 <CardDescription className="text-amber-700/70">
@@ -226,7 +226,7 @@ export default function DashboardPage() {
                 {ruchersData.ruchers.slice(0, 5).map((rucher: any) => (
                   <div
                     key={rucher.id}
-                    className="flex items-center justify-between p-3 rounded-lg border border-amber-100 hover:bg-amber-50/50 transition-colors"
+                    className="flex flex-wrap gap-5 items-center justify-between p-3 rounded-lg border border-amber-100 hover:bg-amber-50/50 transition-colors"
                   >
                     <div className="flex items-center gap-3">
                       <div className="bg-amber-100 p-2 rounded-lg">
@@ -275,7 +275,7 @@ export default function DashboardPage() {
         {/* Liste des Ruches récentes */}
         <Card className="border-green-200">
           <CardHeader>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap gap-5 items-center justify-between">
               <div>
                 <CardTitle className="text-amber-900">Ruches récentes</CardTitle>
                 <CardDescription className="text-amber-700/70">
@@ -323,7 +323,7 @@ export default function DashboardPage() {
                 {ruchesData.ruches.slice(0, 5).map((ruche: any) => (
                   <div
                     key={ruche.id}
-                    className="flex items-center justify-between p-3 rounded-lg border border-green-100 hover:bg-green-50/50 transition-colors"
+                    className="flex flex-wrap gap-5 items-center justify-between p-3 rounded-lg border border-green-100 hover:bg-green-50/50 transition-colors"
                   >
                     <div className="flex items-center gap-3">
                       <div className="bg-green-100 p-2 rounded-lg">
@@ -336,9 +336,11 @@ export default function DashboardPage() {
                         </p>
                       </div>
                     </div>
-                    <Button variant="ghost" size="sm">
-                      Voir
-                    </Button>
+                    <Link href={`/dashboard/hives/${ruche.id}`}>
+                      <Button variant="ghost" size="sm">
+                        Voir
+                      </Button>
+                    </Link>
                   </div>
                 ))}
               </div>
@@ -375,7 +377,7 @@ export default function DashboardPage() {
       {/* Section Reines récentes */}
       <Card className="border-amber-200">
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap gap-5 items-center justify-between">
             <div>
               <CardTitle className="text-amber-900">Reines récentes</CardTitle>
               <CardDescription className="text-amber-700/70">
@@ -419,7 +421,7 @@ export default function DashboardPage() {
               {reinesData.reines.slice(0, 6).map((reine: any) => (
                 <div
                   key={reine.id}
-                  className="flex items-center justify-between p-3 rounded-lg border border-amber-100 hover:bg-amber-50/50 transition-colors"
+                  className="flex flex-wrap gap-5 items-center justify-between p-3 rounded-lg border border-amber-100 hover:bg-amber-50/50 transition-colors"
                 >
                   <div className="flex items-center gap-3">
                     <div className="bg-amber-100 p-2 rounded-lg">

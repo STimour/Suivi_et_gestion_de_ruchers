@@ -122,6 +122,10 @@ class Command(BaseCommand):
                         distance_meters=distance,
                         threshold_meters=capteur.gpsThresholdMeters,
                         ruche_immatriculation=getattr(capteur.ruche, "immatriculation", ""),
+                        reference_lat=capteur.gpsReferenceLat,
+                        reference_lng=capteur.gpsReferenceLng,
+                        current_lat=pos.get("latitude"),
+                        current_lng=pos.get("longitude"),
                     )
                     send_email(
                         to_email=user.email,
