@@ -1,0 +1,633 @@
+% ============================================================
+%  Suivi et Gestion de Ruchers — Présentation projet
+%  Thème Metropolis
+% ============================================================
+\documentclass[aspectratio=169, 11pt]{beamer}
+
+\usetheme[progressbar=frametitle, numbering=fraction, block=fill,
+  sectionpage=progressbar]{metropolis}
+
+% ---- Packages ----
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc}
+\usepackage{fontawesome5}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{appendixnumberbeamer}
+
+% ---- Couleurs Metropolis personnalisées ----
+\definecolor{amber}{HTML}{B47814}
+\definecolor{amberDark}{HTML}{78460A}
+\definecolor{amberLight}{HTML}{FEF3C7}
+\definecolor{mVert}{HTML}{16A34A}
+\definecolor{mBleu}{HTML}{2563EB}
+\definecolor{mRouge}{HTML}{DC2626}
+\definecolor{mGris}{HTML}{6B7280}
+
+\setbeamercolor{palette primary}{bg=amberDark, fg=white}
+\setbeamercolor{progress bar}{fg=amber, bg=amber!20}
+\setbeamercolor{title separator}{fg=amber}
+\setbeamercolor{alerted text}{fg=mRouge}
+\setbeamercolor{example text}{fg=mVert}
+\setbeamercolor{block title}{bg=amberDark!80, fg=white}
+\setbeamercolor{block body}{bg=amberLight!30}
+\setbeamercolor{block title alerted}{bg=mRouge!80, fg=white}
+\setbeamercolor{block body alerted}{bg=mRouge!5}
+\setbeamercolor{block title example}{bg=mVert!70, fg=white}
+\setbeamercolor{block body example}{bg=mVert!5}
+
+% ---- Chip command ----
+\newcommand{\chip}[2]{%
+  \tikz[baseline=(n.base)]{\node[rounded corners=2pt, fill=#1, font=\tiny\bfseries,
+    inner xsep=4pt, inner ysep=1.5pt, text=white] (n) {#2};}%
+}
+
+% ---- Métadonnées ----
+\title{Suivi et Gestion de Ruchers}
+\subtitle{Plateforme de gestion apicole moderne}
+\author{Timour S. \enspace Dorian J. \enspace Corentin G. \enspace Melissa A.O.}
+\institute{Ynov Campus}
+\date{Février 2026}
+
+% ============================================================
+\begin{document}
+
+% ---- TITRE ----
+\maketitle
+
+% ---- SOMMAIRE ----
+\begin{frame}{Sommaire}
+  \small
+  \setbeamertemplate{section in toc}[sections numbered]
+  \begin{columns}[T]
+  \begin{column}{0.48\textwidth}
+    \tableofcontents[sections={1-5}, hideallsubsections]
+  \end{column}
+  \begin{column}{0.48\textwidth}
+    \tableofcontents[sections={6-9}, hideallsubsections]
+  \end{column}
+  \end{columns}
+\end{frame}
+
+% ============================================================
+\section{Contexte et objectifs}
+% ============================================================
+
+\begin{frame}{L'apiculture manque d'outils numériques}
+  \begin{columns}[T]
+  \begin{column}{0.48\textwidth}
+    \begin{alertblock}{Problème}
+      \begin{itemize}
+        \item Carnets papier, perte d'historique
+        \item Aucune traçabilité sanitaire
+        \item Pas de vue d'ensemble sur le cheptel
+        \item Risque de vol sans surveillance
+      \end{itemize}
+    \end{alertblock}
+    \vspace{4pt}
+    \begin{exampleblock}{Notre solution}
+      \begin{itemize}
+        \item Plateforme web moderne
+        \item Ruchers, ruches, reines, élevage
+        \item IoT et anti-vol GPS
+      \end{itemize}
+    \end{exampleblock}
+  \end{column}
+  \begin{column}{0.48\textwidth}
+    \begin{block}{Personas}
+      \vspace{4pt}
+      \faIcon{user}~\textbf{Jean, 42 ans} — Pro\\
+      {\small 200+ ruches, élevage + production,
+      terrain, GPS, IoT}
+
+      \vspace{8pt}
+
+      \faIcon{user}~\textbf{Marc, 55 ans} — Amateur\\
+      {\small 15 ruches, production de miel,
+      interface simple, rappels saisonniers}
+    \end{block}
+  \end{column}
+  \end{columns}
+\end{frame}
+
+% ============================================================
+\section{L'équipe}
+% ============================================================
+
+\begin{frame}{Une équipe de 4 profils complémentaires}
+  \begin{center}
+  \begin{tikzpicture}[
+    card/.style={rounded corners=6pt, minimum width=3cm, minimum height=2cm,
+      text width=2.8cm, align=center, font=\small, draw=#1!50, fill=#1!5},
+  ]
+    \node[card=amber] at (-5.25,0) {
+      {\normalsize\faIcon{user-tie}}\\[3pt]
+      \textbf{Timour S.}\\
+      {\scriptsize Chef de projet}\\[-1pt]
+      {\scriptsize Coordination}
+    };
+    \node[card=mBleu] at (-1.75,0) {
+      {\normalsize\faIcon{desktop}}\\[3pt]
+      \textbf{Dorian J.}\\
+      {\scriptsize Frontend}\\[-1pt]
+      {\scriptsize Next.js, Apollo}
+    };
+    \node[card=mVert] at (1.75,0) {
+      {\normalsize\faIcon{server}}\\[3pt]
+      \textbf{Corentin G.}\\
+      {\scriptsize Backend}\\[-1pt]
+      {\scriptsize Django, Hasura}
+    };
+    \node[card=purple] at (5.25,0) {
+      {\normalsize\faIcon{cloud}}\\[3pt]
+      \textbf{Melissa A.O.}\\
+      {\scriptsize DevOps}\\[-1pt]
+      {\scriptsize Docker, Traefik}
+    };
+  \end{tikzpicture}
+  \end{center}
+  \vspace{6pt}
+  \begin{center}
+    \chip{mGris}{GitHub} \enspace
+    \chip{mGris}{Discord} \enspace
+    \chip{mGris}{Réunions hebdo}
+  \end{center}
+\end{frame}
+
+% ============================================================
+\section{Technologies}
+% ============================================================
+
+\begin{frame}{Une stack moderne et modulaire}
+  \begin{columns}[T]
+  \begin{column}{0.3\textwidth}
+    \begin{block}{\faIcon{server}~~Backend}
+      \begin{itemize}\small
+        \item Django 5 (Python)
+        \item PostgreSQL 15
+        \item Hasura GraphQL v2.36
+        \item Gunicorn
+        \item Traccar (GPS)
+      \end{itemize}
+    \end{block}
+  \end{column}
+  \begin{column}{0.3\textwidth}
+    \begin{block}{\faIcon{desktop}~~Frontend}
+      \begin{itemize}\small
+        \item Next.js 14 (App Router)
+        \item TypeScript
+        \item Apollo Client
+        \item Tailwind CSS
+        \item shadcn/ui
+      \end{itemize}
+    \end{block}
+  \end{column}
+  \begin{column}{0.3\textwidth}
+    \begin{block}{\faIcon{cloud}~~DevOps}
+      \begin{itemize}\small
+        \item Docker Compose
+        \item Traefik + Let's Encrypt
+        \item Stripe (paiements)
+        \item GitHub Actions
+        \item SonarCloud
+      \end{itemize}
+    \end{block}
+  \end{column}
+  \end{columns}
+\end{frame}
+
+% ============================================================
+\section{Architecture}
+% ============================================================
+
+\begin{frame}{Vue d'ensemble du système}
+  \begin{center}
+    \includegraphics[width=0.88\textwidth]{DiagrammeContexte.png}
+  \end{center}
+  \vspace{2pt}
+  {\small\centering Acteurs externes, capteurs IoT et services connectés à la plateforme.\par}
+\end{frame}
+
+\begin{frame}{Django gère la logique, Hasura le CRUD}
+  \begin{center}
+  \begin{tikzpicture}[
+    box/.style={rounded corners=4pt, minimum width=2.2cm, minimum height=0.9cm,
+      align=center, font=\scriptsize\bfseries, draw=#1!50, fill=#1!6},
+    arr/.style={-Stealth, thick, gray!40},
+    lbl/.style={font=\tiny, color=mGris, midway},
+  ]
+    \node[box=mBleu] (front) at (0,2) {Next.js};
+    \node[box=mVert] (django) at (-3,0) {Django REST};
+    \node[box=amber] (hasura) at (3,0) {Hasura GraphQL};
+    \node[box=mGris] (pg) at (0,-1.5) {PostgreSQL};
+    \node[box=purple] (traccar) at (-6,0) {Traccar};
+    \node[box=mRouge] (stripe) at (6,0) {Stripe};
+
+    \draw[arr] (front) -- node[lbl, left] {Auth, IoT} (django);
+    \draw[arr] (front) -- node[lbl, right] {CRUD, perms} (hasura);
+    \draw[arr] (django) -- (pg);
+    \draw[arr] (hasura) -- (pg);
+    \draw[arr] (django) -- (traccar);
+    \draw[arr] (django) |- ([yshift=-0.6cm]pg.south) -| node[lbl, below, pos=0.75] {Webhooks} (stripe);
+  \end{tikzpicture}
+  \end{center}
+  \vspace{4pt}
+  \begin{center}\small
+    \chip{mVert}{Django = logique métier} \enspace
+    \chip{amber}{Hasura = CRUD auto + permissions} \enspace
+    \chip{mGris}{PostgreSQL = source unique}
+  \end{center}
+\end{frame}
+
+% ============================================================
+\section{Modèle de données}
+% ============================================================
+
+\begin{frame}{39 tables organisées en 4 domaines}
+  \begin{columns}[T]
+  \begin{column}{0.48\textwidth}
+    \begin{block}{\textcolor{amber}{\faIcon{map-marker-alt}}~~Gestion apicole}
+      \begin{itemize}\small
+        \item Entreprise $\rightarrow$ Ruchers $\rightarrow$ Ruches
+        \item Ruche $\leftrightarrow$ Reine \scriptsize{(1:1)}
+        \item Interventions \scriptsize{(7 types)}
+        \item Transhumances
+      \end{itemize}
+    \end{block}
+    \vspace{4pt}
+    \begin{block}{\textcolor{mVert}{\faIcon{dna}}~~Élevage}
+      \begin{itemize}\small
+        \item Racle $\rightarrow$ Reines
+        \item Cycle $\rightarrow$ 7 Tâches auto
+      \end{itemize}
+    \end{block}
+  \end{column}
+  \begin{column}{0.48\textwidth}
+    \begin{block}{\textcolor{mBleu}{\faIcon{broadcast-tower}}~~IoT}
+      \begin{itemize}\small
+        \item Capteurs \scriptsize{(7 types)} \normalsize$\rightarrow$ Mesures
+        \item Alertes \scriptsize{(6 types)}
+        \item GPS : position réf., seuil
+      \end{itemize}
+    \end{block}
+    \vspace{4pt}
+    \begin{block}{\textcolor{purple}{\faIcon{users}}~~Multi-tenant}
+      \begin{itemize}\small
+        \item Utilisateurs $\leftrightarrow$ Entreprises \scriptsize{(N:N)}
+        \item 3 rôles : Admin, Apiculteur, Lecteur
+        \item Offres Freemium / Premium
+        \item Invitations, notifications
+      \end{itemize}
+    \end{block}
+  \end{column}
+  \end{columns}
+\end{frame}
+
+% ============================================================
+\section{Étapes de développement}
+% ============================================================
+
+\begin{frame}{5 phases, de la conception à la production}
+  \begin{center}
+  \begin{tikzpicture}[
+    step/.style={rounded corners=4pt, minimum width=2.4cm, minimum height=1.4cm,
+      text width=2.2cm, align=center, font=\scriptsize, draw=#1!40, fill=#1!5},
+    arr/.style={-Stealth, gray!30, thick},
+  ]
+    \node[step=amber] (s1) at (0,0) {\textbf{1. Conception}\\UML, personas\\exigences};
+    \node[step=mBleu] (s2) at (3,0) {\textbf{2. Socle}\\Auth JWT\\Docker, Hasura};
+    \node[step=mVert] (s3) at (6,0) {\textbf{3. C\oe ur}\\Ruchers, ruches\\reines};
+    \node[step=purple] (s4) at (9,0) {\textbf{4. Avancé}\\IoT, élevage\\paiements};
+    \node[step=mRouge] (s5) at (12,0) {\textbf{5. Prod}\\HTTPS, CI/CD\\tests};
+
+    \draw[arr] (s1) -- (s2);
+    \draw[arr] (s2) -- (s3);
+    \draw[arr] (s3) -- (s4);
+    \draw[arr] (s4) -- (s5);
+  \end{tikzpicture}
+  \end{center}
+\end{frame}
+
+% ============================================================
+\section{Fonctionnalités clés}
+% ============================================================
+
+\begin{frame}{Gestion complète des ruchers et ruches}
+  \begin{columns}[T]
+  \begin{column}{0.48\textwidth}
+    \begin{block}{\faIcon{map-marker-alt}~~Ruchers \& Ruches}
+      \begin{itemize}\small
+        \item CRUD complet via GraphQL
+        \item Carte GPS interactive (Leaflet)
+        \item Immatriculation unique (\texttt{X1234567})
+        \item 6 types, 5 races, 11 maladies
+        \item Création en masse
+        \item Transhumance GPS
+      \end{itemize}
+    \end{block}
+  \end{column}
+  \begin{column}{0.48\textwidth}
+    \begin{block}{\faIcon{clipboard-list}~~Interventions}
+      \begin{itemize}\small
+        \item 7 types (Visite, Traitement, Récolte\ldots)
+        \item Intervention groupée multi-ruches
+        \item Notifications automatiques :
+        \begin{itemize}\scriptsize
+          \item Rappel visite (30j)
+          \item Rappel traitement
+          \item Calendrier saisonnier
+          \item Alerte sanitaire
+        \end{itemize}
+      \end{itemize}
+    \end{block}
+  \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Élevage de reines : du greffage à la vente}
+  \begin{columns}[T]
+  \begin{column}{0.48\textwidth}
+    \begin{block}{\faIcon{crown}~~Gestion des reines}
+      \begin{itemize}\small
+        \item Code couleur international
+        \item Lignée génétique
+        \item Note de douceur (1--10)
+        \item 6 statuts (Fécondée $\rightarrow$ Vendue)
+        \item Profil Éleveur dédié
+      \end{itemize}
+    \end{block}
+  \end{column}
+  \begin{column}{0.48\textwidth}
+    \begin{block}{\faIcon{tasks}~~Module élevage}
+      \begin{itemize}\small
+        \item Racles (cadre + cupules)
+        \item Pré-remplissage auto des reines
+        \item Cycle de 7 tâches automatiques :
+        \begin{itemize}\scriptsize
+          \item J0 Greffage $\rightarrow$ J28 Mise en vente
+        \end{itemize}
+        \item Verrouillage séquentiel
+        \item Kanban de suivi
+      \end{itemize}
+    \end{block}
+  \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{IoT, anti-vol GPS et modèle économique}
+  \begin{columns}[T]
+  \begin{column}{0.48\textwidth}
+    \begin{block}{\faIcon{shield-alt}~~IoT \& Anti-vol}
+      \begin{itemize}\small
+        \item 7 types de capteurs
+        \item Intégration Traccar (open-source)
+        \item Alerte GPS anti-vol :
+        \begin{itemize}\scriptsize
+          \item Position de référence
+          \item Seuil configurable (100m)
+          \item Calcul Haversine
+          \item Email d'alerte automatique
+        \end{itemize}
+      \end{itemize}
+    \end{block}
+  \end{column}
+  \begin{column}{0.48\textwidth}
+    \begin{block}{\faIcon{building}~~Multi-tenant \& Stripe}
+      \begin{itemize}\small
+        \item Multi-entreprise (N:N)
+        \item Invitations par email
+        \item 3 rôles (permissions Hasura)
+      \end{itemize}
+    \end{block}
+    \vspace{4pt}
+    \begin{exampleblock}{Freemium / Premium}
+      \begin{description}\small
+        \item[Free] 3 ruchers, 1 capteur
+        \item[Premium] Illimité
+      \end{description}
+      {\small Webhooks Stripe pour la facturation}
+    \end{exampleblock}
+  \end{column}
+  \end{columns}
+\end{frame}
+
+% ============================================================
+\section{Problèmes et solutions}
+% ============================================================
+
+\begin{frame}{6 problèmes majeurs résolus en cours de route}
+  \footnotesize
+  \renewcommand{\arraystretch}{1.25}
+  \begin{tabularx}{\textwidth}{>{\color{mRouge}\centering\arraybackslash}p{0.4cm}
+    >{\raggedright\arraybackslash}p{4.6cm}
+    >{\raggedright\arraybackslash}X}
+  \toprule
+  & \textbf{Problème} & \textbf{Solution} \\
+  \midrule
+  \faIcon{database}
+    & Hasura crash (\texttt{@} dans le MDP)
+    & URL construite par parties \\
+  \faIcon{route}
+    & Traccar inaccessible via proxy
+    & Port direct 8082 \\
+  \faIcon{table}
+    & Metadata Hasura perdu en prod
+    & Volume Docker persistant \\
+  \faIcon{trash-alt}
+    & Suppression racle : erreur FK
+    & Mutation cascade en 4 étapes \\
+  \faIcon{key}
+    & Secrets dans docker-compose
+    & Fichiers \texttt{.env} \\
+  \faIcon{envelope}
+    & Spam d'alertes GPS
+    & Rate-limiting (\texttt{gpsLastAlertAt}) \\
+  \bottomrule
+  \end{tabularx}
+\end{frame}
+
+% ============================================================
+\section{Choix techniques}
+% ============================================================
+
+\begin{frame}{Ce qui a marché et ce qui reste difficile}
+  \begin{columns}[T]
+  \begin{column}{0.48\textwidth}
+    \begin{exampleblock}{\faIcon{check-circle}~~Succès}
+      \begin{itemize}\small
+        \item \textbf{Hasura} : CRUD auto + permissions \\$\Rightarrow$ gain de temps majeur
+        \item \textbf{shadcn/ui + Tailwind} : UI rapide
+        \item \textbf{Docker} : env reproductible
+        \item \textbf{Traefik} : HTTPS automatique
+        \item \textbf{Traccar} : GPS clé en main
+        \item \textbf{TypeScript} : bugs détectés tôt
+      \end{itemize}
+    \end{exampleblock}
+  \end{column}
+  \begin{column}{0.48\textwidth}
+    \begin{alertblock}{\faIcon{exclamation-circle}~~Difficultés}
+      \begin{itemize}\small
+        \item \textbf{Django + Hasura} :\\double source de permissions
+        \item \textbf{Metadata Hasura} :\\drift fréquent
+        \item \textbf{Apollo cache} :\\invalidation manuelle
+        \item \textbf{Logique métier} :\\reste côté Django
+      \end{itemize}
+    \end{alertblock}
+  \end{column}
+  \end{columns}
+\end{frame}
+
+% ============================================================
+\section{Tests et déploiement}
+% ============================================================
+
+\begin{frame}{Qualité du code et pipeline CI/CD}
+  \begin{columns}[T]
+  \begin{column}{0.48\textwidth}
+    \begin{block}{\faIcon{vial}~~Tests \& Qualité}
+      \begin{itemize}\small
+        \item \textbf{Backend} : pytest (unitaire + intégration)
+        \item \textbf{Frontend} : Vitest + Testing Library
+        \item SonarCloud : analyse continue
+        \item GitHub Actions : CI/CD
+        \item Swagger UI : doc API
+      \end{itemize}
+    \end{block}
+  \end{column}
+  \begin{column}{0.48\textwidth}
+    \begin{block}{\faIcon{cloud}~~Production}
+      \begin{itemize}\small
+        \item 6 conteneurs Docker
+        \item Traefik reverse proxy
+        \item HTTPS Let's Encrypt
+        \item DuckDNS (DNS dynamique)
+        \item Volumes persistants (DB, metadata)
+        \item Gunicorn (3 workers)
+      \end{itemize}
+    \end{block}
+  \end{column}
+  \end{columns}
+
+  \vspace{6pt}
+  \begin{center}
+  \begin{tikzpicture}[
+    svc/.style={rounded corners=3pt, minimum width=1.6cm, minimum height=0.7cm,
+      align=center, font=\tiny\bfseries, draw=#1!40, fill=#1!5},
+    arr/.style={-Stealth, gray!30},
+  ]
+    \node[font=\scriptsize\bfseries] (inet) at (0,1.2) {\faIcon{globe}~HTTPS};
+    \node[svc=orange] (tr) at (0,0.3) {Traefik};
+    \node[svc=mBleu] (nx) at (-4,-0.7) {Next.js};
+    \node[svc=mVert] (dj) at (-1.4,-0.7) {Django};
+    \node[svc=amber] (ha) at (1.4,-0.7) {Hasura};
+    \node[svc=purple] (tc) at (4,-0.7) {Traccar};
+    \draw[arr] (inet) -- (tr);
+    \draw[arr] (tr) -- (nx);
+    \draw[arr] (tr) -- (dj);
+    \draw[arr] (tr) -- (ha);
+    \draw[arr] (tr) -- (tc);
+  \end{tikzpicture}
+  \end{center}
+\end{frame}
+
+\begin{frame}[standout]
+  \faIcon{laptop-code}~~Démo en direct
+\end{frame}
+
+% ============================================================
+\section{Bilan et perspectives}
+% ============================================================
+
+\begin{frame}{79\% des exigences implémentées, 11 bonus}
+  \begin{columns}[T]
+  \begin{column}{0.5\textwidth}
+    \small
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabular}{l ccc}
+    \toprule
+    \textbf{Module} & {\color{mVert}\faIcon{check}} & {\color{amber}$\sim$} & {\color{mRouge}\faIcon{times}} \\
+    \midrule
+    Gestion générale & 6 & 0 & 0 \\
+    Suivi sanitaire & 4 & 1 & 2 \\
+    Traçabilité & 5 & 0 & 2 \\
+    Production & 1 & 3 & 1 \\
+    Actions groupées & 3 & 0 & 0 \\
+    Élevage reines & 7 & 3 & 3 \\
+    IoT et sécurité & 5 & 2 & 0 \\
+    \midrule
+    \textbf{Total / 51} & \textbf{31} & \textbf{9} & \textbf{11} \\
+    \bottomrule
+    \end{tabular}
+
+    \vspace{6pt}
+    {\normalsize\textbf{\textcolor{mVert}{79\%}} implémenté}
+  \end{column}
+  \begin{column}{0.46\textwidth}
+    \begin{exampleblock}{\faIcon{plus-circle}~~11 bonus hors cahier}
+      \begin{itemize}\scriptsize
+        \item Multi-entreprise
+        \item Invitations par email
+        \item Freemium / Premium (Stripe)
+        \item Notifications automatiques
+        \item Calendrier saisonnier
+        \item Vérification email
+        \item Reset mot de passe
+        \item Création en masse
+        \item Infra production Docker/HTTPS
+        \item SonarCloud + tests
+        \item Documentation API Swagger
+      \end{itemize}
+    \end{exampleblock}
+  \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Roadmap : 7 évolutions priorisées}
+  \small
+  \renewcommand{\arraystretch}{1.3}
+  \begin{tabularx}{\textwidth}{c X c}
+  \toprule
+  \textbf{Prio.} & \textbf{Fonctionnalité} & \textbf{Effort} \\
+  \midrule
+  \chip{mVert}{P1} & Quarantaine virtuelle (ruches malades) & Faible \\
+  \chip{mVert}{P2} & Dashboard de production (analytics) & Moyen \\
+  \chip{amber}{P3} & Historique de ponte des reines & Moyen \\
+  \chip{amber}{P4} & Workflow de remérage & Moyen \\
+  \chip{mRouge}{P5} & Tableau de bord Élite (classement) & Élevé \\
+  \chip{mRouge}{P6} & Généalogie des essaims & Élevé \\
+  \chip{mRouge}{P7} & Application mobile offline-first & Élevé \\
+  \bottomrule
+  \end{tabularx}
+\end{frame}
+
+% ---- CONCLUSION ----
+\begin{frame}[standout]
+  \faIcon{check-circle}~~MVP Livré
+
+  \vspace{14pt}
+
+  {\normalsize
+  \begin{tabular}{ccccc}
+    \textbf{\Large 39} & \textbf{\Large 15+} & \textbf{\Large 30+} & \textbf{\Large 79\%} & \textbf{\Large 11} \\
+    {\scriptsize tables} & {\scriptsize endpoints} & {\scriptsize opérations} & {\scriptsize exigences} & {\scriptsize bonus} \\
+  \end{tabular}
+  }
+
+  \vspace{14pt}
+
+  {\small Base solide, multi-tenant, prête pour la V2.}
+\end{frame}
+
+\begin{frame}[standout]
+  \faIcon{heart}~~Merci pour votre attention !
+
+  \vspace{20pt}
+
+  {\normalsize\faIcon{comments}~~Des questions ?}
+\end{frame}
+
+\end{document}
