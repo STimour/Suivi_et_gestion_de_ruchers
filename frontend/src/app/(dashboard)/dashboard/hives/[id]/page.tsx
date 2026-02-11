@@ -140,16 +140,20 @@ const formatDateTime = (dateString: string) => {
 export default function RucheDetailPage() {
     const params = useParams();
     const router = useRouter();
-    const rucheId = params.id as string;
+    const rucheIdParam = params?.id;
+    const rucheId = Array.isArray(rucheIdParam) ? rucheIdParam[0] : rucheIdParam;
+    const isValidUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+        rucheId || '',
+    );
 
     const canEdit = useCanEdit();
 
     const { data, loading, error, refetch } = useQuery<RucheData>(GET_RUCHE_BY_ID, {
         variables: { id: rucheId },
-        skip: !rucheId,
+        skip: !isValidUuid,
     });
 
-    if (loading) {
+    if (!rucheId || loading) {
         return (
             <div className="container mx-auto py-8 space-y-6">
                 <Skeleton className="h-10 w-64" />
@@ -158,14 +162,47 @@ export default function RucheDetailPage() {
         );
     }
 
+    if (!isValidUuid) {
+        return (
+            <div className="container mx-auto py-8">
+                <Card className="border-red-200 bg-red-50">
+                    <CardContent className="pt-6">
+                        <p className="text-red-800">Identifiant de ruche invalide dans l'URL.</p>
+                        <Button
+                            variant="outline"
+                            className="mt-4"
+                            onClick={() => router.push('/dashboard/hives')}
+                        >
+                            Retour à la liste
+                        </Button>
+                    </CardContent>
+                </Card>
+            </div>
+        );
+    }
+
     if (error || !data?.ruches_by_pk) {
+        const graphQLErrorMessage =
+            error &&
+            typeof error === 'object' &&
+            'graphQLErrors' in error &&
+            Array.isArray((error as { graphQLErrors?: Array<{ message?: string }> }).graphQLErrors)
+                ? (error as { graphQLErrors?: Array<{ message?: string }> }).graphQLErrors?.[0]
+                      ?.message
+                : undefined;
+        const errorMessage = graphQLErrorMessage || error?.message;
         return (
             <div className="container mx-auto py-8">
                 <Card className="border-red-200 bg-red-50">
                     <CardContent className="pt-6">
                         <p className="text-red-800">
-                            Erreur lors du chargement de la ruche ou ruche introuvable.
+                            {error
+                                ? "Erreur lors du chargement de la ruche."
+                                : 'Ruche introuvable ou accès refusé.'}
                         </p>
+                        {errorMessage ? (
+                            <p className="mt-2 text-sm text-red-700 break-all">{errorMessage}</p>
+                        ) : null}
                         <Button
                             variant="outline"
                             className="mt-4"

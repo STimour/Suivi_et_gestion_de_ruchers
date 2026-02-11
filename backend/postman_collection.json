@@ -1014,6 +1014,84 @@
               ]
             }
           }
+        },
+        {
+          "name": "Capteurs - Statut alerte GPS",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{djangoBaseUrl}}/api/capteurs/{{capteurId}}/gps-alert/status",
+              "host": [
+                "{{djangoBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "capteurs",
+                "{{capteurId}}",
+                "gps-alert",
+                "status"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Capteurs - Clear alerte GPS",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{djangoBaseUrl}}/api/capteurs/{{capteurId}}/gps-alert/clear",
+              "host": [
+                "{{djangoBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "capteurs",
+                "{{capteurId}}",
+                "gps-alert",
+                "clear"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Ruchers - Statut alerte GPS",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{djangoBaseUrl}}/api/ruchers/{{rucherId}}/gps-alert/status",
+              "host": [
+                "{{djangoBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ruchers",
+                "{{rucherId}}",
+                "gps-alert",
+                "status"
+              ]
+            }
+          }
         }
       ]
     },

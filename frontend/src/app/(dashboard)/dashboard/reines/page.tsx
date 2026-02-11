@@ -209,10 +209,12 @@ export default function ReinesPage() {
                 )
             ) : (
                 <>
-                    {viewMode === 'list' ? (
-                        <ReineList reines={filteredReines} onDelete={handleDelete} isEleveur={isEleveur} />
-                    ) : (
-                        <ReineGrid reines={filteredReines} onDelete={handleDelete} isEleveur={isEleveur} />
+                    {filteredReines.length > 0 && (
+                        viewMode === 'list' ? (
+                            <ReineList reines={filteredReines} onDelete={handleDelete} isEleveur={isEleveur} />
+                        ) : (
+                            <ReineGrid reines={filteredReines} onDelete={handleDelete} isEleveur={isEleveur} />
+                        )
                     )}
 
                     {!loading && filteredReines.length === 0 && (searchQuery || rucherFilter !== 'all' || statutFilter !== 'all') && (

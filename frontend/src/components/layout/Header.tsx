@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { Dancing_Script } from "next/font/google";
 import { Button } from "@/components/ui/button";
 import { Crown, User, Menu, LogOut, UserPlus } from "lucide-react";
 import { useAuth } from "@/lib/auth/AuthContext";
@@ -27,6 +28,12 @@ import { ProfileModeSwitcher } from "./ProfileModeSwitcher";
 import { InviteMemberDialog } from "./InviteMemberDialog";
 import { NotificationPanel } from "./NotificationPanel";
 import { SidebarMobile } from "./Sidebar";
+
+const handwriting = Dancing_Script({
+  subsets: ["latin"],
+  weight: ["600", "700"],
+  display: "swap",
+});
 
 export function Header() {
   const { user, logout } = useAuth();
@@ -111,8 +118,17 @@ export function Header() {
               height={36}
               className="object-contain shrink-0"
             />
-            <span className="font-bold text-lg text-amber-900 whitespace-nowrap hidden sm:inline">
-              {title}
+            <span className="hidden sm:flex flex-col leading-none">
+              <span className="font-bold text-lg text-amber-900 whitespace-nowrap">
+                {title}
+              </span>
+              <span className="ml-0.5 -mt-0.5">
+                <span
+                  className={`${handwriting.className} inline-block rounded-full bg-amber-100/80 px-2.5 py-0.5 text-[18px] font-bold tracking-[0.01em] text-amber-800 shadow-[0_2px_8px_rgba(120,53,15,0.2)] rotate-[-3deg]`}
+                >
+                  Par Abeenage
+                </span>
+              </span>
             </span>
           </Link>
 
