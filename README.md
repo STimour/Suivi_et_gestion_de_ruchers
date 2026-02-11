@@ -6,6 +6,15 @@ Application web de suivi et gestion apicole pour optimiser la santé, la product
 
 Cette application aide les apiculteurs à digitaliser la gestion de leurs ruchers en remplaçant le cahier papier par une solution numérique complète. Elle permet de suivre l'état sanitaire, la production, la généalogie des colonies et de sécuriser le cheptel contre le vol.
 
+## 📘 Cahier des charges
+
+- [Cahier des charges (Google Docs)](https://docs.google.com/document/d/1qd0CJwAs1mcQs6klPmMXgF0abgD2ssEJKYyU5Q5pYlo/edit?usp=sharing)
+
+## 🌐 Lien de production
+
+- [Application en production](https://abeenage.duckdns.org/)
+- [Swagger API REST publique (statistiques)](https://abeenage.duckdns.org/swagger)
+
 ## ✨ Fonctionnalités principales
 
 - **Gestion des ruchers** : Organisation par ruchers et cheptels avec géolocalisation GPS
@@ -68,6 +77,7 @@ L'application sera accessible sur `http://localhost:3000`
 ## 🧩 Fichiers UML
 
 - [uml/API_Documentation.md](./uml/API_Documentation.md)
+- [uml/Projet Gestion de Ruchers.pdf](./uml/Projet%20Gestion%20de%20Ruchers.pdf)
 - [uml/beamercolorthememetropolis.sty](./uml/beamercolorthememetropolis.sty)
 - [uml/beamerfontthememetropolis.sty](./uml/beamerfontthememetropolis.sty)
 - [uml/beamerinnerthememetropolis.sty](./uml/beamerinnerthememetropolis.sty)
@@ -106,3 +116,6 @@ L'application sera accessible sur `http://localhost:3000`
 ## 📄 Licence
 
 Ce projet est développé dans un cadre pédagogique en collaboration avec un apiculteur client.
+
+
+
