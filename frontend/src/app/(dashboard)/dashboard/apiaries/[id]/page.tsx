@@ -16,9 +16,11 @@ import { GET_RUCHER_DETAILS } from '@/lib/graphql/queries/rucher.queries';
 import { useCanEdit } from '@/hooks/useCanEdit';
 import {
   capteurService,
+  CapteurGpsAlertStatus,
   CapteurGpsPosition,
   RucherGpsAlertStatus,
 } from '@/lib/services/capteurService';
+import { toast } from 'sonner';
 
 interface RucherDetailsData {
   ruchers_by_pk: {
@@ -51,6 +53,8 @@ export default function RucherDetailPage() {
     identifiant: string;
   } | null>(null);
   const [gpsPosition, setGpsPosition] = useState<CapteurGpsPosition | null>(null);
+  const [capteurAlertStatus, setCapteurAlertStatus] = useState<CapteurGpsAlertStatus | null>(null);
+  const [clearAlertLoading, setClearAlertLoading] = useState(false);
 
   const canEdit = useCanEdit();
 
@@ -83,6 +87,7 @@ export default function RucherDetailPage() {
     if (!gpsAlertStatus?.hasGpsCapteur || gpsAlertStatus.capteurs.length === 0) {
       setCurrentGpsCapteur(null);
       setGpsPosition(null);
+      setCapteurAlertStatus(null);
       return;
     }
 
@@ -92,6 +97,7 @@ export default function RucherDetailPage() {
     if (!capteurActuel) {
       setCurrentGpsCapteur(null);
       setGpsPosition(null);
+      setCapteurAlertStatus(null);
       return;
     }
 
@@ -115,6 +121,62 @@ export default function RucherDetailPage() {
       mounted = false;
     };
   }, [gpsAlertStatus]);
+
+  useEffect(() => {
+    if (!currentGpsCapteur?.id) {
+      setCapteurAlertStatus(null);
+      return;
+    }
+
+    let mounted = true;
+    capteurService
+      .getCapteurGpsAlertStatus(currentGpsCapteur.id)
+      .then((status) => {
+        if (mounted) {
+          setCapteurAlertStatus(status);
+        }
+      })
+      .catch(() => {
+        if (mounted) {
+          setCapteurAlertStatus(null);
+        }
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [currentGpsCapteur?.id]);
+
+  const handleClearGpsAlert = async () => {
+    if (!currentGpsCapteur?.id) {
+      return;
+    }
+
+    setClearAlertLoading(true);
+    try {
+      const result = await capteurService.clearCapteurGpsAlert(currentGpsCapteur.id);
+      if (result.status === 'cleared') {
+        toast.success('Alerte GPS supprimée');
+      } else {
+        toast.info("Aucune alerte à supprimer");
+      }
+      setCapteurAlertStatus((prev) =>
+        prev
+          ? {
+              ...prev,
+              hasAlert: false,
+              alertesCount: 0,
+              latestAlerte: null,
+            }
+          : prev
+      );
+    } catch (error) {
+      const description = error instanceof Error ? error.message : "Erreur lors de la suppression de l'alerte GPS";
+      toast.error('Erreur', { description });
+    } finally {
+      setClearAlertLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -253,6 +315,33 @@ export default function RucherDetailPage() {
                       : 'Inactive'}
                   </Badge>
                 </div>
+              )}
+              {gpsAlertStatus?.hasGpsCapteur && (
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Alerte déclenchée</span>
+                  <Badge
+                    className={
+                      capteurAlertStatus?.hasAlert
+                        ? 'bg-red-100 text-red-800'
+                        : 'bg-green-100 text-green-800'
+                    }
+                  >
+                    {capteurAlertStatus?.hasAlert
+                      ? `Oui (${capteurAlertStatus.alertesCount})`
+                      : 'Non'}
+                  </Badge>
+                </div>
+              )}
+              {canEdit && gpsAlertStatus?.hasGpsCapteur && capteurAlertStatus?.hasAlert && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleClearGpsAlert}
+                  disabled={clearAlertLoading}
+                  className="w-full border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800"
+                >
+                  {clearAlertLoading ? 'Suppression...' : "Supprimer l'alerte"}
+                </Button>
               )}
               {gpsAlertStatus?.hasGpsCapteur && (
                 <div className="pt-3 border-t space-y-1">
