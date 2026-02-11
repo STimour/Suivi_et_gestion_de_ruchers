@@ -2,6 +2,7 @@ import math
 from django.db import transaction
 from django.http import JsonResponse
 from django.utils import timezone
+from django.views.decorators.http import require_POST, require_GET, require_http_methods
 
 from core.auth_views import _get_user_from_request, _json_body, _get_bearer_token, _decode_token
 from core.models import (
@@ -113,11 +114,9 @@ def _create_iot_notifications(entreprise_id, ruche, title, message):
         Notification.objects.bulk_create(notifications)
 
 
+@require_POST
 def associate_capteur(request):
     """POST /api/capteurs/associate - Associe un capteur a une ruche et cree le device dans Traccar."""
-    if request.method != "POST":
-        return JsonResponse({"error": "method_not_allowed"}, status=405)
-
     user, err = _get_user_from_request(request)
     if err:
         return err
@@ -183,11 +182,9 @@ def associate_capteur(request):
     )
 
 
+@require_GET
 def list_capteurs(request):
     """GET /api/capteurs - Liste les capteurs de l'entreprise courante."""
-    if request.method != "GET":
-        return JsonResponse({"error": "method_not_allowed"}, status=405)
-
     user, err = _get_user_from_request(request)
     if err:
         return err
@@ -205,11 +202,9 @@ def list_capteurs(request):
     return JsonResponse({"capteurs": [_serialize_capteur(c) for c in capteurs]}, status=200)
 
 
+@require_http_methods(["PATCH", "PUT"])
 def update_capteur(request, capteur_id):
     """PATCH /api/capteurs/{id} - Met a jour un capteur et le device Traccar."""
-    if request.method not in ("PATCH", "PUT"):
-        return JsonResponse({"error": "method_not_allowed"}, status=405)
-
     user, err = _get_user_from_request(request)
     if err:
         return err
@@ -275,11 +270,9 @@ def update_capteur(request, capteur_id):
     return JsonResponse({"capteur": _serialize_capteur(capteur)}, status=200)
 
 
+@require_http_methods(["DELETE"])
 def delete_capteur(request, capteur_id):
     """DELETE /api/capteurs/{id} - Supprime un capteur et le device Traccar."""
-    if request.method != "DELETE":
-        return JsonResponse({"error": "method_not_allowed"}, status=405)
-
     user, err = _get_user_from_request(request)
     if err:
         return err
@@ -306,11 +299,9 @@ def delete_capteur(request, capteur_id):
     return JsonResponse({"status": "deleted"}, status=200)
 
 
+@require_POST
 def activate_gps_alert(request, capteur_id):
     """POST /api/capteurs/{id}/gps-alert/activate - Active les alertes GPS et enregistre la position de reference."""
-    if request.method != "POST":
-        return JsonResponse({"error": "method_not_allowed"}, status=405)
-
     user, err = _get_user_from_request(request)
     if err:
         return err
@@ -379,11 +370,9 @@ def activate_gps_alert(request, capteur_id):
     )
 
 
+@require_POST
 def check_gps_alert(request, capteur_id):
     """POST /api/capteurs/{id}/gps-alert/check - Verifie la position et cree une alerte si besoin."""
-    if request.method != "POST":
-        return JsonResponse({"error": "method_not_allowed"}, status=405)
-
     user, err = _get_user_from_request(request)
     if err:
         return err
@@ -492,11 +481,9 @@ def check_gps_alert(request, capteur_id):
     return JsonResponse(response, status=200)
 
 
+@require_POST
 def deactivate_gps_alert(request, capteur_id):
     """POST /api/capteurs/{id}/gps-alert/deactivate - Desactive les alertes GPS."""
-    if request.method != "POST":
-        return JsonResponse({"error": "method_not_allowed"}, status=405)
-
     user, err = _get_user_from_request(request)
     if err:
         return err
