@@ -180,16 +180,6 @@ export default function ReinesPage() {
                 </div>
             </div>
 
-            {/* Future features placeholder */}
-            <div className="bg-gray-50 border border-dashed border-gray-200 rounded-lg p-4 opacity-60">
-                <div className="flex items-center gap-4 text-sm text-gray-500">
-                    <span className="font-medium">Fonctionnalités à venir :</span>
-                    <span className="px-2 py-1 bg-gray-100 rounded">Cycle</span>
-                    <span className="px-2 py-1 bg-gray-100 rounded">Généalogie</span>
-                    <span className="px-2 py-1 bg-gray-100 rounded">Historique</span>
-                </div>
-            </div>
-
             {/* Content */}
             {error && (
                 <Alert variant="destructive">

@@ -23,9 +23,38 @@ export function useElevageStats() {
       return count + (racle.cycles_elevage_reines?.filter((c: any) => c.statut === 'EnCours').length ?? 0);
     }, 0);
 
-    const tachesAFaire = allTaches.filter((t: any) => t.statut === 'AFaire');
-    const tachesFaites = allTaches.filter((t: any) => t.statut === 'Faite');
-    const tachesEnRetard = allTaches.filter((t: any) => t.statut === 'EnRetard');
+    // Compute locked status per tache
+    const byCycle: Record<string, any[]> = {};
+    for (const t of allTaches) {
+      const cycleId = t.cycles_elevage_reine?.id;
+      if (!cycleId) continue;
+      if (!byCycle[cycleId]) byCycle[cycleId] = [];
+      byCycle[cycleId].push(t);
+    }
+
+    const lockedIds = new Set<string>();
+    const today = new Date().toISOString().split('T')[0];
+
+    for (const taches of Object.values(byCycle)) {
+      const sorted = [...taches].sort(
+        (a: any, b: any) => (a.jourTheorique ?? 0) - (b.jourTheorique ?? 0)
+      );
+      for (let i = 0; i < sorted.length; i++) {
+        const t = sorted[i];
+        if (t.statut === 'Faite') continue;
+        const prevNotDone = i > 0 && sorted[i - 1].statut !== 'Faite';
+        const dateNotReached = t.datePrevue && t.datePrevue > today;
+        if (prevNotDone || dateNotReached) {
+          lockedIds.add(t.id);
+        }
+      }
+    }
+
+    const enriched = allTaches.map((t: any) => ({ ...t, _locked: lockedIds.has(t.id) }));
+
+    const tachesAFaire = enriched.filter((t: any) => t.statut === 'AFaire');
+    const tachesFaites = enriched.filter((t: any) => t.statut === 'Faite');
+    const tachesEnRetard = enriched.filter((t: any) => t.statut === 'EnRetard');
 
     const prochaineTache = tachesAFaire.length > 0 ? tachesAFaire[0] : null;
 
@@ -35,7 +64,7 @@ export function useElevageStats() {
       cyclesEnCours,
       tachesEnRetardCount: tachesEnRetard.length,
       prochaineTache,
-      allTaches,
+      allTaches: enriched,
       tachesAFaire,
       tachesFaites,
       tachesEnRetard,

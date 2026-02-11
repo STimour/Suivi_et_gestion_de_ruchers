@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Trash2 } from 'lucide-react';
+import { Trash2, MapPin, MapPinOff } from 'lucide-react';
 import { toast } from 'sonner';
 import { getCapteurTypeLabel, getCapteurTypeIcon } from '@/lib/constants/capteur.constants';
 import { capteurService } from '@/lib/services/capteurService';
@@ -17,6 +17,7 @@ interface CapteurCardProps {
         actif: boolean;
         batteriePct?: number;
         derniereCommunication?: string;
+        gpsAlertActive?: boolean;
     };
     canDelete?: boolean;
     onDeleted?: () => void;
@@ -25,9 +26,12 @@ interface CapteurCardProps {
 export function CapteurCard({ capteur, canDelete, onDeleted }: CapteurCardProps) {
     const [deleting, setDeleting] = useState(false);
     const [confirmDelete, setConfirmDelete] = useState(false);
+    const [gpsLoading, setGpsLoading] = useState(false);
+    const [gpsActive, setGpsActive] = useState(capteur.gpsAlertActive ?? false);
 
     const Icon = getCapteurTypeIcon(capteur.type);
     const typeLabel = getCapteurTypeLabel(capteur.type);
+    const isGps = capteur.type === 'GPS';
 
     const handleDelete = async () => {
         if (!confirmDelete) {
@@ -45,6 +49,27 @@ export function CapteurCard({ capteur, canDelete, onDeleted }: CapteurCardProps)
         } finally {
             setDeleting(false);
             setConfirmDelete(false);
+        }
+    };
+
+    const handleToggleGpsAlert = async () => {
+        setGpsLoading(true);
+        try {
+            if (gpsActive) {
+                await capteurService.deactivateGpsAlert(capteur.id);
+                setGpsActive(false);
+                toast.success('Alerte GPS désactivée');
+            } else {
+                await capteurService.activateGpsAlert(capteur.id, 100);
+                setGpsActive(true);
+                toast.success('Alerte GPS activée', {
+                    description: 'Seuil : 100m depuis la position actuelle',
+                });
+            }
+        } catch (error: any) {
+            toast.error('Erreur', { description: error.message });
+        } finally {
+            setGpsLoading(false);
         }
     };
 
@@ -108,6 +133,42 @@ export function CapteurCard({ capteur, canDelete, onDeleted }: CapteurCardProps)
                         <p className="text-sm text-gray-700">
                             {formatDate(capteur.derniereCommunication)}
                         </p>
+                    </div>
+                )}
+
+                {/* GPS Alert toggle */}
+                {isGps && (
+                    <div className="pt-2 border-t">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-1.5">
+                                {gpsActive ? (
+                                    <MapPin className="h-4 w-4 text-green-600" />
+                                ) : (
+                                    <MapPinOff className="h-4 w-4 text-gray-400" />
+                                )}
+                                <span className="text-xs font-medium text-gray-700">
+                                    Alerte GPS
+                                </span>
+                            </div>
+                            <Button
+                                size="sm"
+                                variant={gpsActive ? 'destructive' : 'default'}
+                                onClick={handleToggleGpsAlert}
+                                disabled={gpsLoading}
+                                className={`h-7 text-xs gap-1 ${
+                                    gpsActive
+                                        ? ''
+                                        : 'bg-green-600 hover:bg-green-700'
+                                }`}
+                            >
+                                {gpsLoading
+                                    ? 'Chargement...'
+                                    : gpsActive
+                                      ? 'Désactiver'
+                                      : 'Activer'
+                                }
+                            </Button>
+                        </div>
                     </div>
                 )}
 

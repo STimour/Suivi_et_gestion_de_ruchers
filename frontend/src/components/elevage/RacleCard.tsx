@@ -115,10 +115,12 @@ export function RacleCard({ racle, entrepriseId }: RacleCardProps) {
           ) : (
             <>
               <div className="space-y-1.5">
-                {(expanded ? reines : reines.slice(0, MAX_VISIBLE_REINES)).map((reine: any) => (
+                {(expanded ? reines : reines.slice(0, MAX_VISIBLE_REINES)).map((reine: any, index: number) => (
                   <div key={reine.id} className="flex items-center justify-between gap-2 text-xs">
                     <div className="flex items-center gap-1.5 text-gray-700 min-w-0">
-                      <Crown className="h-3 w-3 text-amber-500 shrink-0" />
+                      <span className="inline-flex items-center justify-center h-4 w-4 rounded-full bg-amber-100 text-amber-700 text-[10px] font-bold shrink-0">
+                        {index + 1}
+                      </span>
                       <span className="truncate">{reine.codeCouleur} - {reine.anneeNaissance}</span>
                     </div>
                     <Select

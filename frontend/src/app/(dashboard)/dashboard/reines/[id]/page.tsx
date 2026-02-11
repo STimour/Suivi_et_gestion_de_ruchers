@@ -245,48 +245,6 @@ export default function ReineDetailPage() {
                     </CardContent>
                 </Card>
             </div>
-
-            {/* Future features - disabled placeholders */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card className="border-dashed border-gray-300 opacity-60">
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-gray-400">
-                            <Calendar className="h-5 w-5" />
-                            Cycle
-                            <Lock className="h-4 w-4 ml-auto" />
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-sm text-gray-400">Fonctionnalité à venir dans une prochaine version.</p>
-                    </CardContent>
-                </Card>
-
-                <Card className="border-dashed border-gray-300 opacity-60">
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-gray-400">
-                            <Crown className="h-5 w-5" />
-                            Généalogie
-                            <Lock className="h-4 w-4 ml-auto" />
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-sm text-gray-400">Fonctionnalité à venir dans une prochaine version.</p>
-                    </CardContent>
-                </Card>
-
-                <Card className="border-dashed border-gray-300 opacity-60">
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-gray-400">
-                            <Calendar className="h-5 w-5" />
-                            Historique
-                            <Lock className="h-4 w-4 ml-auto" />
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-sm text-gray-400">Fonctionnalité à venir dans une prochaine version.</p>
-                    </CardContent>
-                </Card>
-            </div>
         </div>
     );
 }

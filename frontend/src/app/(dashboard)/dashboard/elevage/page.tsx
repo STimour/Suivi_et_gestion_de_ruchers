@@ -1,6 +1,6 @@
 'use client';
 
-import { Grip, Crown, Activity, AlertTriangle } from 'lucide-react';
+import { Grip, Crown, Activity, AlertTriangle, ClipboardList } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useElevageStats } from '@/hooks/useElevage';
@@ -89,9 +89,21 @@ export default function ElevageDashboardPage() {
 
       {/* Tabs: Racles / Tâches */}
       <Tabs defaultValue="racles" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="racles">Racles</TabsTrigger>
-          <TabsTrigger value="taches">Tâches</TabsTrigger>
+        <TabsList className="bg-amber-100/60 p-1 h-auto gap-1">
+          <TabsTrigger
+            value="racles"
+            className="px-5 py-2.5 text-sm font-semibold gap-2 data-[state=active]:bg-amber-600 data-[state=active]:text-white data-[state=active]:shadow-md text-amber-800 rounded-md transition-all"
+          >
+            <Grip className="h-4 w-4" />
+            Racles
+          </TabsTrigger>
+          <TabsTrigger
+            value="taches"
+            className="px-5 py-2.5 text-sm font-semibold gap-2 data-[state=active]:bg-amber-600 data-[state=active]:text-white data-[state=active]:shadow-md text-amber-800 rounded-md transition-all"
+          >
+            <ClipboardList className="h-4 w-4" />
+            Tâches
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="racles">

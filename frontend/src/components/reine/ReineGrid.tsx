@@ -155,18 +155,6 @@ export function ReineGrid({ reines, onDelete, isEleveur }: ReineGridProps) {
                                         <span>Ajoutée le {formatDate(reine.created_at)}</span>
                                     </div>
                                 )}
-
-                                {/* Placeholder sections for future features */}
-                                <div className="pt-2 border-t border-gray-100">
-                                    <div className="flex gap-2">
-                                        <div className="flex-1 p-2 rounded bg-gray-50 border border-dashed border-gray-200 opacity-50">
-                                            <span className="text-xs text-gray-400">Cycle</span>
-                                        </div>
-                                        <div className="flex-1 p-2 rounded bg-gray-50 border border-dashed border-gray-200 opacity-50">
-                                            <span className="text-xs text-gray-400">Généalogie</span>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
                         </CardContent>
                         <CardFooter className="pt-3 border-t border-gray-100 flex items-center justify-between gap-2">

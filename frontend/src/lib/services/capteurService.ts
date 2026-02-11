@@ -45,6 +45,39 @@ class CapteurService {
             throw new Error(error.message || error.error || 'Erreur lors de la suppression du capteur');
         }
     }
+
+    async activateGpsAlert(capteurId: string, thresholdMeters: number = 100): Promise<any> {
+        const response = await fetch(`${DJANGO_API_URL}/api/capteurs/${capteurId}/gps-alert/activate`, {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ thresholdMeters }),
+        });
+
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            const code = error.error;
+            if (code === 'gps_position_unavailable') {
+                throw new Error('Position GPS indisponible. Le capteur n\'a pas encore envoyé de position à Traccar.');
+            }
+            throw new Error(error.message || code || "Erreur lors de l'activation de l'alerte GPS");
+        }
+
+        return response.json();
+    }
+
+    async deactivateGpsAlert(capteurId: string): Promise<any> {
+        const response = await fetch(`${DJANGO_API_URL}/api/capteurs/${capteurId}/gps-alert/deactivate`, {
+            method: 'POST',
+            headers: getAuthHeaders(),
+        });
+
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.message || error.error || "Erreur lors de la désactivation de l'alerte GPS");
+        }
+
+        return response.json();
+    }
 }
 
 export const capteurService = new CapteurService();

@@ -76,6 +76,7 @@ interface RucheData {
             actif: boolean;
             batteriePct?: number;
             derniereCommunication?: string;
+            gpsAlertActive?: boolean;
         }>;
     };
 }
