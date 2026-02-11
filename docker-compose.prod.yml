@@ -89,9 +89,10 @@ services:
       TRACCAR_TOKEN: ${TRACCAR_TOKEN}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.django.rule=Host(`${DOMAIN}`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.django.rule=Host(`${DOMAIN}`) && (PathPrefix(`/api`) || PathPrefix(`/swagger`)"
       - "traefik.http.routers.django.entrypoints=websecure"
       - "traefik.http.routers.django.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.django.priority=100"
       - "traefik.http.services.django.loadbalancer.server.port=8000"
 
   frontend:
