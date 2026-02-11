@@ -404,7 +404,7 @@ class IotViewsTest(TestCase):
     def test_get_capteur_gps_alert_status_with_alert(self):
         capteur = Capteur.objects.create(
             type=TypeCapteur.GPS, identifiant="GPSSTAT01",
-            ruche=self.ruche, actif=True,
+            ruche=self.ruche, actif=True, gpsAlertActive=True,
         )
         Alerte.objects.create(
             type="DeplacementGPS",
@@ -418,6 +418,7 @@ class IotViewsTest(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
+        self.assertTrue(data["gpsAlertActive"])
         self.assertTrue(data["hasAlert"])
         self.assertEqual(data["alertesCount"], 1)
         self.assertIsNotNone(data["latestAlerte"])
@@ -433,6 +434,7 @@ class IotViewsTest(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
+        self.assertFalse(data["gpsAlertActive"])
         self.assertFalse(data["hasAlert"])
         self.assertEqual(data["alertesCount"], 0)
         self.assertIsNone(data["latestAlerte"])
